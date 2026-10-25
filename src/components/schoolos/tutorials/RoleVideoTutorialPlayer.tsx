@@ -374,15 +374,17 @@ export function RoleVideoTutorialPlayer({
         </div>
       </div>
 
-      {/* Slim Bottom Status Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-[#0c2340] px-4 py-2.5 text-xs sm:px-5">
-        <div className="flex min-w-0 items-center gap-2">
-          <Volume2 className="h-4 w-4 shrink-0 text-[#9ed9d6]" />
-          <span className="font-bold text-white">{currentVideo.fullTitle}:</span>
-          <span className="truncate text-slate-300">{currentVideo.oneLiner}</span>
+      {/* Slim Bottom Status Bar (Stacks cleanly on phones, single row on sm+) */}
+      <div className="flex flex-col gap-2.5 border-t border-white/10 bg-[#0c2340] px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex min-w-0 items-start gap-2 sm:items-center">
+          <Volume2 className="mt-0.5 h-4 w-4 shrink-0 text-[#9ed9d6] sm:mt-0" />
+          <div className="min-w-0 leading-relaxed">
+            <span className="font-bold text-white">{currentVideo.fullTitle}: </span>
+            <span className="text-slate-300">{currentVideo.oneLiner}</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 sm:justify-end">
           <button
             type="button"
             onClick={handleVideoEnded}

@@ -105,7 +105,7 @@ export function LoginPortalScreen() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-5xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-12 lg:items-center">
+      <main className="mx-auto grid max-w-5xl gap-8 px-4 pt-8 pb-24 sm:px-6 sm:pt-10 sm:pb-14 lg:grid-cols-12 lg:items-center">
         {/* Concise Left Column with Distinct Reception Photo */}
         <div className="space-y-4 lg:col-span-5">
           {isSchoolRegistered ? (
@@ -174,16 +174,16 @@ export function LoginPortalScreen() {
 
         {/* Right Sign-In Form */}
         <div className="lg:col-span-7">
-          <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6 shadow-sm sm:p-8">
+          <div className="rounded-2xl border border-[#e4e7ec] bg-white p-5 shadow-sm sm:p-8">
             <Tabs defaultValue="staff" className="space-y-5">
               <TabsList className="grid w-full grid-cols-2 bg-[#eef1f6] p-1">
-                <TabsTrigger value="staff" className="text-xs font-bold sm:text-sm">
-                  <UserCheck className="mr-1.5 h-4 w-4" />
-                  Staff Sign In
+                <TabsTrigger value="staff" className="px-2 py-2 text-xs font-bold sm:px-3 sm:text-sm">
+                  <UserCheck className="mr-1.5 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+                  <span>Staff Sign In</span>
                 </TabsTrigger>
-                <TabsTrigger value="parent" className="text-xs font-bold sm:text-sm">
-                  <Phone className="mr-1.5 h-4 w-4" />
-                  Parent Portal
+                <TabsTrigger value="parent" className="px-2 py-2 text-xs font-bold sm:px-3 sm:text-sm">
+                  <Phone className="mr-1.5 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+                  <span>Parent Portal</span>
                 </TabsTrigger>
               </TabsList>
 

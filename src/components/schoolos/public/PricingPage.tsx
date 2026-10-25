@@ -28,16 +28,16 @@ export function PricingPage() {
               Pay per term or pay once per academic session (3 terms) and save 17%.
             </p>
 
-            {/* Termly vs Per-Session Toggle */}
+            {/* Termly vs Per-Session Toggle (Fits cleanly on 320px+ phones & desktops) */}
             <div
               role="group"
               aria-label="Billing cycle"
-              className="mt-5 inline-flex items-center rounded-full border border-[#d0d5dd] bg-white p-1 shadow-2xs"
+              className="mt-5 inline-flex max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border border-[#d0d5dd] bg-white p-1 shadow-2xs sm:rounded-full"
             >
               <button
                 type="button"
                 onClick={() => setBillingCycle("term")}
-                className={`cursor-pointer rounded-full px-4 py-2 text-xs font-bold transition sm:text-sm ${
+                className={`cursor-pointer rounded-full px-3.5 py-2 text-xs font-bold transition sm:px-4 sm:text-sm ${
                   billingCycle === "term"
                     ? "bg-[#0c2340] text-white"
                     : "text-[#364152] hover:text-[#0b1220]"
@@ -48,14 +48,14 @@ export function PricingPage() {
               <button
                 type="button"
                 onClick={() => setBillingCycle("session")}
-                className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition sm:text-sm ${
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition sm:gap-2 sm:px-4 sm:text-sm ${
                   billingCycle === "session"
                     ? "bg-[#0c2340] text-white"
                     : "text-[#364152] hover:text-[#0b1220]"
                 }`}
               >
                 <span>Per Session (3 Terms)</span>
-                <span className="rounded-full bg-[#ecfdf3] px-2 py-0.5 text-[11px] font-extrabold text-[#067647]">
+                <span className="rounded-full bg-[#ecfdf3] px-2 py-0.5 text-[10px] font-extrabold text-[#067647] sm:text-[11px]">
                   {PRICING_CONFIG.sessionDiscountBadge}
                 </span>
               </button>

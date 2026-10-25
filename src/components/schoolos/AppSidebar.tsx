@@ -118,8 +118,8 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
 
   const renderDrawerInner = () => (
     <div className="flex h-full flex-col bg-[#0c2340] text-slate-100">
-      {/* School Identity Block */}
-      <div className="border-b border-white/10 px-4 py-4">
+      {/* School Identity Block (pr-12 clears mobile Sheet Close [X] button) */}
+      <div className="border-b border-white/10 py-4 pr-12 pl-4 lg:px-4">
         <div className="text-[11px] font-extrabold tracking-[0.14em] text-[#9ed9d6] uppercase">
           {settings.multiProgrammeEnabled
             ? `${settings.programmes.length} Programmes Active`

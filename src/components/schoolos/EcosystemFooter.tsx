@@ -8,7 +8,7 @@ export function EcosystemFooter() {
   const links = db.settings.ndhFooterLinks ?? [];
 
   return (
-    <footer className="no-print mt-auto border-t border-[#e4e7ec] bg-white px-4 py-5 sm:px-6">
+    <footer className="no-print mt-auto border-t border-[#e4e7ec] bg-white px-4 pt-5 pb-20 sm:px-6 sm:pb-5">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="text-[11px] font-extrabold tracking-[0.16em] text-[#1a4a6e] uppercase">

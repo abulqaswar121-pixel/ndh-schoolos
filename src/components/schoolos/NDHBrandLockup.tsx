@@ -22,10 +22,10 @@ export function NDHBrandLockup({
   const effectiveSize = compact ? "sm" : size;
   const tileDimensions =
     effectiveSize === "sm"
-      ? "h-10 w-10"
+      ? "h-9 w-9 sm:h-10 sm:w-10"
       : effectiveSize === "lg"
-        ? "h-12 w-12"
-        : "h-11 w-11";
+        ? "h-11 w-11 sm:h-12 sm:w-12"
+        : "h-10 w-10 sm:h-11 sm:w-11";
 
   const topLineClass =
     theme === "dark" ? "text-[#9ed9d6]" : "text-[#1a4a6e]";
@@ -34,7 +34,7 @@ export function NDHBrandLockup({
     theme === "dark" ? "text-white" : "text-[#0b1220]";
 
   const content = (
-    <div className="inline-flex items-center gap-3.5 text-left">
+    <div className="inline-flex min-w-0 items-center gap-2.5 text-left sm:gap-3.5">
       <span className="ndh-family-symbol" aria-hidden="true">
         <span className={`ndh-family-tile ${tileDimensions}`}>
           <img
@@ -51,17 +51,17 @@ export function NDHBrandLockup({
 
       <div className="min-w-0 leading-tight">
         <div
-          className={`truncate text-[10px] font-extrabold tracking-[0.2em] uppercase ${topLineClass}`}
+          className={`truncate text-[9px] font-extrabold tracking-[0.14em] uppercase sm:text-[10px] sm:tracking-[0.18em] ${topLineClass}`}
         >
           NAJEEB DIGITAL HUB
         </div>
         <div
           className={`font-display truncate font-bold tracking-tight ${
-            size === "sm"
+            effectiveSize === "sm"
               ? "text-base sm:text-lg"
-              : size === "lg"
-                ? "text-xl sm:text-2xl"
-                : "text-lg sm:text-xl"
+              : effectiveSize === "lg"
+                ? "text-lg sm:text-2xl"
+                : "text-base sm:text-xl"
           } ${mainTitleClass}`}
         >
           NDH SchoolOS

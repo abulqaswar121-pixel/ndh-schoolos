@@ -467,9 +467,9 @@ export function OverviewDashboard() {
       (canSeeFinance && financeMetrics.pendingTransfers > 0) ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {portal.role === "admin" && pendingApprovalsCount > 0 && (
-            <div className="flex items-center justify-between gap-4 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-xs">
-              <div className="flex items-center gap-3">
-                <Lock className="h-4 w-4 shrink-0 text-amber-800" />
+            <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-xs sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+              <div className="flex items-start gap-3 sm:items-center">
+                <Lock className="mt-0.5 h-4 w-4 shrink-0 text-amber-800 sm:mt-0" />
                 <div>
                   <div className="font-bold text-amber-950">
                     {pendingApprovalsCount} Published Result Edit{" "}
@@ -483,7 +483,7 @@ export function OverviewDashboard() {
               <Button
                 size="sm"
                 onClick={() => setActiveNav("academics")}
-                className="bg-amber-800 text-xs font-bold text-white hover:bg-amber-900"
+                className="shrink-0 bg-amber-800 text-xs font-bold text-white hover:bg-amber-900"
               >
                 Review
               </Button>
@@ -491,9 +491,9 @@ export function OverviewDashboard() {
           )}
 
           {canSeeFinance && financeMetrics.pendingTransfers > 0 && (
-            <div className="flex items-center justify-between gap-4 rounded-2xl border border-sky-300 bg-sky-50 p-5 text-xs">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="h-4 w-4 shrink-0 text-[#1E3A8A]" />
+            <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-sky-300 bg-sky-50 p-4 text-xs sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+              <div className="flex items-start gap-3 sm:items-center">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#1E3A8A] sm:mt-0" />
                 <div>
                   <div className="font-bold text-[#0F172A]">
                     {financeMetrics.pendingTransfers} Bank Transfer{" "}
@@ -507,7 +507,7 @@ export function OverviewDashboard() {
               <Button
                 size="sm"
                 onClick={() => setActiveNav("fees")}
-                className="bg-[#0F172A] text-xs font-bold text-white hover:bg-[#1E3A8A]"
+                className="shrink-0 bg-[#0F172A] text-xs font-bold text-white hover:bg-[#1E3A8A]"
               >
                 Confirm
               </Button>

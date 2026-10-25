@@ -177,14 +177,14 @@ export function SaaSOnboardingWizard() {
   return (
     <Dialog open={onboardingWizardOpen} onOpenChange={setOnboardingWizardOpen}>
       <DialogContent className="max-h-[92vh] max-w-2xl overflow-y-auto border-[#e4e7ec] bg-white p-0">
-        {/* Top Banner matching ndh.com.ng deep gateway navy */}
-        <div className="border-b border-white/10 bg-[#0c2340] px-6 py-5 text-white">
-          <div className="flex items-center justify-between gap-2 text-xs font-bold tracking-wider text-[#9ed9d6] uppercase">
+        {/* Top Banner matching ndh.com.ng deep gateway navy (pr-12 prevents Close [X] overlap) */}
+        <div className="border-b border-white/10 bg-[#0c2340] py-4 pr-12 pl-5 text-white sm:py-5 sm:pr-14 sm:pl-6">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] font-bold tracking-wider text-[#9ed9d6] uppercase sm:text-xs">
             <span>Register Your School • Step {step} of 3</span>
             <span>{PRICING_CONFIG.pilotOfferBanner}</span>
           </div>
           <DialogHeader className="mt-1.5 text-left">
-            <DialogTitle className="font-display text-xl font-bold text-white">
+            <DialogTitle className="font-display text-lg font-bold text-white sm:text-xl">
               Set Up Your Live School Workspace
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-300 sm:text-sm">
@@ -205,7 +205,7 @@ export function SaaSOnboardingWizard() {
           </div>
         </div>
 
-        <div className="space-y-5 p-6">
+        <div className="space-y-5 p-4 sm:p-6">
           {/* STEP 1: School Identity */}
           {step === 1 && (
             <div className="space-y-4">
@@ -530,7 +530,7 @@ export function SaaSOnboardingWizard() {
           )}
 
           {/* Footer Navigation */}
-          <div className="flex items-center justify-between border-t border-[#e4e7ec] pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e4e7ec] pt-4">
             {step > 1 ? (
               <Button
                 type="button"

@@ -147,7 +147,7 @@ export function TableToolbar({
 
           {extraFilters}
 
-          <div className="ml-auto flex items-center gap-1.5 sm:ml-0">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
             <Button
               type="button"
               variant="outline"
