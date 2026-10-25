@@ -8,8 +8,8 @@
 
 - **`/` (`src/routes/index.tsx`)** — Concise Homepage:
   - Moving pre-nav announcement ticker (`.ndh-top-ticker`) that scrolls away naturally while `<header>` stays sticky at `top: 0`.
-  - Embedded HTML5 `<video>` `.mp4` role walkthrough player with spoken voice narration (`public/videos/tutorial-*.mp4`), auto-playing and rolling automatically across all 6 school roles.
-  - Distinct executive Nigerian cover photos (`public/images/cover-*.jpg`).
+  - Embedded HTML5 `<video>` `.mp4` role walkthrough player with spoken voice narration (`public/videos/ndh-walkthrough-*-v2.mp4`), welcoming the viewer, walking through Sign-Up & Sign-In, and touring all pages & features across all 6 school roles.
+  - 8 distinct executive Nigerian cover photos (`public/images/ndh-cover-*-v3.jpg`) across all pages.
 - **`/tutorials` (`src/routes/tutorials.tsx`)** — Narrated `.mp4` video guides + at-a-glance permissions for all 6 roles.
 - **`/features` (`src/routes/features.tsx`)** — Scannable overview of daily academic, financial, attendance, payroll, and printable tools.
 - **`/for-schools` (`src/routes/for-schools.tsx`)** — Configurations for Nursery/Primary, JSS/SSS Colleges, and Combined Campuses.

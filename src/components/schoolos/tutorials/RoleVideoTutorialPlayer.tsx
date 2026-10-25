@@ -11,6 +11,11 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
+export interface VideoChapter {
+  label: string;
+  startSec: number;
+}
+
 export interface RoleVideoItem {
   roleId:
     | "admin"
@@ -26,6 +31,7 @@ export interface RoleVideoItem {
   videoSrc: string;
   posterSrc: string;
   icon: React.ComponentType<{ className?: string }>;
+  chapters: VideoChapter[];
 }
 
 export const ROLE_VIDEO_PLAYLIST: RoleVideoItem[] = [
@@ -33,61 +39,113 @@ export const ROLE_VIDEO_PLAYLIST: RoleVideoItem[] = [
     roleId: "admin",
     tabLabel: "School Owner",
     fullTitle: "School Owner / Principal",
-    durationLabel: "0:22",
-    oneLiner: "Setup, staff PINs, live Naira fees, score approvals & result lock.",
-    videoSrc: "/videos/tutorial-admin.mp4",
-    posterSrc: "/videos/poster-admin.jpg",
+    durationLabel: "1:21",
+    oneLiner:
+      "Welcome -> Website Pages -> Sign-Up -> Sign-In -> Dashboard, Students, Results, Fees, Payroll & Settings.",
+    videoSrc: "/videos/ndh-walkthrough-admin-v2.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-admin-v2.jpg",
     icon: ShieldCheck,
+    chapters: [
+      { label: "1. Welcome", startSec: 0 },
+      { label: "2. Website Pages", startSec: 7.9 },
+      { label: "3. Sign-Up Wizard", startSec: 18.4 },
+      { label: "4. Sign-In", startSec: 30.6 },
+      { label: "5. Dashboard & Students", startSec: 39.7 },
+      { label: "6. Attendance & Results", startSec: 51.5 },
+      { label: "7. Fees, Payroll & Settings", startSec: 66.1 },
+    ],
   },
   {
     roleId: "class_teacher",
     tabLabel: "Class Teacher",
     fullTitle: "Class Teacher",
-    durationLabel: "0:25",
-    oneLiner: "1-tap attendance, CA1/CA2/Exam grading & A4 report cards.",
-    videoSrc: "/videos/tutorial-class-teacher.mp4",
-    posterSrc: "/videos/poster-class-teacher.jpg",
+    durationLabel: "1:17",
+    oneLiner:
+      "Welcome -> Staff Setup -> Sign-In -> JSS 1 Dashboard -> Attendance -> CA/Exam Broadsheet -> A4 Report Cards.",
+    videoSrc: "/videos/ndh-walkthrough-class-teacher-v2.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-class-teacher-v2.jpg",
     icon: BookOpen,
+    chapters: [
+      { label: "1. Welcome & Account Setup", startSec: 0 },
+      { label: "2. Staff Sign-In", startSec: 19.7 },
+      { label: "3. Class Dashboard & Pupils", startSec: 29.3 },
+      { label: "4. Daily Attendance", startSec: 39.3 },
+      { label: "5. Scores & Broadsheet", startSec: 49.5 },
+      { label: "6. Remarks & A4 Report Card", startSec: 63.5 },
+    ],
   },
   {
     roleId: "subject_teacher",
     tabLabel: "Subject Teacher",
     fullTitle: "Subject Teacher",
-    durationLabel: "0:23",
-    oneLiner: "Scoped subject marksheets, max-score guard & edit requests.",
-    videoSrc: "/videos/tutorial-subject-teacher.mp4",
-    posterSrc: "/videos/poster-subject-teacher.jpg",
+    durationLabel: "1:04",
+    oneLiner:
+      "Welcome -> Subject Setup -> Sign-In -> Assigned Classes -> Subject Marksheet -> Edit Approval Request.",
+    videoSrc: "/videos/ndh-walkthrough-subject-teacher-v2.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-subject-teacher-v2.jpg",
     icon: ClipboardCheck,
+    chapters: [
+      { label: "1. Welcome & Subject Setup", startSec: 0 },
+      { label: "2. Staff Sign-In", startSec: 18.3 },
+      { label: "3. Assigned Classes", startSec: 28.7 },
+      { label: "4. Subject Marksheet", startSec: 36.2 },
+      { label: "5. Score Edit Request", startSec: 49.0 },
+    ],
   },
   {
     roleId: "bursar",
     tabLabel: "Bursar",
     fullTitle: "Bursar / Accountant",
-    durationLabel: "0:24",
-    oneLiner: "Class fee schedules, transfer confirmation, receipts & payroll.",
-    videoSrc: "/videos/tutorial-bursar.mp4",
-    posterSrc: "/videos/poster-bursar.jpg",
+    durationLabel: "1:06",
+    oneLiner:
+      "Welcome -> Bursar Setup -> Sign-In -> Revenue Ledger -> Bank Transfers & Receipts -> Debtors -> Payroll.",
+    videoSrc: "/videos/ndh-walkthrough-bursar-v2.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-bursar-v2.jpg",
     icon: Calculator,
+    chapters: [
+      { label: "1. Welcome & Bursar Setup", startSec: 0 },
+      { label: "2. Staff Sign-In", startSec: 14.1 },
+      { label: "3. Revenue Dashboard", startSec: 23.3 },
+      { label: "4. Transfers & Receipts", startSec: 35.1 },
+      { label: "5. Debtors & Reminders", startSec: 47.1 },
+      { label: "6. Staff Payroll & Payslips", startSec: 54.2 },
+    ],
   },
   {
     roleId: "secretary",
     tabLabel: "Secretary",
     fullTitle: "School Secretary",
-    durationLabel: "0:22",
-    oneLiner: "Admissions, sibling phone linking, notices & safe printing.",
-    videoSrc: "/videos/tutorial-secretary.mp4",
-    posterSrc: "/videos/poster-secretary.jpg",
+    durationLabel: "0:58",
+    oneLiner:
+      "Welcome -> Front-Office Setup -> Sign-In -> Admissions & Sibling Link -> Notices -> Safe A4 Printing.",
+    videoSrc: "/videos/ndh-walkthrough-secretary-v2.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-secretary-v2.jpg",
     icon: Users,
+    chapters: [
+      { label: "1. Welcome & Setup", startSec: 0 },
+      { label: "2. Staff Sign-In", startSec: 11.2 },
+      { label: "3. Admissions & Siblings", startSec: 18.6 },
+      { label: "4. Attendance & Notices", startSec: 31.9 },
+      { label: "5. Read-Only Printing", startSec: 44.5 },
+    ],
   },
   {
     roleId: "parent",
     tabLabel: "Parent",
     fullTitle: "Parent / Guardian",
-    durationLabel: "0:21",
-    oneLiner: "One phone login for all siblings — results, fees & receipts.",
-    videoSrc: "/videos/tutorial-parent.mp4",
-    posterSrc: "/videos/poster-parent.jpg",
+    durationLabel: "1:02",
+    oneLiner:
+      "Welcome -> Phone Registration -> Parent Sign-In -> Sibling Switcher & Attendance -> Results -> Fees & Receipts.",
+    videoSrc: "/videos/ndh-walkthrough-parent-v2.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-parent-v2.jpg",
     icon: Smartphone,
+    chapters: [
+      { label: "1. Welcome & Phone Link", startSec: 0 },
+      { label: "2. Parent Phone Sign-In", startSec: 15.2 },
+      { label: "3. Siblings & Attendance", startSec: 28.4 },
+      { label: "4. Results & Report Cards", startSec: 36.9 },
+      { label: "5. Fees, Receipts & Notices", startSec: 50.0 },
+    ],
   },
 ];
 
@@ -108,7 +166,9 @@ export function RoleVideoTutorialPlayer({
   );
 
   const [roleIndex, setRoleIndex] = useState<number>(startIdx);
-  const [mutedByBrowserPolicy, setMutedByBrowserPolicy] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [mutedByBrowserPolicy, setMutedByBrowserPolicy] =
+    useState<boolean>(false);
   const userEnabledAudioRef = useRef<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -117,8 +177,17 @@ export function RoleVideoTutorialPlayer({
   const nextVideo =
     ROLE_VIDEO_PLAYLIST[(roleIndex + 1) % ROLE_VIDEO_PLAYLIST.length]!;
 
-  // Start playback whenever active role video changes
+  // Determine active chapter from playback time
+  let activeChapterIdx = 0;
+  for (let i = 0; i < currentVideo.chapters.length; i++) {
+    const ch = currentVideo.chapters[i];
+    if (ch && currentTime >= ch.startSec - 0.15) {
+      activeChapterIdx = i;
+    }
+  }
+
   useEffect(() => {
+    setCurrentTime(0);
     if (!autoPlay) return;
     const vid = videoRef.current;
     if (!vid || typeof vid.play !== "function") return;
@@ -135,20 +204,20 @@ export function RoleVideoTutorialPlayer({
           setMutedByBrowserPolicy(false);
         }
       } catch {
-        // Browser blocked unmuted autoplay before first click -> fall back to muted autoplay with 1-tap Sound pill
         if (cancelled) return;
         try {
-          vid.muted = !userEnabledAudioRef.current;
           if (!userEnabledAudioRef.current) {
             vid.muted = true;
             setMutedByBrowserPolicy(true);
+          } else {
+            vid.muted = false;
           }
           const p2 = vid.play();
           if (p2 && typeof p2.catch === "function") {
             p2.catch(() => {});
           }
         } catch {
-          // Ignore in headless/jsdom test environments
+          // Ignore in jsdom
         }
       }
     };
@@ -163,6 +232,25 @@ export function RoleVideoTutorialPlayer({
     userEnabledAudioRef.current = true;
     setMutedByBrowserPolicy(false);
     setRoleIndex(idx);
+  };
+
+  const handleJumpChapter = (startSec: number) => {
+    userEnabledAudioRef.current = true;
+    setMutedByBrowserPolicy(false);
+    setCurrentTime(startSec);
+    const vid = videoRef.current;
+    if (vid) {
+      try {
+        vid.currentTime = startSec;
+      } catch {
+        // Ignore in jsdom
+      }
+      vid.muted = false;
+      const p = vid.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(() => {});
+      }
+    }
   };
 
   const handleVideoEnded = () => {
@@ -187,7 +275,7 @@ export function RoleVideoTutorialPlayer({
       data-testid="role-video-tutorial-player"
       className="overflow-hidden rounded-3xl border border-[#d0d5dd] bg-[#0a1a30] text-white shadow-lg"
     >
-      {/* Compact Role Playlist Tabs */}
+      {/* Role Playlist Tabs */}
       <div className="border-b border-white/10 bg-[#0c2340] px-3.5 py-3 sm:px-5">
         <div
           role="tablist"
@@ -239,6 +327,7 @@ export function RoleVideoTutorialPlayer({
           controls
           playsInline
           preload="metadata"
+          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
           onEnded={handleVideoEnded}
           onVolumeChange={(e) => {
             if (!e.currentTarget.muted) {
@@ -246,21 +335,43 @@ export function RoleVideoTutorialPlayer({
               setMutedByBrowserPolicy(false);
             }
           }}
-          aria-label={`${currentVideo.fullTitle} video walkthrough`}
+          aria-label={`${currentVideo.fullTitle} full video walkthrough`}
           className="h-full w-full object-contain"
         />
 
-        {/* 1-Tap Unmute Pill shown ONLY if browser policy muted initial autoplay */}
         {mutedByBrowserPolicy && (
           <button
             type="button"
             onClick={handleEnableVoiceAudio}
-            className="absolute top-3.5 left-3.5 z-10 inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#9ed9d6] bg-[#0c2340]/90 px-3.5 py-1.5 text-xs font-bold text-white shadow-md backdrop-blur-xs transition hover:bg-[#1a4a6e]"
+            className="absolute top-3.5 left-3.5 z-10 inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#9ed9d6] bg-[#0c2340]/92 px-3.5 py-1.5 text-xs font-bold text-white shadow-md backdrop-blur-xs transition hover:bg-[#1a4a6e]"
           >
             <VolumeX className="h-4 w-4 text-[#9ed9d6]" />
-            <span>Tap for Voice Audio</span>
+            <span>Tap for Voice Narration</span>
           </button>
         )}
+      </div>
+
+      {/* Interactive Chapter Jump Strip (Welcome -> Sign-Up -> Sign-In -> All Pages) */}
+      <div className="border-t border-white/10 bg-[#081528] px-3.5 py-2.5 sm:px-5">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+          {currentVideo.chapters.map((ch, idx) => {
+            const isCurrent = idx === activeChapterIdx;
+            return (
+              <button
+                key={ch.label}
+                type="button"
+                onClick={() => handleJumpChapter(ch.startSec)}
+                className={`shrink-0 cursor-pointer rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+                  isCurrent
+                    ? "bg-[#1a4a6e] text-white ring-1 ring-[#9ed9d6]"
+                    : "bg-white/6 text-slate-300 hover:bg-white/15 hover:text-white"
+                }`}
+              >
+                {ch.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Slim Bottom Status Bar */}

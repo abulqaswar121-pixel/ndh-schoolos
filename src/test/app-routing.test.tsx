@@ -46,12 +46,14 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     const player = screen.getByTestId("role-video-tutorial-player");
     const videoEl = player.querySelector("video");
     expect(videoEl).not.toBeNull();
-    expect(videoEl?.getAttribute("src")).toBe("/videos/tutorial-admin.mp4");
+    expect(videoEl?.getAttribute("src")).toBe(
+      "/videos/ndh-walkthrough-admin-v2.mp4"
+    );
 
     fireEvent.ended(videoEl!);
     const nextVideoEl = player.querySelector("video");
     expect(nextVideoEl?.getAttribute("src")).toBe(
-      "/videos/tutorial-class-teacher.mp4"
+      "/videos/ndh-walkthrough-class-teacher-v2.mp4"
     );
 
     // Official ndh.com.ng contact info in footer
@@ -156,12 +158,14 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     ).toBeInTheDocument();
   });
 
-  it("renders '/tutorials', '/features', '/for-schools', '/contact', and '/login' with distinct cover images", async () => {
+  it("renders '/tutorials', '/features', '/for-schools', '/pricing', '/contact', and '/login' with 5 distinct v3 cover images (plus 3 distinct on '/')", async () => {
     const seenCoverImages = new Set<string>();
     for (const path of [
+      "/",
       "/tutorials",
       "/features",
       "/for-schools",
+      "/pricing",
       "/contact",
       "/login",
     ]) {
@@ -180,7 +184,7 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
         expect(matches.length).toBeGreaterThanOrEqual(1);
       }
       document
-        .querySelectorAll<HTMLImageElement>('img[src^="/images/cover-"]')
+        .querySelectorAll<HTMLImageElement>('img[src^="/images/ndh-cover-"]')
         .forEach((img) => {
           const src = img.getAttribute("src")!;
           expect(seenCoverImages.has(src)).toBe(false);
@@ -188,6 +192,6 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
         });
       unmount();
     }
-    expect(seenCoverImages.size).toBe(3);
+    expect(seenCoverImages.size).toBe(8);
   });
 });

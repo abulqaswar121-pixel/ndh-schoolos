@@ -107,7 +107,7 @@ export function HomePage() {
               >
                 <a href="#video-walkthrough">
                   <PlayCircle className="mr-2 h-4 w-4" />
-                  Watch 20s Video Guide
+                  Watch Full Video Guide
                 </a>
               </Button>
             </div>
@@ -128,7 +128,7 @@ export function HomePage() {
           <div className="lg:col-span-6">
             <div className="overflow-hidden rounded-3xl border border-[#e4e7ec] bg-[#f5f6f8] shadow-sm">
               <img
-                src="/images/cover-hero-school.jpg"
+                src="/images/ndh-cover-hero-v3.jpg"
                 alt="Modern Nigerian private school classroom with teacher and students"
                 className="h-68 w-full object-cover sm:h-84"
               />
@@ -166,10 +166,10 @@ export function HomePage() {
           <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <div className="text-xs font-extrabold tracking-[0.14em] text-[#1a4a6e] uppercase">
-                20-Second In-Portal Video Guide (With Voice)
+                Full Walkthrough Videos (Welcome • Sign-Up • Sign-In • All Pages)
               </div>
               <h2 className="font-display mt-1 text-2xl font-bold text-[#0b1220] sm:text-3xl">
-                Watch how each role works inside the portal
+                Watch how each user signs in and uses every feature
               </h2>
             </div>
             <Button
@@ -228,8 +228,8 @@ export function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-2">
           <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
             <img
-              src="/images/cover-proprietor-office.jpg"
-              alt="School principal reviewing fee analytics on laptop in executive office"
+              src="/images/ndh-cover-principal-v3.jpg"
+              alt="Nigerian school principal reviewing fee analytics on laptop in executive office"
               className="h-56 w-full object-cover"
             />
             <div className="p-5">
@@ -248,7 +248,7 @@ export function HomePage() {
 
           <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
             <img
-              src="/images/cover-parent-mobile.jpg"
+              src="/images/ndh-cover-parents-v3.jpg"
               alt="Nigerian parents viewing child report card and fee receipt on smartphone"
               className="h-56 w-full object-cover"
             />

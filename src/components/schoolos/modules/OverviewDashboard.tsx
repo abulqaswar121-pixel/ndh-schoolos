@@ -369,8 +369,8 @@ export function OverviewDashboard() {
 
           <div className="hidden h-full min-h-[155px] overflow-hidden border-l border-[#e4e7ec] lg:col-span-4 lg:block">
             <img
-              src="/images/cover-campus-banner.jpg"
-              alt="School campus"
+              src="/images/ndh-cover-campus-v3.jpg"
+              alt="Nigerian school campus"
               className="h-full w-full object-cover"
             />
           </div>

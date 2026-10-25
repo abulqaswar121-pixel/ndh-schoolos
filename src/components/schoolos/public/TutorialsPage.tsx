@@ -64,13 +64,13 @@ export function TutorialsPage() {
           <div className="mb-6 max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#9ed9d6] bg-[#edf7f6] px-3.5 py-1 text-xs font-bold text-[#1a4a6e]">
               <Sparkles className="h-3.5 w-3.5" />
-              In-Portal Video Walkthroughs (With Voice)
+              Complete Narrated Video Walkthroughs
             </div>
             <h1 className="font-display mt-2.5 text-3xl font-bold tracking-tight text-[#0b1220] sm:text-4xl">
               Quick video guides for every school role
             </h1>
             <p className="mt-2 text-sm text-[#364152] sm:text-base">
-              Pick any role tab to watch a 20-second screen walkthrough with voice narration — or let the playlist roll automatically.
+              Each video welcomes you, walks through Sign-Up and Sign-In, and tours every page and feature for that role — with clickable chapter chips below the player.
             </p>
           </div>
 

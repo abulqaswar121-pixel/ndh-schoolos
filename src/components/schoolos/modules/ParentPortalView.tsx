@@ -315,7 +315,7 @@ export function ParentPortalView() {
 
           <div className="hidden h-full min-h-[175px] overflow-hidden border-l border-slate-200 lg:col-span-4 lg:block">
             <img
-              src="/images/cover-parent-mobile.jpg"
+              src="/images/ndh-cover-parents-v3.jpg"
               alt="Nigerian parents viewing child report card on phone"
               className="h-full w-full object-cover"
             />

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, PlayCircle, Sparkles, X } from "lucide-react";
-import React, { useState } from "react";
+import { ArrowRight, Menu, Phone, PlayCircle, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { NDHBrandLockup } from "../NDHBrandLockup";
 import { SaaSOnboardingWizard } from "../SaaSOnboardingWizard";
 import { SchoolOSAIAssistant } from "../landing/SchoolOSAIAssistant";
@@ -18,44 +18,94 @@ const NAV_LINKS: Array<{ to: string; label: string }> = [
   { to: "/contact", label: "Contact" },
 ];
 
-const TICKER_ITEMS = [
+const TICKER_MESSAGES = [
   PRICING_CONFIG.pilotOfferBanner,
-  "Termly & Discounted Per-Session Plans (Save 17%)",
-  "CA 1 • CA 2 • Exam A4 Report Cards & Numbered Receipts",
-  `Support: ${NDH_PARENT_CONTACT.phoneDisplay}`,
+  "Pay Termly or Per Session (Save 17%)",
+  "CA 1 • CA 2 • Exam Broadsheets & Single-Page A4 Report Cards",
+  "One Parent Phone Login for All Linked Siblings",
 ];
 
 export function PublicSiteLayout({ children }: { children: React.ReactNode }) {
   const { db, portal, setOnboardingWizardOpen } = useSchoolOS();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 36);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-[#0b1220]">
-      {/* Moving Top Announcement Bar — Static flow so it scrolls away when scrolling down */}
+    <div className="flex min-h-screen w-full flex-col bg-white text-[#0b1220]">
+      {/* Moving Pre-Nav Bar — Static flow so it scrolls away cleanly on scroll */}
       <div
         aria-label="Platform announcements"
-        className="ndh-top-ticker border-b border-[#9ed9d6] bg-[#0c2340] py-2 text-xs font-medium text-white"
+        className="ndh-top-ticker text-xs text-white"
       >
-        <div className="ndh-top-ticker-track">
-          {[0, 1].map((copyIdx) => (
-            <div
-              key={copyIdx}
-              aria-hidden={copyIdx === 1 ? true : undefined}
-              className="inline-flex items-center gap-8 pr-8"
-            >
-              {TICKER_ITEMS.map((msg) => (
-                <span key={`${copyIdx}-${msg}`} className="inline-flex items-center gap-2">
-                  <Sparkles className="h-3.5 w-3.5 text-[#9ed9d6]" />
-                  <span>{msg}</span>
-                </span>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
+          {/* Left Pinned Live Badge */}
+          <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-[#9ed9d6]/35 bg-[#1a4a6e]/80 px-2.5 py-0.5 text-[10px] font-extrabold tracking-wider text-[#9ed9d6] uppercase sm:inline-flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Pilot Open
+          </span>
+
+          {/* Center Smooth Seamless Moving Marquee (2 identical halves x 2 sets each = >2600px per half, zero gap) */}
+          <div className="ndh-top-ticker-viewport">
+            <div className="ndh-top-ticker-track">
+              {[0, 1].map((halfIdx) => (
+                <div
+                  key={halfIdx}
+                  aria-hidden={halfIdx === 1 ? true : undefined}
+                  className="flex shrink-0 items-center"
+                >
+                  {[0, 1].map((repeatIdx) =>
+                    TICKER_MESSAGES.map((msg) => (
+                      <span
+                        key={`${halfIdx}-${repeatIdx}-${msg}`}
+                        className="inline-flex shrink-0 items-center gap-2 pr-8 font-medium text-slate-100"
+                      >
+                        <span className="h-1 w-1 rounded-full bg-[#9ed9d6]" />
+                        <span>{msg}</span>
+                      </span>
+                    ))
+                  )}
+                </div>
               ))}
             </div>
-          ))}
+          </div>
+
+          {/* Right Pinned Support & Quick Action */}
+          <div className="hidden shrink-0 items-center gap-3 md:flex">
+            <a
+              href={NDH_PARENT_CONTACT.phoneHref}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-200 transition hover:text-[#9ed9d6]"
+            >
+              <Phone className="h-3 w-3 text-[#9ed9d6]" />
+              {NDH_PARENT_CONTACT.phoneDisplay}
+            </a>
+            <span className="h-3 w-px bg-white/20" />
+            <button
+              type="button"
+              onClick={() => setOnboardingWizardOpen(true)}
+              className="inline-flex cursor-pointer items-center gap-1 text-[11px] font-bold text-[#9ed9d6] transition hover:text-white"
+            >
+              Register Free
+              <ArrowRight className="h-3 w-3" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Sticky Main Navbar — Stays pinned at top:0 after the moving bar scrolls away */}
-      <header className="sticky top-0 z-50 border-b border-[#e4e7ec] bg-white/95 shadow-2xs backdrop-blur-md">
+      {/* Sticky Main Navbar — Pins to top:0 once the moving top bar scrolls away */}
+      <header
+        className={`sticky top-0 z-50 w-full border-b border-[#e4e7ec] bg-white/95 backdrop-blur-md transition-shadow duration-200 ${
+          isScrolled ? "shadow-md" : "shadow-2xs"
+        }`}
+      >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link to="/" className="shrink-0">
             <NDHBrandLockup theme="light" />

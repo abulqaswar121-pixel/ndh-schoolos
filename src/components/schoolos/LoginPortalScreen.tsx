@@ -136,7 +136,7 @@ export function LoginPortalScreen() {
 
           <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
             <img
-              src="/images/cover-login-portal.jpg"
+              src="/images/ndh-cover-login-v3.jpg"
               alt="Modern Nigerian school administrative office desk"
               className="h-44 w-full object-cover"
             />

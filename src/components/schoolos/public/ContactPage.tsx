@@ -35,8 +35,8 @@ export function ContactPage() {
   return (
     <PublicSiteLayout>
       <section className="border-b border-[#e4e7ec] bg-[#f5f6f8] py-10 sm:py-14">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="max-w-xl">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-12">
+          <div className="lg:col-span-7">
             <div className="text-xs font-extrabold tracking-[0.14em] text-[#1a4a6e] uppercase">
               Najeeb Digital Hub • Support
             </div>
@@ -46,6 +46,15 @@ export function ContactPage() {
             <p className="mt-2 text-sm text-[#364152] sm:text-base">
               Fast onboarding & support by phone, WhatsApp, email, or at our Sokoto office.
             </p>
+          </div>
+          <div className="lg:col-span-5">
+            <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
+              <img
+                src="/images/ndh-cover-support-v3.jpg"
+                alt="Nigerian customer onboarding specialist at Najeeb Digital Hub support desk"
+                className="h-52 w-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>

@@ -14,50 +14,62 @@ export function PricingPage() {
   return (
     <PublicSiteLayout>
       <section className="border-b border-[#e4e7ec] bg-[#f5f6f8] py-10 sm:py-14">
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#9ed9d6] bg-[#edf7f6] px-4 py-1 text-xs font-bold text-[#1a4a6e]">
-            <Sparkles className="h-3.5 w-3.5" />
-            {PRICING_CONFIG.pilotOfferBanner}
+        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#9ed9d6] bg-[#edf7f6] px-4 py-1 text-xs font-bold text-[#1a4a6e]">
+              <Sparkles className="h-3.5 w-3.5" />
+              {PRICING_CONFIG.pilotOfferBanner}
+            </div>
+
+            <h1 className="font-display mt-3 text-3xl font-bold tracking-tight text-[#0b1220] sm:text-4xl">
+              Simple Termly & Per-Session Pricing (₦)
+            </h1>
+            <p className="mt-2 max-w-xl text-sm text-[#364152] sm:text-base">
+              Pay per term or pay once per academic session (3 terms) and save 17%.
+            </p>
+
+            {/* Termly vs Per-Session Toggle */}
+            <div
+              role="group"
+              aria-label="Billing cycle"
+              className="mt-5 inline-flex items-center rounded-full border border-[#d0d5dd] bg-white p-1 shadow-2xs"
+            >
+              <button
+                type="button"
+                onClick={() => setBillingCycle("term")}
+                className={`cursor-pointer rounded-full px-4 py-2 text-xs font-bold transition sm:text-sm ${
+                  billingCycle === "term"
+                    ? "bg-[#0c2340] text-white"
+                    : "text-[#364152] hover:text-[#0b1220]"
+                }`}
+              >
+                Per Term
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingCycle("session")}
+                className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition sm:text-sm ${
+                  billingCycle === "session"
+                    ? "bg-[#0c2340] text-white"
+                    : "text-[#364152] hover:text-[#0b1220]"
+                }`}
+              >
+                <span>Per Session (3 Terms)</span>
+                <span className="rounded-full bg-[#ecfdf3] px-2 py-0.5 text-[11px] font-extrabold text-[#067647]">
+                  {PRICING_CONFIG.sessionDiscountBadge}
+                </span>
+              </button>
+            </div>
           </div>
 
-          <h1 className="font-display mx-auto mt-3 max-w-2xl text-3xl font-bold tracking-tight text-[#0b1220] sm:text-4xl">
-            Simple Termly & Per-Session Pricing (₦)
-          </h1>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-[#364152] sm:text-base">
-            Pay per term or pay once per academic session (3 terms) and save 17%.
-          </p>
-
-          {/* Termly vs Per-Session Toggle */}
-          <div
-            role="group"
-            aria-label="Billing cycle"
-            className="mt-6 inline-flex items-center rounded-full border border-[#d0d5dd] bg-white p-1 shadow-2xs"
-          >
-            <button
-              type="button"
-              onClick={() => setBillingCycle("term")}
-              className={`cursor-pointer rounded-full px-4 py-2 text-xs font-bold transition sm:text-sm ${
-                billingCycle === "term"
-                  ? "bg-[#0c2340] text-white"
-                  : "text-[#364152] hover:text-[#0b1220]"
-              }`}
-            >
-              Per Term
-            </button>
-            <button
-              type="button"
-              onClick={() => setBillingCycle("session")}
-              className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition sm:text-sm ${
-                billingCycle === "session"
-                  ? "bg-[#0c2340] text-white"
-                  : "text-[#364152] hover:text-[#0b1220]"
-              }`}
-            >
-              <span>Per Session (3 Terms)</span>
-              <span className="rounded-full bg-[#ecfdf3] px-2 py-0.5 text-[11px] font-extrabold text-[#067647]">
-                {PRICING_CONFIG.sessionDiscountBadge}
-              </span>
-            </button>
+          <div className="lg:col-span-5">
+            <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
+              <img
+                src="/images/ndh-cover-pricing-v3.jpg"
+                alt="Nigerian school director and bursar reviewing termly and session plans"
+                className="h-56 w-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>

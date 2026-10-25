@@ -81,8 +81,8 @@ export function ForSchoolsPage() {
           <div className="lg:col-span-5">
             <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
               <img
-                src="/images/cover-campus-banner.jpg"
-                alt="Modern private school campus architecture"
+                src="/images/ndh-cover-campus-v3.jpg"
+                alt="Modern Nigerian private school campus architecture with palms"
                 className="h-56 w-full object-cover"
               />
             </div>

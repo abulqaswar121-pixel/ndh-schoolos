@@ -518,30 +518,31 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     expect(comp.netSalary).toBe(113000);
   });
 
-  it("auto-plays the RoleVideoTutorialPlayer MP4, switches roles manually, and automatically rolls into the next user's video", () => {
+  it("auto-plays the RoleVideoTutorialPlayer MP4 (Welcome -> Sign-Up -> Sign-In -> All Pages), jumps chapters, switches roles, and rolls into the next video", () => {
     const { container } = render(<RoleVideoTutorialPlayer autoPlay />);
 
-    // Starts on School Owner MP4 video
     const getVideoSrc = () =>
       container.querySelector("video")?.getAttribute("src");
 
-    expect(getVideoSrc()).toBe("/videos/tutorial-admin.mp4");
-    expect(screen.getByText(/School Owner \/ Principal:/i)).toBeInTheDocument();
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-admin-v2.mp4");
+    expect(screen.getByText(/1\. Welcome/i)).toBeInTheDocument();
+    expect(screen.getByText(/3\. Sign-Up Wizard/i)).toBeInTheDocument();
+    expect(screen.getByText(/4\. Sign-In/i)).toBeInTheDocument();
+    expect(screen.getByText(/7\. Fees, Payroll & Settings/i)).toBeInTheDocument();
 
     // When video finishes, automatically rolls into Class Teacher MP4!
     fireEvent.ended(container.querySelector("video")!);
-    expect(getVideoSrc()).toBe("/videos/tutorial-class-teacher.mp4");
-    expect(
-      screen.getByText(/1-tap attendance, CA1\/CA2\/Exam grading & A4 report cards\./i)
-    ).toBeInTheDocument();
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-class-teacher-v2.mp4");
+    expect(screen.getByText(/1\. Welcome & Account Setup/i)).toBeInTheDocument();
 
     // Manual role tab switch to Parent
     const parentTab = screen.getByRole("tab", { name: /Parent/i });
     fireEvent.click(parentTab);
-    expect(getVideoSrc()).toBe("/videos/tutorial-parent.mp4");
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-parent-v2.mp4");
+    expect(screen.getByText(/2\. Parent Phone Sign-In/i)).toBeInTheDocument();
 
     // Loops back to School Owner when Parent video ends
     fireEvent.ended(container.querySelector("video")!);
-    expect(getVideoSrc()).toBe("/videos/tutorial-admin.mp4");
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-admin-v2.mp4");
   });
 });
