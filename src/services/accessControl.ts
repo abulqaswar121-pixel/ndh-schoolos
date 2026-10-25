@@ -80,6 +80,8 @@ export function getAllowedNavSections(
         "notices",
         "staff",
         "audit",
+        "customize",
+        "backups",
         "settings",
       ];
     case "class_teacher":
@@ -87,9 +89,16 @@ export function getAllowedNavSections(
     case "subject_teacher":
       return ["overview", "academics"];
     case "bursar":
-      return ["overview", "students", "fees", "notices", "staff"];
+      return ["overview", "students", "fees", "notices", "staff", "backups"];
     case "secretary":
-      return ["overview", "students", "classes", "attendance", "notices"];
+      return [
+        "overview",
+        "students",
+        "classes",
+        "attendance",
+        "notices",
+        "backups",
+      ];
     case "muallim":
       return enableQuranModule
         ? ["overview", "students", "classes", "academics", "attendance"]

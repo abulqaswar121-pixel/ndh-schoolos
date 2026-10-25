@@ -1,0 +1,24 @@
+{
+  "name": "NDH SchoolOS — School Management Workspace",
+  "short_name": "NDH SchoolOS",
+  "description": "Offline-ready Nigerian school management platform for attendance, CA & exam results, custom report sheets, fees, receipts, payroll and backups.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f6f8",
+  "theme_color": "#0c2340",
+  "icons": [
+    {
+      "src": "/images/ndh-logo-gateway-cropped.png",
+      "sizes": "684x679",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

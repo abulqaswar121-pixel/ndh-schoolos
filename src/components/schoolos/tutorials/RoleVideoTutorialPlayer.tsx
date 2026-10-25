@@ -10,6 +10,8 @@ import {
   VolumeX,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useOptionalSchoolOS } from "@/context/SchoolOSContext";
+import { getResolvedCustomization } from "@/services/customizationDefaults";
 
 export interface VideoChapter {
   label: string;
@@ -160,6 +162,13 @@ export function RoleVideoTutorialPlayer({
   autoPlay = true,
   onRegisterSchool,
 }: RoleVideoTutorialPlayerProps) {
+  const optionalCtx = useOptionalSchoolOS();
+  const lowDataMode = optionalCtx
+    ? getResolvedCustomization(optionalCtx.db.settings).workspaceTheme
+        .lowDataMode
+    : false;
+  const effectiveAutoPlay = autoPlay && !lowDataMode;
+
   const startIdx = Math.max(
     0,
     ROLE_VIDEO_PLAYLIST.findIndex((item) => item.roleId === initialRoleId)
@@ -188,7 +197,7 @@ export function RoleVideoTutorialPlayer({
 
   useEffect(() => {
     setCurrentTime(0);
-    if (!autoPlay) return;
+    if (!effectiveAutoPlay) return;
     const vid = videoRef.current;
     if (!vid || typeof vid.play !== "function") return;
 
@@ -226,7 +235,7 @@ export function RoleVideoTutorialPlayer({
     return () => {
       cancelled = true;
     };
-  }, [roleIndex, autoPlay]);
+  }, [roleIndex, effectiveAutoPlay]);
 
   const handleSelectRole = (idx: number) => {
     userEnabledAudioRef.current = true;
@@ -326,7 +335,7 @@ export function RoleVideoTutorialPlayer({
           poster={currentVideo.posterSrc}
           controls
           playsInline
-          preload="metadata"
+          preload={lowDataMode ? "none" : "metadata"}
           onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
           onEnded={handleVideoEnded}
           onVolumeChange={(e) => {

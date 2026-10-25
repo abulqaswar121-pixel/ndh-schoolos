@@ -1,5 +1,7 @@
 import {
   Building2,
+  DatabaseBackup,
+  Palette,
   Plus,
   Save,
   Sparkles,
@@ -16,7 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 
 export function SetupSettingsModule() {
-  const { db, portal, updateSettings, setOnboardingWizardOpen } = useSchoolOS();
+  const { db, portal, setActiveNav, updateSettings, setOnboardingWizardOpen } =
+    useSchoolOS();
   const { settings } = db;
 
   const [newProgrammeName, setNewProgrammeName] = useState("");
@@ -84,16 +87,38 @@ export function SetupSettingsModule() {
           </p>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setOnboardingWizardOpen(true)}
-          className="border-[#9ed9d6] bg-[#edf7f6] text-xs font-semibold text-[#1a4a6e] hover:bg-[#d8efed] hover:text-[#0c2340]"
-        >
-          <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-          School Setup Wizard
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setActiveNav("customize")}
+            className="border-[#9ed9d6] bg-white text-xs font-semibold text-[#1a4a6e] hover:bg-[#edf7f6]"
+          >
+            <Palette className="mr-1.5 h-3.5 w-3.5" />
+            Customize Report Sheets & Theme
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setActiveNav("backups")}
+            className="border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-900 hover:bg-emerald-100"
+          >
+            <DatabaseBackup className="mr-1.5 h-3.5 w-3.5" />
+            Backups, Offline & Excel
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setOnboardingWizardOpen(true)}
+            className="border-[#9ed9d6] bg-[#edf7f6] text-xs font-semibold text-[#1a4a6e] hover:bg-[#d8efed] hover:text-[#0c2340]"
+          >
+            <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+            School Setup Wizard
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="identity" className="space-y-4">

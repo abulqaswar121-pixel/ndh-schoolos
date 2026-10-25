@@ -1,8 +1,8 @@
-import { Download, Printer, Search, X } from "lucide-react";
+import { Download, FileSpreadsheet, Printer, Search, X } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getActiveProgrammes } from "@/services/calculations";
+import { getActiveProgrammes, runAsExcelExport } from "@/services/calculations";
 import type { ClassGroup, ProgrammeId, SchoolSettings } from "@/types/school";
 
 export interface TableToolbarProps {
@@ -148,6 +148,17 @@ export function TableToolbar({
           {extraFilters}
 
           <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => runAsExcelExport(onExportCsv)}
+              className="h-9 border-emerald-200 bg-emerald-50/70 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 hover:text-emerald-950"
+              title="Download formatted Microsoft Excel (.xls) spreadsheet"
+            >
+              <FileSpreadsheet className="mr-1.5 h-3.5 w-3.5 text-emerald-700" />
+              Excel (.xls)
+            </Button>
             <Button
               type="button"
               variant="outline"

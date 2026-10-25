@@ -5,8 +5,10 @@ import {
   Building2,
   CalendarCheck2,
   ClipboardList,
+  DatabaseBackup,
   GraduationCap,
   LayoutDashboard,
+  Palette,
   ReceiptText,
   Settings2,
 } from "lucide-react";
@@ -20,6 +22,7 @@ import {
 } from "@/components/ui/sheet";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import { getAllowedNavSections } from "@/services/accessControl";
+import { getResolvedCustomization } from "@/services/customizationDefaults";
 import type { NavSectionId } from "@/types/school";
 
 interface NavItemConfig {
@@ -37,6 +40,8 @@ interface AppSidebarProps {
 export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) {
   const { db, portal, activeNav, setActiveNav } = useSchoolOS();
   const { settings } = db;
+  const custom = getResolvedCustomization(settings);
+  const { primaryColor, accentColor, highlightColor } = custom.workspaceTheme;
 
   const allowedSet = new Set(
     getAllowedNavSections(portal.role, settings.enableQuranModule)
@@ -103,6 +108,16 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
       icon: ClipboardList,
     },
     {
+      id: "customize",
+      label: "Customize & Design",
+      icon: Palette,
+    },
+    {
+      id: "backups",
+      label: "Backups & Offline",
+      icon: DatabaseBackup,
+    },
+    {
       id: "settings",
       label: "Settings",
       icon: Settings2,
@@ -117,10 +132,16 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
   };
 
   const renderDrawerInner = () => (
-    <div className="flex h-full flex-col bg-[#0c2340] text-slate-100">
+    <div
+      className="flex h-full flex-col text-slate-100"
+      style={{ backgroundColor: primaryColor }}
+    >
       {/* School Identity Block (pr-12 clears mobile Sheet Close [X] button) */}
       <div className="border-b border-white/10 py-4 pr-12 pl-4 lg:px-4">
-        <div className="text-[11px] font-extrabold tracking-[0.14em] text-[#9ed9d6] uppercase">
+        <div
+          className="text-[11px] font-extrabold tracking-[0.14em] uppercase"
+          style={{ color: highlightColor }}
+        >
           {settings.multiProgrammeEnabled
             ? `${settings.programmes.length} Programmes Active`
             : "Najeeb Digital Hub • School"}
@@ -156,11 +177,13 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
               }`}
             >
               <span className="flex min-w-0 items-center gap-3">
-                <Icon
-                  className={`h-4 w-4 shrink-0 ${
-                    active ? "text-[#1a4a6e]" : "text-[#9ed9d6]"
-                  }`}
-                />
+                <span
+                  style={{
+                    color: active ? accentColor : highlightColor,
+                  }}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                </span>
                 <span className="truncate">{item.label}</span>
               </span>
               {item.badge !== undefined && (
@@ -175,7 +198,7 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
 
       {/* Bottom Signed-in User Scope */}
       <div className="border-t border-white/10 p-3.5">
-        <div className="rounded-xl bg-[#0a1a30] px-3 py-2.5 text-xs">
+        <div className="rounded-xl bg-black/25 px-3 py-2.5 text-xs">
           <div className="truncate font-semibold text-white">
             {portal.displayName}
           </div>
@@ -193,19 +216,23 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
 
   return (
     <>
-      <aside className="no-print hidden w-64 shrink-0 border-r border-white/10 bg-[#0c2340] lg:flex lg:flex-col">
+      <aside
+        className="no-print hidden w-64 shrink-0 border-r border-white/10 lg:flex lg:flex-col"
+        style={{ backgroundColor: primaryColor }}
+      >
         {renderDrawerInner()}
       </aside>
 
       <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
         <SheetContent
           side="left"
-          className="w-72 border-r border-white/10 bg-[#0c2340] p-0 text-white"
+          className="w-72 border-r border-white/10 p-0 text-white"
+          style={{ backgroundColor: primaryColor }}
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>School Navigation Menu</SheetTitle>
+            <SheetTitle>School Workspace Navigation</SheetTitle>
             <SheetDescription>
-              Switch between school management sections
+              Switch between school modules and tools
             </SheetDescription>
           </SheetHeader>
           {renderDrawerInner()}

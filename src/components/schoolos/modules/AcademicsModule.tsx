@@ -3,9 +3,11 @@ import {
   Download,
   Lock,
   LockOpen,
+  Palette,
   Plus,
   Printer,
   Send,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -27,17 +29,20 @@ import {
   getActiveProgrammes,
   getGradingComponents,
 } from "@/services/calculations";
+import { getResolvedCustomization } from "@/services/customizationDefaults";
 import type { MurajaahStatus, ProgrammeId } from "@/types/school";
 
 export function AcademicsModule() {
   const {
     db,
     portal,
+    setActiveNav,
     updateScoreCell,
     setTermResultStatus,
     reviewPendingScoreEdit,
     upsertQuranRecord,
     upsertAffectiveRating,
+    applyGradeAutoCommentsToClass,
     upsertSubject,
     deleteSubject,
     openPrintPreview,
@@ -681,22 +686,36 @@ export function AcademicsModule() {
                 Master Broadsheet — <strong>{activeClass?.name ?? ""}</strong> (
                 {selectedTerm})
               </div>
-              <Button
-                size="sm"
-                onClick={() =>
-                  openPrintPreview({
-                    type: "broadsheet",
-                    classId: activeClassId,
-                    programmeId: selectedProgId,
-                    session: selectedSession,
-                    term: selectedTerm,
-                  })
-                }
-                className="h-8 bg-[#0F172A] text-xs font-bold text-white hover:bg-[#1E3A8A]"
-              >
-                <Printer className="mr-1.5 h-3.5 w-3.5" />
-                Print A4 Broadsheet
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {isAdmin && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveNav("customize")}
+                    className="h-8 border-[#9ed9d6] bg-[#edf7f6] text-xs font-bold text-[#1a4a6e] hover:bg-[#d8efed]"
+                  >
+                    <Palette className="mr-1.5 h-3.5 w-3.5" />
+                    Customize Report Sheet
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    openPrintPreview({
+                      type: "broadsheet",
+                      classId: activeClassId,
+                      programmeId: selectedProgId,
+                      session: selectedSession,
+                      term: selectedTerm,
+                    })
+                  }
+                  className="h-8 bg-[#0F172A] text-xs font-bold text-white hover:bg-[#1E3A8A]"
+                >
+                  <Printer className="mr-1.5 h-3.5 w-3.5" />
+                  Print A4 Broadsheet
+                </Button>
+              </div>
             </div>
 
             <div className="ndh-card overflow-hidden">
@@ -704,7 +723,10 @@ export function AcademicsModule() {
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 font-bold text-[#0F172A] uppercase">
-                      <th className="px-3 py-3 text-center">Pos</th>
+                      {getResolvedCustomization(settings).reportSheet
+                        .rankingMode !== "grade_only" && (
+                        <th className="px-3 py-3 text-center">Pos</th>
+                      )}
                       <th className="px-3 py-3">Student</th>
                       {progSubjects.map((sub) => (
                         <th key={sub.id} className="px-2 py-3 text-center">
@@ -713,15 +735,19 @@ export function AcademicsModule() {
                       ))}
                       <th className="px-3 py-3 text-center">Total</th>
                       <th className="px-3 py-3 text-center">Avg %</th>
+                      <th className="px-3 py-3 text-center">Grade</th>
                       <th className="px-3 py-3 text-right">Report Card</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {broadsheetRows.map((row) => (
                       <tr key={row.student.id} className="hover:bg-slate-50/70">
-                        <td className="px-3 py-2.5 text-center font-extrabold text-[#1E3A8A]">
-                          {formatOrdinal(row.position)}
-                        </td>
+                        {getResolvedCustomization(settings).reportSheet
+                          .rankingMode !== "grade_only" && (
+                          <td className="px-3 py-2.5 text-center font-extrabold text-[#1E3A8A]">
+                            {formatOrdinal(row.position)}
+                          </td>
+                        )}
                         <td className="px-3 py-2.5">
                           <div className="font-bold text-[#0F172A]">
                             {row.student.fullName}
@@ -746,6 +772,9 @@ export function AcademicsModule() {
                         </td>
                         <td className="px-3 py-2.5 text-center font-bold text-[#0F172A]">
                           {row.averagePercentage}%
+                        </td>
+                        <td className="px-3 py-2.5 text-center font-extrabold text-[#1a4a6e]">
+                          {row.overallGrade}
                         </td>
                         <td className="px-3 py-2.5 text-right">
                           <Button
@@ -777,7 +806,59 @@ export function AcademicsModule() {
 
         {/* 3. Conduct & Teacher Remarks Tab */}
         {canViewBroadsheet && (
-          <TabsContent value="remarks">
+          <TabsContent value="remarks" className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-3 text-xs">
+              <div>
+                <div className="font-bold text-[#0F172A]">
+                  Auto-Comments by Final Grade (A, B, C, D, E, F)
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Generate personalized teacher{isAdmin ? " & principal" : ""} remarks for all graded students in {activeClass?.name ?? "this class"} based on their final grade.
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {isAdmin && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveNav("customize")}
+                    className="h-8 border-slate-300 bg-white text-xs font-semibold text-slate-700"
+                  >
+                    <Palette className="mr-1.5 h-3.5 w-3.5 text-[#1a4a6e]" />
+                    Edit A–F Comment Rules
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    const count = applyGradeAutoCommentsToClass({
+                      classId: activeClassId,
+                      programmeId: selectedProgId,
+                      session: selectedSession,
+                      term: selectedTerm,
+                    });
+                    if (count > 0) {
+                      toast.success(
+                        `Auto-filled remarks for ${count} graded ${
+                          count === 1 ? "student" : "students"
+                        } based on Final Grade (A–F).`
+                      );
+                    } else {
+                      toast.info(
+                        "Enter subject scores first so each student has a computed Final Grade (A–F)."
+                      );
+                    }
+                  }}
+                  className="h-8 bg-[#067647] text-xs font-bold text-white hover:bg-emerald-800"
+                >
+                  <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                  Auto-Fill Remarks by Grade (A–F)
+                </Button>
+              </div>
+            </div>
+
             <div className="ndh-card divide-y divide-slate-200">
               {broadsheetRows.map((row) => {
                 const aff = affective.find(
@@ -801,7 +882,7 @@ export function AcademicsModule() {
 
                 return (
                   <div
-                    key={row.student.id}
+                    key={`${row.student.id}-${aff.classTeacherRemark}-${aff.headTeacherRemark}`}
                     className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-12 lg:items-center"
                   >
                     <div className="lg:col-span-3">
@@ -809,8 +890,14 @@ export function AcademicsModule() {
                         {row.student.fullName}
                       </div>
                       <div className="text-xs text-slate-500">
-                        Position: {formatOrdinal(row.position)} • Avg:{" "}
-                        {row.averagePercentage}%
+                        {getResolvedCustomization(settings).reportSheet
+                          .rankingMode !== "grade_only"
+                          ? `Position: ${formatOrdinal(row.position)} • `
+                          : ""}
+                        Avg: {row.averagePercentage}% • Grade:{" "}
+                        <strong className="text-[#1a4a6e]">
+                          {row.overallGrade}
+                        </strong>
                       </div>
                     </div>
 

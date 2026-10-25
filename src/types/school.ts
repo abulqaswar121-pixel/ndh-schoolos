@@ -25,6 +25,8 @@ export type NavSectionId =
   | "notices"
   | "staff"
   | "audit"
+  | "customize"
+  | "backups"
   | "settings";
 
 export interface ScoreComponentConfig {
@@ -70,6 +72,119 @@ export interface SchoolLabelsConfig {
   termLabel: string;
 }
 
+export type WorkspaceThemePresetId =
+  | "ndh_navy"
+  | "royal_emerald"
+  | "sovereign_burgundy"
+  | "imperial_indigo"
+  | "forest_gold"
+  | "slate_executive"
+  | "custom";
+
+export type WorkspaceFontId =
+  | "modern_sans"
+  | "geometric"
+  | "classic_serif"
+  | "system_clean";
+
+export type CrestShapeId = "rounded" | "circle" | "shield";
+
+export interface WorkspaceThemeConfig {
+  presetId: WorkspaceThemePresetId;
+  primaryColor: string;
+  accentColor: string;
+  highlightColor: string;
+  workspaceFont: WorkspaceFontId;
+  crestShape: CrestShapeId;
+  tableDensity: "comfortable" | "compact";
+  lowDataMode: boolean;
+}
+
+export type ReportTemplateId =
+  | "classic_grid"
+  | "executive_banner"
+  | "compact_single_page"
+  | "royal_certificate";
+
+export type ReportRankingMode =
+  | "positions_and_grade"
+  | "class_position_only"
+  | "grade_only";
+
+export type ReportFontFamily = "sans" | "serif" | "mono_tabular";
+export type ReportFontScale = "compact" | "standard" | "large";
+export type ReportPaperTint = "white" | "warm_ivory" | "cool_ice";
+
+export interface AffectiveSkillLabels {
+  punctuality: string;
+  neatness: string;
+  politeness: string;
+  honesty: string;
+}
+
+export interface ReportSheetDesignConfig {
+  template: ReportTemplateId;
+  syncWithWorkspaceTheme: boolean;
+  primaryColor: string;
+  accentColor: string;
+  paperTint: ReportPaperTint;
+  fontFamily: ReportFontFamily;
+  fontScale: ReportFontScale;
+  tableStriped: boolean;
+  showWatermark: boolean;
+  borderStyle: "solid" | "double" | "minimal";
+  customReportTitle: string;
+  rankingMode: ReportRankingMode;
+  broadsheetShowPositions: boolean;
+  consolidateCA: boolean;
+  showSubjectRemarks: boolean;
+  showClassAverage: boolean;
+  showOverallGradeBadge: boolean;
+  showStudentPhotoBox: boolean;
+  showAttendanceSummary: boolean;
+  showAffectiveSkills: boolean;
+  affectiveSkillLabels: AffectiveSkillLabels;
+  showGradingKey: boolean;
+  showNextTermDate: boolean;
+  nextTermBegins: string;
+  showNextTermFeeNote: boolean;
+  nextTermFeeNote: string;
+  principalTitleLabel: string;
+  principalSignatureName: string;
+  principalSignatureDataUrl?: string | undefined;
+  footerNote: string;
+}
+
+export type GradeLetterKey = "A" | "B" | "C" | "D" | "E" | "F";
+
+export interface GradeAutoCommentRule {
+  grade: GradeLetterKey;
+  teacherComment: string;
+  principalComment: string;
+}
+
+export interface AutoCommentConfig {
+  enabled: boolean;
+  mode: "fallback_when_empty" | "override_all";
+  rules: Record<GradeLetterKey, GradeAutoCommentRule>;
+}
+
+export interface DocumentCustomizationConfig {
+  receiptHeaderTitle: string;
+  receiptFooterNote: string;
+  showBankDetailsOnReceipt: boolean;
+  cashierTitleLabel: string;
+  admissionNumberPrefix: string;
+}
+
+export interface SchoolCustomizationConfig {
+  workspaceTheme: WorkspaceThemeConfig;
+  reportSheet: ReportSheetDesignConfig;
+  autoComments: AutoCommentConfig;
+  documents: DocumentCustomizationConfig;
+  lastExternalBackupAt?: string | undefined;
+}
+
 export interface SchoolSettings {
   name: string;
   country: string;
@@ -104,6 +219,7 @@ export interface SchoolSettings {
   siblingDiscount: SiblingDiscountPolicy;
   ndhFooterLinks: NDHEcosystemLink[];
   nextReceiptSequence: number;
+  customization?: SchoolCustomizationConfig | undefined;
 }
 
 export interface ClassGroup {

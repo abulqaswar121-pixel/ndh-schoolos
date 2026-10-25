@@ -5,6 +5,10 @@ import {
   formatOrdinal,
   getProgrammeName,
 } from "@/services/calculations";
+import {
+  getReportFontStack,
+  getResolvedCustomization,
+} from "@/services/customizationDefaults";
 import type { ProgrammeId, SchoolDatabaseSnapshot } from "@/types/school";
 
 interface PrintableBroadsheetProps {
@@ -23,6 +27,13 @@ export function PrintableBroadsheet({
   term,
 }: PrintableBroadsheetProps) {
   const { settings, classes, subjects, students, scores } = db;
+  const custom = getResolvedCustomization(settings);
+  const design = custom.reportSheet;
+  const primaryColor = design.primaryColor || "#0F172A";
+  const accentColor = design.accentColor || "#1E3A8A";
+  const showPositions =
+    design.broadsheetShowPositions && design.rankingMode !== "grade_only";
+
   const cls = classes.find((c) => c.id === classId);
   const progSubjects = subjects.filter((s) => s.programmeId === programmeId);
   const rows = computeClassBroadsheet({
@@ -36,39 +47,62 @@ export function PrintableBroadsheet({
     term,
   });
 
+  const displayRows = showPositions
+    ? rows
+    : [...rows].sort((a, b) =>
+        a.student.fullName.localeCompare(b.student.fullName)
+      );
+
   return (
-    <section className="mx-auto max-w-[290mm] rounded-xl border border-slate-200 bg-white p-6 print:border-0 print:p-0">
-      <div className="flex items-center justify-between gap-4 border-b-2 border-[#0F172A] pb-3">
+    <section
+      className="mx-auto max-w-[290mm] rounded-xl border border-slate-200 bg-white p-6 print:border-0 print:p-0"
+      style={{ fontFamily: getReportFontStack(design.fontFamily) }}
+    >
+      <div
+        className="flex items-center justify-between gap-4 pb-3"
+        style={{ borderBottom: `2px solid ${primaryColor}` }}
+      >
         <SchoolCrest settings={settings} size="md" />
         <div className="flex-1 text-center">
-          <h1 className="text-lg font-extrabold tracking-tight text-[#0F172A] uppercase">
+          <h1
+            className="text-lg font-extrabold tracking-tight uppercase"
+            style={{ color: primaryColor }}
+          >
             {settings.name}
           </h1>
           <p className="text-xs text-slate-600">
             {settings.address} • Tel: {settings.phone}
           </p>
-          <div className="mt-1 inline-block rounded bg-[#0F172A] px-3 py-0.5 text-[11px] font-bold tracking-wider text-white uppercase">
+          <div
+            className="mt-1 inline-block rounded px-3 py-0.5 text-[11px] font-bold tracking-wider text-white uppercase"
+            style={{ backgroundColor: primaryColor }}
+          >
             MASTER {settings.labels.classSingular.toUpperCase()} BROADSHEET —{" "}
             {cls?.name ?? settings.labels.classSingular} ({session} • {term})
           </div>
         </div>
         <div className="text-right text-xs text-slate-600">
           {settings.multiProgrammeEnabled && (
-            <div className="font-bold text-[#0F172A]">
+            <div className="font-bold" style={{ color: primaryColor }}>
               {getProgrammeName(settings, programmeId)}
             </div>
           )}
-          <div>Students: {rows.length}</div>
+          <div>Students: {displayRows.length}</div>
         </div>
       </div>
 
       <div className="mt-4 overflow-x-auto">
         <table className="w-full border-collapse border border-slate-300 text-[11px]">
           <thead>
-            <tr className="bg-slate-100 font-bold text-[#0F172A]">
-              <th className="border border-slate-300 px-2 py-1.5 text-center">
-                Pos
-              </th>
+            <tr
+              className="bg-slate-100 font-bold"
+              style={{ color: primaryColor }}
+            >
+              {showPositions && (
+                <th className="border border-slate-300 px-2 py-1.5 text-center">
+                  Pos
+                </th>
+              )}
               <th className="border border-slate-300 px-2 py-1.5 text-left">
                 Admission ID
               </th>
@@ -96,15 +130,23 @@ export function PrintableBroadsheet({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.student.id} className="even:bg-slate-50/50">
-                <td className="border border-slate-300 px-2 py-1 text-center font-bold text-[#1E3A8A]">
-                  {formatOrdinal(r.position)}
-                </td>
+            {displayRows.map((r) => (
+              <tr
+                key={r.student.id}
+                className={design.tableStriped ? "even:bg-slate-50/70" : ""}
+              >
+                {showPositions && (
+                  <td
+                    className="border border-slate-300 px-2 py-1 text-center font-bold"
+                    style={{ color: accentColor }}
+                  >
+                    {formatOrdinal(r.position)}
+                  </td>
+                )}
                 <td className="border border-slate-300 px-2 py-1 font-mono text-[10px]">
                   {r.student.admissionId}
                 </td>
-                <td className="border border-slate-300 px-2 py-1 font-semibold text-[#0F172A]">
+                <td className="border border-slate-300 px-2 py-1 font-semibold text-slate-900">
                   {r.student.fullName}
                 </td>
                 {progSubjects.map((sub) => {
@@ -124,7 +166,10 @@ export function PrintableBroadsheet({
                 <td className="border border-slate-300 px-2 py-1 text-center font-bold">
                   {r.averagePercentage}%
                 </td>
-                <td className="border border-slate-300 px-2 py-1 text-center font-bold">
+                <td
+                  className="border border-slate-300 px-2 py-1 text-center font-extrabold"
+                  style={{ color: primaryColor }}
+                >
                   {r.overallGrade}
                 </td>
               </tr>
@@ -135,10 +180,14 @@ export function PrintableBroadsheet({
 
       <div className="mt-8 grid grid-cols-2 gap-10 pt-4 text-xs">
         <div className="border-t border-slate-400 pt-1 text-center font-semibold text-slate-700">
-          {settings.labels.classSingular} {settings.labels.teacherSingular} Signature & Date
+          {settings.labels.classSingular} {settings.labels.teacherSingular}{" "}
+          Signature & Date
         </div>
-        <div className="border-t border-slate-400 pt-1 text-center font-semibold text-[#0F172A]">
-          Proprietor / Principal Verification & Stamp
+        <div
+          className="border-t border-slate-400 pt-1 text-center font-semibold"
+          style={{ color: primaryColor }}
+        >
+          {design.principalTitleLabel} Verification & Stamp
         </div>
       </div>
     </section>

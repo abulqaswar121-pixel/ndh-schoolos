@@ -653,12 +653,102 @@ export function generateReceiptNumber(
   return `${cleanCode}/${year}/${padded}`;
 }
 
+let activeTableExportFormat: "csv" | "xls" = "csv";
+
+export function runAsExcelExport(callback: () => void): void {
+  activeTableExportFormat = "xls";
+  try {
+    callback();
+  } finally {
+    activeTableExportFormat = "csv";
+  }
+}
+
+function escapeExcelCellXml(val: string): string {
+  return val
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+export function exportRowsToExcelXls(
+  filename: string,
+  headers: string[],
+  rows: Array<Array<string | number | undefined | null>>,
+  sheetTitle = "NDH SchoolOS Export"
+): void {
+  if (typeof window === "undefined") return;
+  const wsName =
+    sheetTitle.replace(/[\\/?*[\]:]/g, " ").trim().slice(0, 31) || "Export";
+  const colXml = headers
+    .map((h) => `<Column ss:AutoFitWidth="1" ss:Width="${Math.max(95, Math.min(240, h.length * 9 + 28))}"/>`)
+    .join("");
+  const headXml = `<Row ss:Height="22">${headers
+    .map(
+      (h) =>
+        `<Cell ss:StyleID="Head"><Data ss:Type="String">${escapeExcelCellXml(
+          h
+        )}</Data></Cell>`
+    )
+    .join("")}</Row>`;
+  const bodyXml = rows
+    .map(
+      (row) =>
+        `<Row ss:Height="18">${headers
+          .map((_, idx) => {
+            const v = row[idx];
+            if (typeof v === "number" && Number.isFinite(v)) {
+              return `<Cell ss:StyleID="Num"><Data ss:Type="Number">${v}</Data></Cell>`;
+            }
+            const s = v === null || v === undefined ? "" : String(v);
+            return `<Cell ss:StyleID="Body"><Data ss:Type="String">${escapeExcelCellXml(
+              s
+            )}</Data></Cell>`;
+          })
+          .join("")}</Row>`
+    )
+    .join("");
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal"><Font ss:FontName="Calibri" ss:Size="10"/></Style>
+  <Style ss:ID="Head"><Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#0C2340" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="Body"><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>
+  <Style ss:ID="Num"><Alignment ss:Horizontal="Right"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>
+ </Styles>
+ <Worksheet ss:Name="${escapeExcelCellXml(wsName)}">
+  <Table>${colXml}${headXml}${bodyXml}</Table>
+ </Worksheet>
+</Workbook>`;
+
+  const blob = new Blob([xml], {
+    type: "application/vnd.ms-excel;charset=utf-8;",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename.replace(/\.(csv|xls|xlsx)$/i, "") + ".xls";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export function exportRowsToCsv(
   filename: string,
   headers: string[],
   rows: Array<Array<string | number | undefined | null>>
 ): void {
   if (typeof window === "undefined") return;
+  if (activeTableExportFormat === "xls") {
+    exportRowsToExcelXls(filename, headers, rows);
+    return;
+  }
   const escapeCell = (val: string | number | undefined | null): string => {
     const str = val === null || val === undefined ? "" : String(val);
     if (/[",\n\r]/.test(str)) {

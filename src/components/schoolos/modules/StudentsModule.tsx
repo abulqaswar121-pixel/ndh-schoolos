@@ -33,6 +33,7 @@ import {
   getStudentSiblings,
   isStudentInProgramme,
 } from "@/services/calculations";
+import { getResolvedCustomization } from "@/services/customizationDefaults";
 import type { ProgrammeId, Student } from "@/types/school";
 
 export function StudentsModule() {
@@ -141,12 +142,17 @@ export function StudentsModule() {
   const handleOpenAdd = () => {
     const year = settings.currentSession.slice(0, 4) || "2026";
     const nextNum = String(students.length + 1).padStart(3, "0");
+    const customPrefix = getResolvedCustomization(
+      settings
+    ).documents.admissionNumberPrefix.trim();
     const defaultProg = activeProgrammes[0]?.id ?? "prog-main";
     const defaultCls = classes.find((c) => c.programmeId === defaultProg)?.id;
 
     setEditingStudent({
       id: `stu-${Date.now()}`,
-      admissionId: `${settings.code}/${year}/${nextNum}`,
+      admissionId: customPrefix
+        ? `${customPrefix}${nextNum}`
+        : `${settings.code}/${year}/${nextNum}`,
       fullName: "",
       gender: "Female",
       dateOfBirth: "2015-05-10",

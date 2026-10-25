@@ -1,3 +1,4 @@
+import { mirrorDatabaseToIndexedDB } from "./backupExportService";
 import { createSeedDatabase } from "@/data/seedMarkazAcademy";
 import type { SchoolDatabaseSnapshot } from "@/types/school";
 
@@ -53,6 +54,7 @@ class LocalStorageSchoolRepository implements ISchoolRepository {
     } catch (error) {
       console.error("[NDH SchoolOS] Failed to save school snapshot:", error);
     }
+    void mirrorDatabaseToIndexedDB(snapshot);
   }
 
   resetToSeed(): SchoolDatabaseSnapshot {

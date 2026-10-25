@@ -27,12 +27,24 @@ import {
   getAuthorizedSnapshot,
 } from "@/services/accessControl";
 import {
+  type BackupEnvelope,
+  type LocalSnapshotRecord,
+  createLocalSnapshot,
+  downloadFullSchoolBackup,
+} from "@/services/backupExportService";
+import {
+  computeClassBroadsheet,
   computeStaffCompensation,
   formatCurrency,
   generateReceiptNumber,
   getGradingComponents,
   normalizePhoneKey,
 } from "@/services/calculations";
+import {
+  formatAutoCommentTemplate,
+  getResolvedCustomization,
+  normalizeGradeKey,
+} from "@/services/customizationDefaults";
 import { schoolRepository } from "@/services/schoolRepository";
 import type {
   ActivePortalSession,
@@ -193,6 +205,20 @@ interface SchoolOSContextValue {
     }
   ) => void;
   upsertAffectiveRating: (record: AffectiveRatingRecord) => void;
+  applyGradeAutoCommentsToClass: (params: {
+    classId: string;
+    programmeId: ProgrammeId;
+    session: string;
+    term: string;
+  }) => number;
+
+  // Backups & Offline Vault (Admin Only for Full Backup / Restore / Snapshots)
+  downloadCompleteBackup: () => BackupEnvelope | null;
+  createManualSnapshot: (label: string) => Promise<LocalSnapshotRecord | null>;
+  restoreFromBackupSnapshot: (
+    snapshot: SchoolDatabaseSnapshot,
+    sourceLabel: string
+  ) => Promise<{ ok: boolean; error?: string }>;
 
   // Attendance
   setAttendanceStatus: (params: {
@@ -439,7 +465,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     const loaded = schoolRepository.loadSnapshot();
     setRawDb(loaded);
     try {
-      const savedPortal = window.sessionStorage.getItem(PORTAL_STORAGE_KEY);
+      const savedPortal =
+        window.sessionStorage.getItem(PORTAL_STORAGE_KEY) ||
+        window.localStorage.getItem(PORTAL_STORAGE_KEY);
       if (savedPortal) {
         const parsed = JSON.parse(savedPortal) as ActivePortalSession;
         if (parsed && parsed.role) {
@@ -489,7 +517,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     setPortal(next);
     if (typeof window !== "undefined") {
       try {
-        window.sessionStorage.setItem(PORTAL_STORAGE_KEY, JSON.stringify(next));
+        const serialized = JSON.stringify(next);
+        window.sessionStorage.setItem(PORTAL_STORAGE_KEY, serialized);
+        if (next.isAuthenticated) {
+          window.localStorage.setItem(PORTAL_STORAGE_KEY, serialized);
+        } else {
+          window.localStorage.removeItem(PORTAL_STORAGE_KEY);
+        }
       } catch {
         // ignore
       }
@@ -1956,6 +1990,209 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     [portal]
   );
 
+  const applyGradeAutoCommentsToClass = useCallback(
+    (params: {
+      classId: string;
+      programmeId: ProgrammeId;
+      session: string;
+      term: string;
+    }): number => {
+      if (portal.role !== "admin" && portal.role !== "class_teacher") {
+        toast.error("Only Admin or the assigned Class Teacher can update remarks.");
+        return 0;
+      }
+      if (portal.role === "class_teacher") {
+        const myStaff = rawDb.staff.find((s) => s.id === portal.staffId);
+        if (!myStaff?.assignedClassIds.includes(params.classId)) {
+          toast.error("You can only generate remarks for your assigned class.");
+          return 0;
+        }
+      }
+
+      const customization = getResolvedCustomization(rawDb.settings);
+      const broadsheet = computeClassBroadsheet({
+        students: rawDb.students,
+        subjects: rawDb.subjects,
+        scores: rawDb.scores,
+        settings: rawDb.settings,
+        classId: params.classId,
+        programmeId: params.programmeId,
+        session: params.session,
+        term: params.term,
+      });
+
+      let updatedCount = 0;
+      setRawDb((prev) => {
+        const nextAffective = [...prev.affective];
+        for (const row of broadsheet) {
+          const gradeKey = normalizeGradeKey(row.overallGrade);
+          if (!gradeKey) continue;
+          const rule = customization.autoComments.rules[gradeKey];
+          const formattedTeacher = formatAutoCommentTemplate(
+            rule.teacherComment,
+            {
+              studentName: row.student.fullName,
+              averagePercentage: row.averagePercentage,
+              grade: row.overallGrade,
+            }
+          );
+          const formattedPrincipal = formatAutoCommentTemplate(
+            rule.principalComment,
+            {
+              studentName: row.student.fullName,
+              averagePercentage: row.averagePercentage,
+              grade: row.overallGrade,
+            }
+          );
+
+          const existingIdx = nextAffective.findIndex(
+            (a) =>
+              a.studentId === row.student.id &&
+              a.session === params.session &&
+              a.term === params.term
+          );
+
+          if (existingIdx >= 0) {
+            const cur = nextAffective[existingIdx]!;
+            nextAffective[existingIdx] = {
+              ...cur,
+              classTeacherRemark: formattedTeacher,
+              headTeacherRemark:
+                portal.role === "admin"
+                  ? formattedPrincipal
+                  : cur.headTeacherRemark,
+            };
+          } else {
+            nextAffective.push({
+              id: `${row.student.id}_${params.session}_${params.term}`,
+              studentId: row.student.id,
+              session: params.session,
+              term: params.term,
+              punctuality: 5,
+              neatness: 5,
+              politeness: 5,
+              honesty: 5,
+              classTeacherRemark: formattedTeacher,
+              headTeacherRemark:
+                portal.role === "admin"
+                  ? formattedPrincipal
+                  : "Good term progress. Keep working hard.",
+            });
+          }
+          updatedCount += 1;
+        }
+
+        if (updatedCount === 0) return prev;
+        const clsName =
+          prev.classes.find((c) => c.id === params.classId)?.name ??
+          params.classId;
+        return {
+          ...prev,
+          affective: nextAffective,
+          auditLogs: [
+            makeAuditEntry({
+              portal,
+              category: "score",
+              action: "Auto-Filled Remarks by Grade (A–F)",
+              targetLabel: `${clsName} • ${params.session} (${params.term})`,
+              oldValue: "Previous remarks",
+              newValue: `${updatedCount} student remarks generated`,
+            }),
+            ...prev.auditLogs,
+          ],
+        };
+      });
+
+      return updatedCount;
+    },
+    [portal, rawDb]
+  );
+
+  const downloadCompleteBackup = useCallback((): BackupEnvelope | null => {
+    if (!canManageSettings(portal)) {
+      toast.error("Only the Proprietor / Admin can download a full school backup.");
+      return null;
+    }
+    const nowIso = new Date().toISOString();
+    const stampedDb: SchoolDatabaseSnapshot = {
+      ...rawDb,
+      settings: {
+        ...rawDb.settings,
+        customization: {
+          ...getResolvedCustomization(rawDb.settings),
+          lastExternalBackupAt: nowIso,
+        },
+      },
+      auditLogs: [
+        makeAuditEntry({
+          portal,
+          category: "settings",
+          action: "Downloaded Full School Backup",
+          targetLabel: rawDb.settings.name,
+          oldValue: "—",
+          newValue: `${rawDb.students.length} students • ${rawDb.scores.length} scores`,
+        }),
+        ...rawDb.auditLogs,
+      ],
+    };
+    setRawDb(stampedDb);
+    return downloadFullSchoolBackup(stampedDb);
+  }, [portal, rawDb]);
+
+  const createManualSnapshot = useCallback(
+    async (label: string): Promise<LocalSnapshotRecord | null> => {
+      if (!canManageSettings(portal)) {
+        toast.error("Only the Proprietor / Admin can create restore points.");
+        return null;
+      }
+      const snap = await createLocalSnapshot(rawDb, label);
+      return snap;
+    },
+    [portal, rawDb]
+  );
+
+  const restoreFromBackupSnapshot = useCallback(
+    async (
+      incomingSnapshot: SchoolDatabaseSnapshot,
+      sourceLabel: string
+    ): Promise<{ ok: boolean; error?: string }> => {
+      if (!canManageSettings(portal)) {
+        return {
+          ok: false,
+          error: "Only the Proprietor / Admin can restore a school backup.",
+        };
+      }
+      // Save automatic pre-restore safety snapshot first!
+      await createLocalSnapshot(
+        rawDb,
+        `Auto-Safety Before Restore (${new Date().toLocaleTimeString()})`
+      );
+
+      const auditEntry = makeAuditEntry({
+        portal,
+        category: "settings",
+        action: "Restored School Backup",
+        targetLabel: incomingSnapshot.settings.name,
+        oldValue: `${rawDb.settings.name} (${rawDb.students.length} students)`,
+        newValue: `${sourceLabel} (${incomingSnapshot.students.length} students)`,
+      });
+
+      const restoredDb: SchoolDatabaseSnapshot = {
+        ...incomingSnapshot,
+        version: 3,
+        auditLogs: [auditEntry, ...(incomingSnapshot.auditLogs ?? [])],
+      };
+
+      setRawDb(restoredDb);
+      const nextPortal = buildPortalSessionForRole("admin", restoredDb, {
+        isAuthenticated: true,
+      });
+      persistPortal(nextPortal);
+      return { ok: true };
+    },
+    [portal, rawDb, persistPortal]
+  );
+
   const value = useMemo<SchoolOSContextValue>(
     () => ({
       db: scopedDb,
@@ -1987,6 +2224,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       reviewPendingScoreEdit,
       upsertQuranRecord,
       upsertAffectiveRating,
+      applyGradeAutoCommentsToClass,
+      downloadCompleteBackup,
+      createManualSnapshot,
+      restoreFromBackupSnapshot,
       setAttendanceStatus,
       markClassAllPresent,
       upsertFeeItem,
@@ -2030,6 +2271,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       reviewPendingScoreEdit,
       upsertQuranRecord,
       upsertAffectiveRating,
+      applyGradeAutoCommentsToClass,
+      downloadCompleteBackup,
+      createManualSnapshot,
+      restoreFromBackupSnapshot,
       setAttendanceStatus,
       markClassAllPresent,
       upsertFeeItem,
@@ -2050,6 +2295,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   return (
     <SchoolOSContext.Provider value={value}>{children}</SchoolOSContext.Provider>
   );
+}
+
+export function useOptionalSchoolOS(): SchoolOSContextValue | null {
+  return useContext(SchoolOSContext);
 }
 
 export function useSchoolOS(): SchoolOSContextValue {

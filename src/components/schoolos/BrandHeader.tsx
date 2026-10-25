@@ -5,14 +5,18 @@ import {
   Calculator,
   ChevronDown,
   ClipboardCheck,
+  CloudOff,
+  DatabaseBackup,
   LogOut,
   Menu,
+  Palette,
   PlayCircle,
   ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
 import React from "react";
+import { toast } from "sonner";
 import { NDHBrandLockup } from "./NDHBrandLockup";
 import { SchoolCrest } from "./SchoolCrest";
 import { Button } from "@/components/ui/button";
@@ -32,6 +36,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSchoolOS } from "@/context/SchoolOSContext";
+import { getAllowedNavSections } from "@/services/accessControl";
+import { getResolvedCustomization } from "@/services/customizationDefaults";
+import { useOfflineStatus } from "@/services/offlineService";
 import type { UserRole } from "@/types/school";
 
 interface BrandHeaderProps {
@@ -62,8 +69,17 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
     updateSettings,
     logoutSession,
     setOnboardingWizardOpen,
+    setActiveNav,
   } = useSchoolOS();
   const { settings } = db;
+  const custom = getResolvedCustomization(settings);
+  const { primaryColor, highlightColor } = custom.workspaceTheme;
+  const offline = useOfflineStatus();
+  const allowedNav = getAllowedNavSections(
+    portal.role,
+    settings.enableQuranModule
+  );
+
   const roleMeta = ROLE_META[portal.role];
   const RoleIcon = roleMeta.icon;
 
@@ -72,8 +88,23 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
     void navigate({ to: "/login" });
   };
 
+  const handleOfflinePillClick = () => {
+    if (allowedNav.includes("backups")) {
+      setActiveNav("backups");
+    } else {
+      toast.success(
+        offline.isOnline
+          ? "Offline Vault Active — all scores, attendance, and records save directly to this device."
+          : "Offline Mode Active — your work is saving locally without internet."
+      );
+    }
+  };
+
   return (
-    <header className="no-print sticky top-0 z-30 border-b border-white/10 bg-[#0c2340] text-white shadow-sm">
+    <header
+      className="no-print sticky top-0 z-30 border-b border-white/10 text-white shadow-sm"
+      style={{ backgroundColor: primaryColor }}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-5">
         {/* Left: Mobile Menu + NDH Parent Lockup + Active School */}
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3.5">
@@ -108,7 +139,10 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-300">
-                <Building2 className="h-3 w-3 text-[#9ed9d6]" />
+                <Building2
+                  className="h-3 w-3 shrink-0"
+                  style={{ color: highlightColor }}
+                />
                 <span>
                   {settings.currentSession} • {settings.currentTerm}
                 </span>
@@ -117,8 +151,31 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
           </div>
         </div>
 
-        {/* Right: Session/Term + Video Guide + Account Menu */}
+        {/* Right: Offline Pill + Session/Term + Video Guide + Account Menu */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          <button
+            type="button"
+            onClick={handleOfflinePillClick}
+            title="Offline & Local Vault Status"
+            className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold transition ${
+              offline.isOnline
+                ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"
+                : "border-amber-300/60 bg-amber-500/25 text-amber-100 hover:bg-amber-500/35"
+            }`}
+          >
+            {offline.isOnline ? (
+              <>
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span className="hidden sm:inline">Offline Ready</span>
+              </>
+            ) : (
+              <>
+                <CloudOff className="h-3.5 w-3.5 text-amber-300" />
+                <span>Offline Mode</span>
+              </>
+            )}
+          </button>
+
           {portal.role === "admin" && (
             <div className="hidden items-center gap-1.5 xl:flex">
               <Select
@@ -170,10 +227,13 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
             type="button"
             variant="outline"
             size="sm"
-            className="hidden h-8 gap-1.5 border-[#9ed9d6]/40 bg-white/10 px-2.5 text-xs font-semibold text-[#edf7f6] hover:bg-white/15 hover:text-white sm:inline-flex"
+            className="hidden h-8 gap-1.5 border-white/25 bg-white/10 px-2.5 text-xs font-semibold text-white hover:bg-white/15 hover:text-white sm:inline-flex"
           >
             <Link to="/tutorials">
-              <PlayCircle className="h-3.5 w-3.5 text-[#9ed9d6]" />
+              <PlayCircle
+                className="h-3.5 w-3.5"
+                style={{ color: highlightColor }}
+              />
               <span>Video Guide</span>
             </Link>
           </Button>
@@ -186,8 +246,10 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
                 size="sm"
                 className="h-8 gap-1.5 border-white/15 bg-white/10 px-2.5 text-xs font-semibold text-white hover:bg-white/15 hover:text-white"
               >
-                <RoleIcon className="h-3.5 w-3.5 text-[#9ed9d6]" />
-                <span className="max-w-[140px] truncate">{roleMeta.label}</span>
+                <span style={{ color: highlightColor }}>
+                  <RoleIcon className="h-3.5 w-3.5" />
+                </span>
+                <span className="max-w-[130px] truncate">{roleMeta.label}</span>
                 <ChevronDown className="h-3.5 w-3.5 text-slate-300" />
               </Button>
             </DropdownMenuTrigger>
@@ -202,6 +264,26 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
               </DropdownMenuLabel>
 
               <DropdownMenuSeparator />
+
+              {portal.role === "admin" && (
+                <DropdownMenuItem
+                  onClick={() => setActiveNav("customize")}
+                  className="cursor-pointer text-xs font-medium"
+                >
+                  <Palette className="mr-2 h-3.5 w-3.5 text-[#1a4a6e]" />
+                  Customize Report Sheets & Theme
+                </DropdownMenuItem>
+              )}
+
+              {allowedNav.includes("backups") && (
+                <DropdownMenuItem
+                  onClick={() => setActiveNav("backups")}
+                  className="cursor-pointer text-xs font-medium"
+                >
+                  <DatabaseBackup className="mr-2 h-3.5 w-3.5 text-[#067647]" />
+                  Backups, Offline & Excel Export
+                </DropdownMenuItem>
+              )}
 
               <DropdownMenuItem
                 onClick={() => void navigate({ to: "/tutorials" })}

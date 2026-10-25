@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { BrandHeader } from "./BrandHeader";
 import { EcosystemFooter } from "./EcosystemFooter";
@@ -7,62 +7,64 @@ import { PrintOverlay } from "./PrintOverlay";
 import { SaaSOnboardingWizard } from "./SaaSOnboardingWizard";
 import { SchoolOSAIAssistant } from "./landing/SchoolOSAIAssistant";
 import { useSchoolOS } from "@/context/SchoolOSContext";
+import {
+  getResolvedCustomization,
+  getWorkspaceFontStack,
+} from "@/services/customizationDefaults";
 
-// Lazy-loaded modules for fast, low-data mobile loading across Nigerian networks
+// Lazy-loaded modules + idle pre-warming so switching modules works 100% offline with zero data
+const loadOverview = () => import("./modules/OverviewDashboard");
+const loadStudents = () => import("./modules/StudentsModule");
+const loadClasses = () => import("./modules/ClassesModule");
+const loadAcademics = () => import("./modules/AcademicsModule");
+const loadAttendance = () => import("./modules/AttendanceModule");
+const loadFees = () => import("./modules/FeesModule");
+const loadNotices = () => import("./modules/ParentNoticesModule");
+const loadStaff = () => import("./modules/StaffPayrollModule");
+const loadAudit = () => import("./modules/AuditLogModule");
+const loadCustomize = () => import("./modules/CustomizeDesignModule");
+const loadBackups = () => import("./modules/BackupsOfflineModule");
+const loadSettings = () => import("./modules/SetupSettingsModule");
+const loadParent = () => import("./modules/ParentPortalView");
+
 const OverviewDashboard = lazy(() =>
-  import("./modules/OverviewDashboard").then((m) => ({
-    default: m.OverviewDashboard,
-  }))
+  loadOverview().then((m) => ({ default: m.OverviewDashboard }))
 );
 const StudentsModule = lazy(() =>
-  import("./modules/StudentsModule").then((m) => ({
-    default: m.StudentsModule,
-  }))
+  loadStudents().then((m) => ({ default: m.StudentsModule }))
 );
 const ClassesModule = lazy(() =>
-  import("./modules/ClassesModule").then((m) => ({
-    default: m.ClassesModule,
-  }))
+  loadClasses().then((m) => ({ default: m.ClassesModule }))
 );
 const AcademicsModule = lazy(() =>
-  import("./modules/AcademicsModule").then((m) => ({
-    default: m.AcademicsModule,
-  }))
+  loadAcademics().then((m) => ({ default: m.AcademicsModule }))
 );
 const AttendanceModule = lazy(() =>
-  import("./modules/AttendanceModule").then((m) => ({
-    default: m.AttendanceModule,
-  }))
+  loadAttendance().then((m) => ({ default: m.AttendanceModule }))
 );
 const FeesModule = lazy(() =>
-  import("./modules/FeesModule").then((m) => ({
-    default: m.FeesModule,
-  }))
+  loadFees().then((m) => ({ default: m.FeesModule }))
 );
 const ParentNoticesModule = lazy(() =>
-  import("./modules/ParentNoticesModule").then((m) => ({
-    default: m.ParentNoticesModule,
-  }))
+  loadNotices().then((m) => ({ default: m.ParentNoticesModule }))
 );
 const StaffPayrollModule = lazy(() =>
-  import("./modules/StaffPayrollModule").then((m) => ({
-    default: m.StaffPayrollModule,
-  }))
+  loadStaff().then((m) => ({ default: m.StaffPayrollModule }))
 );
 const AuditLogModule = lazy(() =>
-  import("./modules/AuditLogModule").then((m) => ({
-    default: m.AuditLogModule,
-  }))
+  loadAudit().then((m) => ({ default: m.AuditLogModule }))
+);
+const CustomizeDesignModule = lazy(() =>
+  loadCustomize().then((m) => ({ default: m.CustomizeDesignModule }))
+);
+const BackupsOfflineModule = lazy(() =>
+  loadBackups().then((m) => ({ default: m.BackupsOfflineModule }))
 );
 const SetupSettingsModule = lazy(() =>
-  import("./modules/SetupSettingsModule").then((m) => ({
-    default: m.SetupSettingsModule,
-  }))
+  loadSettings().then((m) => ({ default: m.SetupSettingsModule }))
 );
 const ParentPortalView = lazy(() =>
-  import("./modules/ParentPortalView").then((m) => ({
-    default: m.ParentPortalView,
-  }))
+  loadParent().then((m) => ({ default: m.ParentPortalView }))
 );
 
 function ModuleLoadingFallback() {
@@ -77,8 +79,46 @@ function ModuleLoadingFallback() {
  * Authenticated School Platform Workspace (`/app`)
  */
 export function SchoolOSApplication() {
-  const { portal, activeNav, setOnboardingWizardOpen } = useSchoolOS();
+  const { db, portal, activeNav, setOnboardingWizardOpen } = useSchoolOS();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const custom = getResolvedCustomization(db.settings);
+  const workspaceFontFamily = getWorkspaceFontStack(
+    custom.workspaceTheme.workspaceFont
+  );
+
+  const preloadAllModules = useCallback(() => {
+    return Promise.allSettled([
+      loadOverview(),
+      loadStudents(),
+      loadClasses(),
+      loadAcademics(),
+      loadAttendance(),
+      loadFees(),
+      loadNotices(),
+      loadStaff(),
+      loadAudit(),
+      loadCustomize(),
+      loadBackups(),
+      loadSettings(),
+      loadParent(),
+    ]);
+  }, []);
+
+  // Pre-warm lazy chunks on idle after sign-in so all modules work offline seamlessly
+  useEffect(() => {
+    if (!portal.isAuthenticated) return;
+    if (
+      typeof navigator !== "undefined" &&
+      navigator.userAgent.toLowerCase().includes("jsdom")
+    ) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      void preloadAllModules();
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [portal.isAuthenticated, preloadAllModules]);
 
   if (!portal.isAuthenticated) {
     return (
@@ -93,7 +133,10 @@ export function SchoolOSApplication() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f5f6f8] text-[#0b1220]">
+    <div
+      className="flex min-h-screen flex-col bg-[#f5f6f8] text-[#0b1220]"
+      style={{ fontFamily: workspaceFontFamily }}
+    >
       <BrandHeader onOpenMobileMenu={() => setMobileMenuOpen(true)} />
 
       <div className="flex flex-1">
@@ -118,6 +161,12 @@ export function SchoolOSApplication() {
                   {activeNav === "notices" && <ParentNoticesModule />}
                   {activeNav === "staff" && <StaffPayrollModule />}
                   {activeNav === "audit" && <AuditLogModule />}
+                  {activeNav === "customize" && <CustomizeDesignModule />}
+                  {activeNav === "backups" && (
+                    <BackupsOfflineModule
+                      preloadAllModules={preloadAllModules}
+                    />
+                  )}
                   {activeNav === "settings" && <SetupSettingsModule />}
                 </>
               )}
