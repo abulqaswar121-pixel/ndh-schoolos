@@ -1,6 +1,7 @@
 import {
   Check,
   Download,
+  Layers,
   Lock,
   LockOpen,
   Palette,
@@ -15,6 +16,13 @@ import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { QURAN_SURAHS, getSurahByNumber } from "@/data/quranSurahs";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,6 +53,8 @@ export function AcademicsModule() {
     applyGradeAutoCommentsToClass,
     upsertSubject,
     deleteSubject,
+    upsertTeachingGroup,
+    deleteTeachingGroup,
     openPrintPreview,
   } = useSchoolOS();
   const {
@@ -57,10 +67,14 @@ export function AcademicsModule() {
     quranRecords,
     affective,
   } = db;
+  const teachingGroups = db.teachingGroups ?? [];
 
   const isAdmin = portal.role === "admin";
+  const isExamOfficer =
+    portal.role === "exam_officer" || Boolean(portal.isExamOfficer);
   const canViewBroadsheet =
-    portal.role === "admin" ||
+    isAdmin ||
+    isExamOfficer ||
     portal.role === "class_teacher" ||
     portal.role === "muallim";
 
@@ -110,6 +124,32 @@ export function AcademicsModule() {
     [settings, selectedProgId, activeClassId]
   );
 
+  // Combined / Cross-Class Subject Recording Mode ("single_class" | "all_classes" | "group:<id>")
+  const [marksheetScope, setMarksheetScope] = useState<string>("single_class");
+  const [groupModalOpen, setGroupModalOpen] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupClassIds, setNewGroupClassIds] = useState<string[]>([]);
+  const [newGroupStudentIds, setNewGroupStudentIds] = useState<string[]>([]);
+  const [groupStudentSearch, setGroupStudentSearch] = useState("");
+
+  const subjectTeachingGroups = useMemo(
+    () =>
+      teachingGroups.filter(
+        (g) =>
+          g.programmeId === selectedProgId && g.subjectId === activeSubjectId
+      ),
+    [teachingGroups, selectedProgId, activeSubjectId]
+  );
+
+  const selectedGroup = useMemo(() => {
+    if (!marksheetScope.startsWith("group:")) return undefined;
+    const gid = marksheetScope.slice("group:".length);
+    return subjectTeachingGroups.find((g) => g.id === gid);
+  }, [marksheetScope, subjectTeachingGroups]);
+
+  const isCombinedMarksheet =
+    marksheetScope === "all_classes" || Boolean(selectedGroup);
+
   const marksheet = useMemo(
     () =>
       computeSubjectMarksheet({
@@ -118,6 +158,11 @@ export function AcademicsModule() {
         components,
         gradeBands: settings.grading.gradeBands,
         classId: activeClassId,
+        classIds:
+          marksheetScope === "all_classes"
+            ? progClasses.map((c) => c.id)
+            : selectedGroup?.classIds,
+        customStudentIds: selectedGroup?.studentIds,
         subjectId: activeSubjectId,
         programmeId: selectedProgId,
         session: selectedSession,
@@ -129,6 +174,9 @@ export function AcademicsModule() {
       components,
       settings.grading.gradeBands,
       activeClassId,
+      marksheetScope,
+      progClasses,
+      selectedGroup,
       activeSubjectId,
       selectedProgId,
       selectedSession,
@@ -159,6 +207,35 @@ export function AcademicsModule() {
       selectedTerm,
     ]
   );
+
+  const subjectSyncSummary = useMemo(() => {
+    const classStudentIds = new Set(broadsheetRows.map((r) => r.student.id));
+    const items = progSubjects.map((sub) => {
+      const subScores = scores.filter(
+        (sc) =>
+          classStudentIds.has(sc.studentId) &&
+          sc.subjectId === sub.id &&
+          sc.session === selectedSession &&
+          sc.term === selectedTerm &&
+          Object.keys(sc.scores).length > 0
+      );
+      const lastEditor = subScores
+        .slice()
+        .sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""))[0]
+        ?.updatedBy;
+      return {
+        subject: sub,
+        recordedCount: subScores.length,
+        hasEntries: subScores.length > 0,
+        lastEditor,
+      };
+    });
+    return {
+      totalSubjects: items.length,
+      submittedSubjects: items.filter((i) => i.hasEntries).length,
+      items,
+    };
+  }, [broadsheetRows, progSubjects, scores, selectedSession, selectedTerm]);
 
   // Add Subject form state (Admin)
   const [newSubName, setNewSubName] = useState("");
@@ -525,13 +602,91 @@ export function AcademicsModule() {
           )}
         </TabsList>
 
-        {/* 1. Subject Marksheet Tab */}
+        {/* 1. Subject Marksheet Tab (Supports Single Class OR Combined Multi-Class / Cross-Section Group!) */}
         <TabsContent value="marksheet" className="space-y-3">
+          {/* Combined / Integrated Multi-Class Recording Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 font-bold text-[#0c2340]">
+                <Layers className="h-3.5 w-3.5 text-[#1a4a6e]" />
+                <span>Recording Mode:</span>
+              </span>
+              <select
+                aria-label="Choose marksheet recording scope"
+                value={marksheetScope}
+                onChange={(e) => setMarksheetScope(e.target.value)}
+                className="h-8 rounded-lg border border-slate-300 bg-[#F8FAFC] px-2.5 text-xs font-bold text-[#0F172A]"
+              >
+                <option value="single_class">
+                  Single {settings.labels.classSingular} ({activeClass?.name ?? "—"})
+                </option>
+                {progClasses.length > 1 && (
+                  <option value="all_classes">
+                    All My {settings.labels.classPlural} Combined ({progClasses.length}{" "}
+                    {settings.labels.classPlural.toLowerCase()} in one sheet)
+                  </option>
+                )}
+                {subjectTeachingGroups.map((grp) => (
+                  <option key={grp.id} value={`group:${grp.id}`}>
+                    Combined Group: {grp.name}
+                  </option>
+                ))}
+              </select>
+
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setNewGroupName("");
+                  setNewGroupClassIds([]);
+                  setNewGroupStudentIds([]);
+                  setGroupStudentSearch("");
+                  setGroupModalOpen(true);
+                }}
+                className="h-8 border-[#9ed9d6] bg-[#edf7f6] px-2.5 text-xs font-bold text-[#1a4a6e] hover:bg-[#d8efed]"
+              >
+                <Plus className="mr-1 h-3.5 w-3.5" />
+                Combined Student Group
+              </Button>
+
+              {selectedGroup && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    deleteTeachingGroup(selectedGroup.id);
+                    setMarksheetScope("single_class");
+                    toast.success(`Removed combined group "${selectedGroup.name}".`);
+                  }}
+                  className="h-8 border-red-200 bg-white px-2 text-xs text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+
+            {isCombinedMarksheet && (
+              <span className="text-[11px] font-semibold text-[#067647]">
+                Enter once here — each student&apos;s score routes automatically to their own{" "}
+                {settings.labels.classSingular.toLowerCase()} broadsheet &amp; report sheet
+              </span>
+            )}
+          </div>
+
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-xs font-semibold text-slate-700">
-              <strong>{activeClass?.name ?? "—"}</strong> •{" "}
-              <strong>{activeSubject?.name ?? "—"}</strong> • Class Avg:{" "}
-              <strong>{marksheet.classAverage}%</strong>
+              <strong>
+                {selectedGroup
+                  ? selectedGroup.name
+                  : marksheetScope === "all_classes"
+                    ? `All ${settings.labels.classPlural} Combined`
+                    : (activeClass?.name ?? "—")}
+              </strong>{" "}
+              • <strong>{activeSubject?.name ?? "—"}</strong> • Avg:{" "}
+              <strong>{marksheet.classAverage}%</strong> ({marksheet.rows.length}{" "}
+              students)
             </div>
 
             <div className="flex items-center gap-2">
@@ -549,26 +704,43 @@ export function AcademicsModule() {
                 onClick={() =>
                   openPrintPreview({
                     type: "table",
-                    title: `${activeClass?.name ?? ""} — ${activeSubject?.name ?? ""} Marksheet`,
+                    title: `${
+                      selectedGroup
+                        ? selectedGroup.name
+                        : marksheetScope === "all_classes"
+                          ? `Combined ${settings.labels.classPlural}`
+                          : (activeClass?.name ?? "")
+                    } — ${activeSubject?.name ?? ""} Marksheet`,
                     subtitle: `${selectedSession} • ${selectedTerm}`,
                     headers: [
                       "Admission ID",
                       "Student Name",
+                      ...(isCombinedMarksheet
+                        ? [settings.labels.classSingular]
+                        : []),
                       ...components.map((c) => `${c.label} (${c.maxScore})`),
                       "Total",
                       "Pos",
                       "Grade",
                     ],
-                    rows: marksheet.rows.map((r) => [
-                      r.student.admissionId,
-                      r.student.fullName,
-                      ...components.map((c) =>
-                        r.hasEntry ? (r.scores[c.id] ?? 0) : "—"
-                      ),
-                      r.hasEntry ? r.total : "—",
-                      formatOrdinal(r.position),
-                      r.grade,
-                    ]),
+                    rows: marksheet.rows.map((r) => {
+                      const homeClsName =
+                        classes.find(
+                          (c) =>
+                            c.id === r.student.programmeClasses[selectedProgId]
+                        )?.name ?? "—";
+                      return [
+                        r.student.admissionId,
+                        r.student.fullName,
+                        ...(isCombinedMarksheet ? [homeClsName] : []),
+                        ...components.map((c) =>
+                          r.hasEntry ? (r.scores[c.id] ?? 0) : "—"
+                        ),
+                        r.hasEntry ? r.total : "—",
+                        formatOrdinal(r.position),
+                        r.grade,
+                      ];
+                    }),
                   })
                 }
                 className="h-8 bg-[#0F172A] text-xs font-bold text-white hover:bg-[#1E3A8A]"
@@ -585,6 +757,11 @@ export function AcademicsModule() {
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold text-[#0F172A] uppercase">
                     <th className="px-4 py-3">Student</th>
+                    {isCombinedMarksheet && (
+                      <th className="px-3 py-3">
+                        Home {settings.labels.classSingular}
+                      </th>
+                    )}
                     {components.map((comp) => (
                       <th key={comp.id} className="px-3 py-3 text-center">
                         {comp.label} (/{comp.maxScore})
@@ -600,77 +777,95 @@ export function AcademicsModule() {
                   {marksheet.rows.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={components.length + 5}
+                        colSpan={components.length + (isCombinedMarksheet ? 6 : 5)}
                         className="px-4 py-8 text-center text-xs text-slate-500"
                       >
-                        No active students in this {settings.labels.classSingular.toLowerCase()}.
+                        No active students in this selection.
                       </td>
                     </tr>
                   ) : (
-                    marksheet.rows.map((row) => (
-                      <tr key={row.student.id} className="hover:bg-slate-50/70">
-                        <td className="px-4 py-2.5">
-                          <div className="font-bold text-[#0F172A]">
-                            {row.student.fullName}
-                          </div>
-                          <div className="font-mono text-[11px] text-slate-500">
-                            {row.student.admissionId}
-                          </div>
-                        </td>
-                        {components.map((comp) => {
-                          const currentVal = row.scores[comp.id];
-                          return (
-                            <td key={comp.id} className="px-3 py-2.5 text-center">
-                              <input
-                                type="number"
-                                min={0}
-                                max={comp.maxScore}
-                                disabled={termControl.isLocked}
-                                defaultValue={
-                                  currentVal !== undefined ? currentVal : ""
-                                }
-                                key={`${row.student.id}_${activeSubjectId}_${comp.id}_${currentVal ?? "empty"}_${termControl.isLocked}`}
-                                onBlur={(e) => {
-                                  if (e.target.value === "") return;
-                                  const num = Math.max(
-                                    0,
-                                    Math.min(
-                                      comp.maxScore,
-                                      Number(e.target.value) || 0
-                                    )
-                                  );
-                                  if (num === currentVal) return;
-                                  updateScoreCell({
-                                    studentId: row.student.id,
-                                    subjectId: activeSubjectId,
-                                    classId: activeClassId,
-                                    programmeId: selectedProgId,
-                                    session: selectedSession,
-                                    term: selectedTerm,
-                                    componentId: comp.id,
-                                    value: num,
-                                  });
-                                }}
-                                aria-label={`${row.student.fullName} ${comp.label}`}
-                                className="h-9 w-16 rounded-lg border border-slate-300 bg-white text-center text-xs font-bold text-[#0F172A] focus:border-[#1E3A8A] focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-                              />
+                    marksheet.rows.map((row) => {
+                      const studentHomeClassId =
+                        row.student.programmeClasses[selectedProgId] ??
+                        activeClassId;
+                      const studentHomeClassName =
+                        classes.find((c) => c.id === studentHomeClassId)?.name ??
+                        "—";
+                      return (
+                        <tr key={row.student.id} className="hover:bg-slate-50/70">
+                          <td className="px-4 py-2.5">
+                            <div className="font-bold text-[#0F172A]">
+                              {row.student.fullName}
+                            </div>
+                            <div className="font-mono text-[11px] text-slate-500">
+                              {row.student.admissionId}
+                            </div>
+                          </td>
+                          {isCombinedMarksheet && (
+                            <td className="px-3 py-2.5">
+                              <span className="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-[#1a4a6e]">
+                                {studentHomeClassName}
+                              </span>
                             </td>
-                          );
-                        })}
-                        <td className="px-3 py-2.5 text-center font-extrabold text-[#0F172A]">
-                          {row.hasEntry ? row.total : "—"}
-                        </td>
-                        <td className="px-3 py-2.5 text-center font-bold text-[#1E3A8A]">
-                          {formatOrdinal(row.position)}
-                        </td>
-                        <td className="px-3 py-2.5 text-center font-bold text-[#0F172A]">
-                          {row.grade}
-                        </td>
-                        <td className="px-4 py-2.5 text-xs text-slate-600">
-                          {row.remark}
-                        </td>
-                      </tr>
-                    ))
+                          )}
+                          {components.map((comp) => {
+                            const currentVal = row.scores[comp.id];
+                            return (
+                              <td
+                                key={comp.id}
+                                className="px-3 py-2.5 text-center"
+                              >
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={comp.maxScore}
+                                  disabled={termControl.isLocked}
+                                  defaultValue={
+                                    currentVal !== undefined ? currentVal : ""
+                                  }
+                                  key={`${row.student.id}_${activeSubjectId}_${comp.id}_${currentVal ?? "empty"}_${termControl.isLocked}`}
+                                  onBlur={(e) => {
+                                    if (e.target.value === "") return;
+                                    const num = Math.max(
+                                      0,
+                                      Math.min(
+                                        comp.maxScore,
+                                        Number(e.target.value) || 0
+                                      )
+                                    );
+                                    if (num === currentVal) return;
+                                    updateScoreCell({
+                                      studentId: row.student.id,
+                                      subjectId: activeSubjectId,
+                                      classId: studentHomeClassId,
+                                      programmeId: selectedProgId,
+                                      session: selectedSession,
+                                      term: selectedTerm,
+                                      componentId: comp.id,
+                                      value: num,
+                                    });
+                                  }}
+                                  aria-label={`${row.student.fullName} ${comp.label}`}
+                                  className="h-9 w-16 rounded-lg border border-slate-300 bg-white text-center text-xs font-bold text-[#0F172A] focus:border-[#1E3A8A] focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                                />
+                              </td>
+                            );
+                          })}
+                          <td className="px-3 py-2.5 text-center font-extrabold text-[#0F172A]">
+                            {row.hasEntry ? row.total : "—"}
+                          </td>
+                          <td className="px-3 py-2.5 text-center font-bold text-[#1E3A8A]">
+                            {formatOrdinal(row.position)}
+                          </td>
+                          <td className="px-3 py-2.5 text-center font-bold text-[#0F172A]">
+                            {row.grade}
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-slate-600">
+                            {row.remark}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -681,6 +876,41 @@ export function AcademicsModule() {
         {/* 2. Broadsheet & Report Cards Tab */}
         {canViewBroadsheet && (
           <TabsContent value="broadsheet" className="space-y-3">
+            {/* Automatic Subject-Teacher -> Class-Teacher Sync Banner */}
+            <div className="rounded-xl border border-[#9ed9d6] bg-[#edf7f6] px-4 py-3 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="font-bold text-[#0c2340]">
+                  Automatic Subject Score Sync:{" "}
+                  <span className="text-[#067647]">
+                    {subjectSyncSummary.submittedSubjects} of{" "}
+                    {subjectSyncSummary.totalSubjects} subjects recorded
+                  </span>
+                </div>
+                <span className="text-[11px] font-semibold text-[#1a4a6e]">
+                  Subject Teachers&apos; CA & Exam entries appear here automatically — zero re-entry needed
+                </span>
+              </div>
+              {subjectSyncSummary.items.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {subjectSyncSummary.items.map((item) => (
+                    <span
+                      key={item.subject.id}
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                        item.hasEntries
+                          ? "bg-emerald-100 text-emerald-900"
+                          : "bg-white/80 text-slate-600"
+                      }`}
+                    >
+                      <span>{item.subject.name}</span>
+                      <span className="font-mono text-[10px]">
+                        ({item.recordedCount}/{broadsheetRows.length})
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="text-xs font-semibold text-slate-700">
                 Master Broadsheet — <strong>{activeClass?.name ?? ""}</strong> (
@@ -1183,6 +1413,192 @@ export function AcademicsModule() {
           </TabsContent>
         )}
       </Tabs>
+
+      {/* Create Combined Cross-Class / Multi-Section Student Group Dialog */}
+      <Dialog open={groupModalOpen} onOpenChange={setGroupModalOpen}>
+        <DialogContent className="max-h-[88vh] max-w-lg overflow-y-auto bg-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base font-extrabold text-[#0F172A]">
+              <Layers className="h-4 w-4 text-[#1a4a6e]" />
+              <span>Create Combined Teaching Group</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-600">
+              Gather students from different {settings.labels.classPlural.toLowerCase()} / groups into one combined marksheet for{" "}
+              <strong>{activeSubject?.name ?? "this subject"}</strong>. Enter scores once — every student&apos;s marks automatically appear in their own {settings.labels.classSingular.toLowerCase()} broadsheet &amp; report sheet.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!newGroupName.trim()) {
+                toast.error("Enter a group name (e.g. Level 2 Combined Stream).");
+                return;
+              }
+              if (
+                newGroupClassIds.length === 0 &&
+                newGroupStudentIds.length === 0
+              ) {
+                toast.error(
+                  `Select at least one ${settings.labels.classSingular.toLowerCase()} or individual student.`
+                );
+                return;
+              }
+              const newId = `grp-${Date.now()}`;
+              upsertTeachingGroup({
+                id: newId,
+                name: newGroupName.trim(),
+                programmeId: selectedProgId,
+                subjectId: activeSubjectId,
+                teacherStaffId: portal.staffId,
+                classIds: newGroupClassIds,
+                studentIds: newGroupStudentIds,
+              });
+              setMarksheetScope(`group:${newId}`);
+              setGroupModalOpen(false);
+              toast.success(
+                `Created combined group "${newGroupName.trim()}". Enter scores once below!`
+              );
+            }}
+            className="space-y-4 text-xs"
+          >
+            <div className="space-y-1">
+              <Label className="text-xs font-bold">Combined Group Name</Label>
+              <Input
+                placeholder="e.g. Intermediate Stream, Halqah Group B, or Combined Practical"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">
+                Include Whole {settings.labels.classPlural} (Optional)
+              </Label>
+              <div className="flex flex-wrap gap-1.5 rounded-xl border border-slate-200 bg-slate-50 p-2.5">
+                {progClasses.map((cls) => {
+                  const checked = newGroupClassIds.includes(cls.id);
+                  return (
+                    <label
+                      key={cls.id}
+                      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold ${
+                        checked
+                          ? "border-[#1a4a6e] bg-[#1a4a6e] text-white"
+                          : "border-slate-200 bg-white text-slate-700"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          setNewGroupClassIds((prev) =>
+                            e.target.checked
+                              ? [...prev, cls.id]
+                              : prev.filter((id) => id !== cls.id)
+                          );
+                        }}
+                        className="hidden"
+                      />
+                      <span>{cls.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <Label className="text-xs font-bold">
+                  Gather Individual Students Across {settings.labels.classPlural} (
+                  {newGroupStudentIds.length} selected)
+                </Label>
+              </div>
+              <Input
+                placeholder="Filter students by name, ID, or class..."
+                value={groupStudentSearch}
+                onChange={(e) => setGroupStudentSearch(e.target.value)}
+                className="h-8 text-xs"
+              />
+              <div className="max-h-48 divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200 bg-white">
+                {students
+                  .filter((s) => {
+                    if (s.status !== "Active") return false;
+                    if (!s.programmeClasses[selectedProgId]) return false;
+                    const q = groupStudentSearch.trim().toLowerCase();
+                    if (!q) return true;
+                    const clsName =
+                      classes.find(
+                        (c) => c.id === s.programmeClasses[selectedProgId]
+                      )?.name ?? "";
+                    return (
+                      s.fullName.toLowerCase().includes(q) ||
+                      s.admissionId.toLowerCase().includes(q) ||
+                      clsName.toLowerCase().includes(q)
+                    );
+                  })
+                  .map((stu) => {
+                    const clsName =
+                      classes.find(
+                        (c) => c.id === stu.programmeClasses[selectedProgId]
+                      )?.name ?? "—";
+                    const checked = newGroupStudentIds.includes(stu.id);
+                    return (
+                      <label
+                        key={stu.id}
+                        className="flex cursor-pointer items-center justify-between px-3 py-2 hover:bg-slate-50"
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setNewGroupStudentIds((prev) =>
+                                e.target.checked
+                                  ? [...prev, stu.id]
+                                  : prev.filter((id) => id !== stu.id)
+                              );
+                            }}
+                            className="h-3.5 w-3.5 accent-[#1a4a6e]"
+                          />
+                          <div>
+                            <div className="font-bold text-[#0F172A]">
+                              {stu.fullName}
+                            </div>
+                            <div className="font-mono text-[10px] text-slate-500">
+                              {stu.admissionId}
+                            </div>
+                          </div>
+                        </div>
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-[#1a4a6e]">
+                          {clsName}
+                        </span>
+                      </label>
+                    );
+                  })}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setGroupModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                className="bg-[#1a4a6e] font-bold text-white hover:bg-[#0c2340]"
+              >
+                Save Combined Group
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

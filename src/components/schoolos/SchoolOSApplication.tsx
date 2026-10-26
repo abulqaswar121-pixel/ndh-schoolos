@@ -6,6 +6,7 @@ import { LoginPortalScreen } from "./LoginPortalScreen";
 import { PrintOverlay } from "./PrintOverlay";
 import { SaaSOnboardingWizard } from "./SaaSOnboardingWizard";
 import { SchoolOSAIAssistant } from "./landing/SchoolOSAIAssistant";
+import { PortalVideoGuideDialog } from "./tutorials/PortalVideoGuideDialog";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import {
   getResolvedCustomization,
@@ -17,6 +18,7 @@ const loadOverview = () => import("./modules/OverviewDashboard");
 const loadStudents = () => import("./modules/StudentsModule");
 const loadClasses = () => import("./modules/ClassesModule");
 const loadAcademics = () => import("./modules/AcademicsModule");
+const loadExams = () => import("./modules/ExamQuestionsModule");
 const loadAttendance = () => import("./modules/AttendanceModule");
 const loadFees = () => import("./modules/FeesModule");
 const loadNotices = () => import("./modules/ParentNoticesModule");
@@ -38,6 +40,9 @@ const ClassesModule = lazy(() =>
 );
 const AcademicsModule = lazy(() =>
   loadAcademics().then((m) => ({ default: m.AcademicsModule }))
+);
+const ExamQuestionsModule = lazy(() =>
+  loadExams().then((m) => ({ default: m.ExamQuestionsModule }))
 );
 const AttendanceModule = lazy(() =>
   loadAttendance().then((m) => ({ default: m.AttendanceModule }))
@@ -93,6 +98,7 @@ export function SchoolOSApplication() {
       loadStudents(),
       loadClasses(),
       loadAcademics(),
+      loadExams(),
       loadAttendance(),
       loadFees(),
       loadNotices(),
@@ -156,6 +162,7 @@ export function SchoolOSApplication() {
                   {activeNav === "students" && <StudentsModule />}
                   {activeNav === "classes" && <ClassesModule />}
                   {activeNav === "academics" && <AcademicsModule />}
+                  {activeNav === "exams" && <ExamQuestionsModule />}
                   {activeNav === "attendance" && <AttendanceModule />}
                   {activeNav === "fees" && <FeesModule />}
                   {activeNav === "notices" && <ParentNoticesModule />}
@@ -177,6 +184,7 @@ export function SchoolOSApplication() {
 
       <EcosystemFooter />
       <SaaSOnboardingWizard />
+      <PortalVideoGuideDialog />
       <PrintOverlay />
     </div>
   );

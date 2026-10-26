@@ -496,6 +496,21 @@ export function BackupsOfflineModule({
                   A safety snapshot of your current workspace will be saved automatically before restoring.
                 </p>
 
+                {db.settings.setupCompleted &&
+                  pendingRestore.envelope.schoolCode.trim().toUpperCase() !==
+                    db.settings.code.trim().toUpperCase() && (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-[11px] font-semibold text-amber-950">
+                      Warning: This backup belongs to a different School Code (
+                      <strong className="font-mono">
+                        {pendingRestore.envelope.schoolCode}
+                      </strong>{" "}
+                      vs current{" "}
+                      <strong className="font-mono">{db.settings.code}</strong>
+                      ). Only proceed if you intend to load that school&apos;s
+                      workspace onto this device.
+                    </div>
+                  )}
+
                 <div className="flex flex-wrap items-center gap-2">
                   <Button
                     type="button"

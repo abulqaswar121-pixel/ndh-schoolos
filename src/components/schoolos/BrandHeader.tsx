@@ -53,6 +53,7 @@ const ROLE_META: Record<
   }
 > = {
   admin: { label: "School Owner / Admin", icon: ShieldCheck },
+  exam_officer: { label: "Exam Officer", icon: ClipboardCheck },
   class_teacher: { label: "Class Teacher", icon: BookOpen },
   subject_teacher: { label: "Subject Teacher", icon: BookOpen },
   bursar: { label: "Bursar / Accountant", icon: Calculator },
@@ -69,6 +70,7 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
     updateSettings,
     logoutSession,
     setOnboardingWizardOpen,
+    setPortalVideoGuideOpen,
     setActiveNav,
   } = useSchoolOS();
   const { settings } = db;
@@ -77,7 +79,8 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
   const offline = useOfflineStatus();
   const allowedNav = getAllowedNavSections(
     portal.role,
-    settings.enableQuranModule
+    settings.enableQuranModule,
+    Boolean(portal.isExamOfficer)
   );
 
   const roleMeta = ROLE_META[portal.role];
@@ -137,6 +140,11 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
                 <span className="truncate text-sm font-bold text-white">
                   {settings.name}
                 </span>
+                {settings.code && (
+                  <span className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-[#9ed9d6]">
+                    {settings.code}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-300">
                 <Building2
@@ -223,19 +231,17 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
           )}
 
           <Button
-            asChild
             type="button"
             variant="outline"
             size="sm"
+            onClick={() => setPortalVideoGuideOpen(true)}
             className="hidden h-8 gap-1.5 border-white/25 bg-white/10 px-2.5 text-xs font-semibold text-white hover:bg-white/15 hover:text-white sm:inline-flex"
           >
-            <Link to="/tutorials">
-              <PlayCircle
-                className="h-3.5 w-3.5"
-                style={{ color: highlightColor }}
-              />
-              <span>Video Guide</span>
-            </Link>
+            <PlayCircle
+              className="h-3.5 w-3.5"
+              style={{ color: highlightColor }}
+            />
+            <span>Video Guide</span>
           </Button>
 
           <DropdownMenu>
@@ -286,11 +292,11 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
               )}
 
               <DropdownMenuItem
-                onClick={() => void navigate({ to: "/tutorials" })}
+                onClick={() => setPortalVideoGuideOpen(true)}
                 className="cursor-pointer text-xs font-medium"
               >
                 <PlayCircle className="mr-2 h-3.5 w-3.5 text-[#1a4a6e]" />
-                Watch Role Video Tutorials
+                My Portal Video Guide
               </DropdownMenuItem>
 
               {portal.role === "admin" && (

@@ -4,6 +4,7 @@ import {
   CalendarCheck2,
   CheckCircle2,
   CreditCard,
+  PlayCircle,
   Printer,
   ReceiptText,
   Users,
@@ -40,6 +41,7 @@ export function ParentPortalView() {
     db,
     submitParentBankTransfer,
     openPrintPreview,
+    setPortalVideoGuideOpen,
   } = useSchoolOS();
   const {
     settings,
@@ -237,7 +239,17 @@ export function ParentPortalView() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setPortalVideoGuideOpen(true)}
+                  className="h-10 border-[#9ed9d6] bg-[#edf7f6] text-xs font-bold text-[#1a4a6e] hover:bg-[#d8efed]"
+                >
+                  <PlayCircle className="mr-1.5 h-3.5 w-3.5" />
+                  Video Guide
+                </Button>
                 <select
                   aria-label="Select term"
                   value={termFilter}

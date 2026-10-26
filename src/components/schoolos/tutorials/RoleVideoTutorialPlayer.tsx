@@ -2,6 +2,7 @@ import {
   BookOpen,
   Calculator,
   ClipboardCheck,
+  FileCheck2,
   ShieldCheck,
   SkipForward,
   Smartphone,
@@ -21,6 +22,7 @@ export interface VideoChapter {
 export interface RoleVideoItem {
   roleId:
     | "admin"
+    | "exam_officer"
     | "class_teacher"
     | "subject_teacher"
     | "bursar"
@@ -41,124 +43,150 @@ export const ROLE_VIDEO_PLAYLIST: RoleVideoItem[] = [
     roleId: "admin",
     tabLabel: "School Owner",
     fullTitle: "School Owner / Principal",
-    durationLabel: "1:21",
+    durationLabel: "1:24",
     oneLiner:
-      "Welcome -> Website Pages -> Sign-Up -> Sign-In -> Dashboard, Students, Results, Fees, Payroll & Settings.",
-    videoSrc: "/videos/ndh-walkthrough-admin-v2.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-admin-v2.jpg",
+      "Welcome -> Plans -> School Code Sign-Up -> Sign-In -> Class Transfers -> Exam Officer (PDF & .doc) & Report Studio -> Backups & Offline.",
+    videoSrc: "/videos/ndh-walkthrough-admin-v4.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-admin-v4.jpg",
     icon: ShieldCheck,
     chapters: [
       { label: "1. Welcome", startSec: 0 },
-      { label: "2. Website Pages", startSec: 7.9 },
-      { label: "3. Sign-Up Wizard", startSec: 18.4 },
-      { label: "4. Sign-In", startSec: 30.6 },
-      { label: "5. Dashboard & Students", startSec: 39.7 },
-      { label: "6. Attendance & Results", startSec: 51.5 },
-      { label: "7. Fees, Payroll & Settings", startSec: 66.1 },
+      { label: "2. Website & Plans", startSec: 11.8 },
+      { label: "3. Sign-Up & School Code", startSec: 20.9 },
+      { label: "4. Sign-In & Video Guide", startSec: 36.8 },
+      { label: "5. Students & Class Transfers", startSec: 47.6 },
+      { label: "6. Staff, Exams & Design Studio", startSec: 58.9 },
+      { label: "7. Fees, Backups & Offline", startSec: 72.8 },
+    ],
+  },
+  {
+    roleId: "exam_officer",
+    tabLabel: "Exam Officer",
+    fullTitle: "Exam Officer",
+    durationLabel: "1:15",
+    oneLiner:
+      "Welcome -> School-Code Sign-In -> Missing-Paper Tracker -> Question Review & Approval -> PDF & Word (.doc) Export -> All-Classes Broadsheets & Reports.",
+    videoSrc: "/videos/ndh-walkthrough-exam-officer-v4.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-exam-officer-v4.jpg",
+    icon: FileCheck2,
+    chapters: [
+      { label: "1. Welcome & Role Scope", startSec: 0 },
+      { label: "2. Secure Sign-In", startSec: 15.5 },
+      { label: "3. Missing-Paper Tracker", startSec: 23.4 },
+      { label: "4. Review, Return & Approve", startSec: 34.6 },
+      { label: "5. Export PDF & Word (.doc)", startSec: 48.4 },
+      { label: "6. All-Classes Reports", startSec: 64.0 },
     ],
   },
   {
     roleId: "class_teacher",
     tabLabel: "Class Teacher",
     fullTitle: "Class Teacher",
-    durationLabel: "1:17",
+    durationLabel: "1:08",
     oneLiner:
-      "Welcome -> Staff Setup -> Sign-In -> JSS 1 Dashboard -> Attendance -> CA/Exam Broadsheet -> A4 Report Cards.",
-    videoSrc: "/videos/ndh-walkthrough-class-teacher-v2.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-class-teacher-v2.jpg",
+      "Welcome -> Sign-In & Role Guide -> Roster & Transfers -> Daily Attendance -> Auto-Synced Broadsheet -> AI Exams & A4 Report Sheets.",
+    videoSrc: "/videos/ndh-walkthrough-class-teacher-v4.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-class-teacher-v4.jpg",
     icon: BookOpen,
     chapters: [
-      { label: "1. Welcome & Account Setup", startSec: 0 },
-      { label: "2. Staff Sign-In", startSec: 19.7 },
-      { label: "3. Class Dashboard & Pupils", startSec: 29.3 },
-      { label: "4. Daily Attendance", startSec: 39.3 },
-      { label: "5. Scores & Broadsheet", startSec: 49.5 },
-      { label: "6. Remarks & A4 Report Card", startSec: 63.5 },
+      { label: "1. Welcome & Class Scope", startSec: 0 },
+      { label: "2. Sign-In & Role Guide", startSec: 12.9 },
+      { label: "3. Roster & Transfers", startSec: 23.3 },
+      { label: "4. Daily Attendance", startSec: 33.7 },
+      { label: "5. Auto-Synced Broadsheet", startSec: 43.3 },
+      { label: "6. AI Exams & Report Sheets", startSec: 55.2 },
     ],
   },
   {
     roleId: "subject_teacher",
     tabLabel: "Subject Teacher",
     fullTitle: "Subject Teacher",
-    durationLabel: "1:04",
+    durationLabel: "1:26",
     oneLiner:
-      "Welcome -> Subject Setup -> Sign-In -> Assigned Classes -> Subject Marksheet -> Edit Approval Request.",
-    videoSrc: "/videos/ndh-walkthrough-subject-teacher-v2.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-subject-teacher-v2.jpg",
+      "Welcome -> Sign-In -> Combined Multi-Class Groups (Enter Once -> Home-Class Sync) -> AI Exam Question Digitizer & Refiner -> Score Edit Request.",
+    videoSrc: "/videos/ndh-walkthrough-subject-teacher-v4.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-subject-teacher-v4.jpg",
     icon: ClipboardCheck,
     chapters: [
       { label: "1. Welcome & Subject Setup", startSec: 0 },
-      { label: "2. Staff Sign-In", startSec: 18.3 },
-      { label: "3. Assigned Classes", startSec: 28.7 },
-      { label: "4. Subject Marksheet", startSec: 36.2 },
-      { label: "5. Score Edit Request", startSec: 49.0 },
+      { label: "2. Secure Sign-In", startSec: 12.2 },
+      { label: "3. Combined Multi-Class Groups", startSec: 22.5 },
+      { label: "4. Instant Grading & Sync", startSec: 43.0 },
+      { label: "5. AI Exam Question Digitizer", startSec: 52.6 },
+      { label: "6. Score Edit Request", startSec: 76.6 },
     ],
   },
   {
     roleId: "bursar",
     tabLabel: "Bursar",
     fullTitle: "Bursar / Accountant",
-    durationLabel: "1:06",
+    durationLabel: "1:04",
     oneLiner:
-      "Welcome -> Bursar Setup -> Sign-In -> Revenue Ledger -> Bank Transfers & Receipts -> Debtors -> Payroll.",
-    videoSrc: "/videos/ndh-walkthrough-bursar-v2.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-bursar-v2.jpg",
+      "Welcome -> School-Code Sign-In -> Revenue & Sibling Discounts -> Transfer Verification & Receipts -> Debtors -> Payroll & Excel.",
+    videoSrc: "/videos/ndh-walkthrough-bursar-v4.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-bursar-v4.jpg",
     icon: Calculator,
     chapters: [
-      { label: "1. Welcome & Bursar Setup", startSec: 0 },
-      { label: "2. Staff Sign-In", startSec: 14.1 },
-      { label: "3. Revenue Dashboard", startSec: 23.3 },
-      { label: "4. Transfers & Receipts", startSec: 35.1 },
-      { label: "5. Debtors & Reminders", startSec: 47.1 },
-      { label: "6. Staff Payroll & Payslips", startSec: 54.2 },
+      { label: "1. Welcome & Bursar Scope", startSec: 0 },
+      { label: "2. School-Code Sign-In", startSec: 13.3 },
+      { label: "3. Revenue & Fee Schedules", startSec: 24.3 },
+      { label: "4. Transfers & Receipts", startSec: 33.8 },
+      { label: "5. Debtors & Reminders", startSec: 44.8 },
+      { label: "6. Staff Payroll & Excel", startSec: 52.1 },
     ],
   },
   {
     roleId: "secretary",
     tabLabel: "Secretary",
     fullTitle: "School Secretary",
-    durationLabel: "0:58",
+    durationLabel: "0:53",
     oneLiner:
-      "Welcome -> Front-Office Setup -> Sign-In -> Admissions & Sibling Link -> Notices -> Safe A4 Printing.",
-    videoSrc: "/videos/ndh-walkthrough-secretary-v2.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-secretary-v2.jpg",
+      "Welcome -> Sign-In -> Admissions, Sibling Link & Class Transfers -> Attendance & Notices -> Read-Only Printing & Excel.",
+    videoSrc: "/videos/ndh-walkthrough-secretary-v4.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-secretary-v4.jpg",
     icon: Users,
     chapters: [
-      { label: "1. Welcome & Setup", startSec: 0 },
-      { label: "2. Staff Sign-In", startSec: 11.2 },
-      { label: "3. Admissions & Siblings", startSec: 18.6 },
-      { label: "4. Attendance & Notices", startSec: 31.9 },
-      { label: "5. Read-Only Printing", startSec: 44.5 },
+      { label: "1. Welcome & Front-Office", startSec: 0 },
+      { label: "2. Secure Sign-In", startSec: 14.0 },
+      { label: "3. Admissions & Transfers", startSec: 23.3 },
+      { label: "4. Attendance & Notices", startSec: 34.2 },
+      { label: "5. Printing & Exports", startSec: 43.3 },
     ],
   },
   {
     roleId: "parent",
     tabLabel: "Parent",
     fullTitle: "Parent / Guardian",
-    durationLabel: "1:02",
+    durationLabel: "0:51",
     oneLiner:
-      "Welcome -> Phone Registration -> Parent Sign-In -> Sibling Switcher & Attendance -> Results -> Fees & Receipts.",
-    videoSrc: "/videos/ndh-walkthrough-parent-v2.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-parent-v2.jpg",
+      "Welcome -> School Code + Phone Sign-In -> Sibling Switcher & Attendance -> Published Results & A4 Reports -> Fees & Receipts.",
+    videoSrc: "/videos/ndh-walkthrough-parent-v4.mp4",
+    posterSrc: "/videos/poster-ndh-walkthrough-parent-v4.jpg",
     icon: Smartphone,
     chapters: [
       { label: "1. Welcome & Phone Link", startSec: 0 },
-      { label: "2. Parent Phone Sign-In", startSec: 15.2 },
-      { label: "3. Siblings & Attendance", startSec: 28.4 },
-      { label: "4. Results & Report Cards", startSec: 36.9 },
-      { label: "5. Fees, Receipts & Notices", startSec: 50.0 },
+      { label: "2. School Code + Phone Sign-In", startSec: 12.8 },
+      { label: "3. Siblings & Attendance", startSec: 22.7 },
+      { label: "4. Results & Report Sheets", startSec: 31.6 },
+      { label: "5. Fees & Official Receipts", startSec: 42.2 },
     ],
   },
 ];
 
 interface RoleVideoTutorialPlayerProps {
   initialRoleId?: RoleVideoItem["roleId"] | undefined;
+  /**
+   * When set (e.g. inside an authenticated portal), locks the player strictly
+   * to this single role's walkthrough video and hides all other role tabs.
+   */
+  lockedRoleId?: RoleVideoItem["roleId"] | undefined;
   autoPlay?: boolean | undefined;
   onRegisterSchool?: (() => void) | undefined;
 }
 
 export function RoleVideoTutorialPlayer({
   initialRoleId = "admin",
+  lockedRoleId,
   autoPlay = true,
   onRegisterSchool,
 }: RoleVideoTutorialPlayerProps) {
@@ -169,12 +197,24 @@ export function RoleVideoTutorialPlayer({
     : false;
   const effectiveAutoPlay = autoPlay && !lowDataMode;
 
+  const targetRole = lockedRoleId ?? initialRoleId;
   const startIdx = Math.max(
     0,
-    ROLE_VIDEO_PLAYLIST.findIndex((item) => item.roleId === initialRoleId)
+    ROLE_VIDEO_PLAYLIST.findIndex((item) => item.roleId === targetRole)
   );
 
   const [roleIndex, setRoleIndex] = useState<number>(startIdx);
+
+  // Keep locked player strictly pinned to `lockedRoleId` if role changes
+  useEffect(() => {
+    if (!lockedRoleId) return;
+    const lockedIdx = ROLE_VIDEO_PLAYLIST.findIndex(
+      (item) => item.roleId === lockedRoleId
+    );
+    if (lockedIdx >= 0 && lockedIdx !== roleIndex) {
+      setRoleIndex(lockedIdx);
+    }
+  }, [lockedRoleId, roleIndex]);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [mutedByBrowserPolicy, setMutedByBrowserPolicy] =
     useState<boolean>(false);
@@ -238,6 +278,7 @@ export function RoleVideoTutorialPlayer({
   }, [roleIndex, effectiveAutoPlay]);
 
   const handleSelectRole = (idx: number) => {
+    if (lockedRoleId) return;
     userEnabledAudioRef.current = true;
     setMutedByBrowserPolicy(false);
     setRoleIndex(idx);
@@ -263,6 +304,10 @@ export function RoleVideoTutorialPlayer({
   };
 
   const handleVideoEnded = () => {
+    if (lockedRoleId) {
+      // Locked to this portal's single role — never roll into another role's video
+      return;
+    }
     setRoleIndex((prev) => (prev + 1) % ROLE_VIDEO_PLAYLIST.length);
   };
 
@@ -284,46 +329,61 @@ export function RoleVideoTutorialPlayer({
       data-testid="role-video-tutorial-player"
       className="overflow-hidden rounded-3xl border border-[#d0d5dd] bg-[#0a1a30] text-white shadow-lg"
     >
-      {/* Role Playlist Tabs */}
+      {/* Role Playlist Tabs (Public) OR Single-Role Portal Header (In-Portal Locked) */}
       <div className="border-b border-white/10 bg-[#0c2340] px-3.5 py-3 sm:px-5">
-        <div
-          role="tablist"
-          aria-label="Choose role video tutorial"
-          className="flex items-center gap-1.5 overflow-x-auto pb-0.5"
-        >
-          {ROLE_VIDEO_PLAYLIST.map((item, idx) => {
-            const Icon = item.icon;
-            const active = idx === roleIndex;
-            return (
-              <button
-                key={item.roleId}
-                role="tab"
-                type="button"
-                aria-selected={active}
-                onClick={() => handleSelectRole(idx)}
-                className={`inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${
-                  active
-                    ? "bg-white text-[#0c2340] shadow-xs"
-                    : "border border-white/15 bg-white/8 text-slate-200 hover:bg-white/15 hover:text-white"
-                }`}
-              >
-                <Icon
-                  className={`h-3.5 w-3.5 ${
-                    active ? "text-[#1a4a6e]" : "text-[#9ed9d6]"
-                  }`}
-                />
-                <span>{item.tabLabel}</span>
-                <span
-                  className={`text-[10px] font-medium ${
-                    active ? "text-[#667085]" : "text-slate-400"
+        {lockedRoleId ? (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-[#0c2340] shadow-xs">
+              <currentVideo.icon className="h-3.5 w-3.5 text-[#1a4a6e]" />
+              <span>{currentVideo.fullTitle} — Portal Video Guide</span>
+              <span className="text-[10px] font-medium text-[#667085]">
+                {currentVideo.durationLabel}
+              </span>
+            </div>
+            <span className="text-[11px] font-semibold text-[#9ed9d6]">
+              Dedicated to your portal role only
+            </span>
+          </div>
+        ) : (
+          <div
+            role="tablist"
+            aria-label="Choose role video tutorial"
+            className="flex items-center gap-1.5 overflow-x-auto pb-0.5"
+          >
+            {ROLE_VIDEO_PLAYLIST.map((item, idx) => {
+              const Icon = item.icon;
+              const active = idx === roleIndex;
+              return (
+                <button
+                  key={item.roleId}
+                  role="tab"
+                  type="button"
+                  aria-selected={active}
+                  onClick={() => handleSelectRole(idx)}
+                  className={`inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                    active
+                      ? "bg-white text-[#0c2340] shadow-xs"
+                      : "border border-white/15 bg-white/8 text-slate-200 hover:bg-white/15 hover:text-white"
                   }`}
                 >
-                  {item.durationLabel}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                  <Icon
+                    className={`h-3.5 w-3.5 ${
+                      active ? "text-[#1a4a6e]" : "text-[#9ed9d6]"
+                    }`}
+                  />
+                  <span>{item.tabLabel}</span>
+                  <span
+                    className={`text-[10px] font-medium ${
+                      active ? "text-[#667085]" : "text-slate-400"
+                    }`}
+                  >
+                    {item.durationLabel}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Real MP4 Video Stage with Spoken Voiceover */}
@@ -394,16 +454,18 @@ export function RoleVideoTutorialPlayer({
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 sm:justify-end">
-          <button
-            type="button"
-            onClick={handleVideoEnded}
-            className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-bold text-[#9ed9d6] transition hover:bg-white/20 hover:text-white"
-          >
-            <SkipForward className="h-3 w-3" />
-            <span>Up Next: {nextVideo.tabLabel}</span>
-          </button>
+          {!lockedRoleId && (
+            <button
+              type="button"
+              onClick={handleVideoEnded}
+              className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-bold text-[#9ed9d6] transition hover:bg-white/20 hover:text-white"
+            >
+              <SkipForward className="h-3 w-3" />
+              <span>Up Next: {nextVideo.tabLabel}</span>
+            </button>
+          )}
 
-          {onRegisterSchool && (
+          {onRegisterSchool && !lockedRoleId && (
             <button
               type="button"
               onClick={onRegisterSchool}

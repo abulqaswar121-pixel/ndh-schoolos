@@ -8,6 +8,7 @@ export interface SchoolProgramme {
 
 export type UserRole =
   | "admin"
+  | "exam_officer"
   | "class_teacher"
   | "subject_teacher"
   | "bursar"
@@ -20,6 +21,7 @@ export type NavSectionId =
   | "students"
   | "classes"
   | "academics"
+  | "exams"
   | "attendance"
   | "fees"
   | "notices"
@@ -242,6 +244,21 @@ export interface Subject {
   isCore?: boolean | undefined;
 }
 
+export interface StudentClassTransferEntry {
+  id: string;
+  date: string;
+  session: string;
+  term: string;
+  programmeId: ProgrammeId;
+  fromClassId: string;
+  fromClassName: string;
+  toClassId: string;
+  toClassName: string;
+  reason: string;
+  transferredBy: string;
+  carriedCurrentTermScores: boolean;
+}
+
 export interface Student {
   id: string;
   admissionId: string;
@@ -262,6 +279,7 @@ export interface Student {
   parentEmail: string;
   manualFeeWaiver?: number | undefined;
   manualWaiverReason?: string | undefined;
+  transferHistory?: StudentClassTransferEntry[] | undefined;
 }
 
 export interface ScoreRecord {
@@ -317,7 +335,9 @@ export type AuditActionCategory =
   | "fee_waiver"
   | "payment"
   | "settings"
-  | "result_lock";
+  | "result_lock"
+  | "student_transfer"
+  | "exam_paper";
 
 export type AuditCategory = AuditActionCategory;
 
@@ -462,6 +482,7 @@ export interface ParentNoticeLog {
 
 export type StaffJobTitle =
   | "Proprietor / Principal"
+  | "Exam Officer"
   | "Class Teacher"
   | "Subject Teacher"
   | "Bursar / Accountant"
@@ -477,6 +498,12 @@ export interface StaffMember {
   arabicName?: string | undefined;
   role: StaffJobTitle;
   systemRole: Exclude<UserRole, "parent">;
+  /**
+   * Optional additional duty toggle allowing a Class Teacher, Subject Teacher,
+   * or Vice Principal to also act as the school's Exam Officer (reviewing/printing
+   * exam question papers and all classes' broadsheets & report sheets).
+   */
+  isExamOfficer?: boolean | undefined;
   loginPin?: string | undefined;
   phone: string;
   email: string;
@@ -495,6 +522,69 @@ export interface StaffMember {
     pension: number;
     salaryAdvanceRepayment: number;
   };
+}
+
+/**
+ * Combined / Cross-Class Teaching Group (for Integrated Schools, Multi-Stream Halqahs,
+ * Electives, or Practicals where a Subject Teacher gathers students from different
+ * classes/groups into one combined session and records scores once).
+ */
+export interface SubjectTeachingGroup {
+  id: string;
+  name: string;
+  programmeId: ProgrammeId;
+  subjectId: string;
+  teacherStaffId?: string | undefined;
+  classIds: string[];
+  studentIds: string[];
+}
+
+export type ExamPaperStatus = "draft" | "submitted" | "returned" | "approved";
+
+export interface ExamObjectiveQuestion {
+  id: string;
+  questionText: string;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD: string;
+  correctOption: "A" | "B" | "C" | "D";
+  marks: number;
+}
+
+export interface ExamTheoryQuestion {
+  id: string;
+  questionText: string;
+  markingGuide: string;
+  marks: number;
+}
+
+export interface ExamPaperSubmission {
+  id: string;
+  programmeId: ProgrammeId;
+  classIds: string[];
+  subjectId: string;
+  session: string;
+  term: string;
+  assessmentTitle: string;
+  durationLabel: string;
+  generalInstructions: string;
+  sectionAInstruction: string;
+  sectionBInstruction: string;
+  paperLayout: "standard" | "compact_two_column";
+  objectives: ExamObjectiveQuestion[];
+  theory: ExamTheoryQuestion[];
+  generalMarkingNotes: string;
+  sourcePhotoDataUrl?: string | undefined;
+  rawDraftText?: string | undefined;
+  status: ExamPaperStatus;
+  submittedByStaffId?: string | undefined;
+  submittedByName: string;
+  submittedAt?: string | undefined;
+  reviewedByName?: string | undefined;
+  reviewedAt?: string | undefined;
+  reviewerFeedback?: string | undefined;
+  updatedAt: string;
 }
 
 export interface PayrollRecord {
@@ -537,11 +627,15 @@ export interface SchoolDatabaseSnapshot {
   parentNotices: ParentNoticeLog[];
   staff: StaffMember[];
   payroll: PayrollRecord[];
+  teachingGroups?: SubjectTeachingGroup[] | undefined;
+  examPapers?: ExamPaperSubmission[] | undefined;
 }
 
 export interface ActivePortalSession {
   isAuthenticated: boolean;
   role: UserRole;
+  isExamOfficer?: boolean | undefined;
+  schoolCode?: string | undefined;
   staffId?: string | undefined;
   parentPhone?: string | undefined;
   displayName: string;

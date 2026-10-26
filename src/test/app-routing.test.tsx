@@ -47,13 +47,13 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     const videoEl = player.querySelector("video");
     expect(videoEl).not.toBeNull();
     expect(videoEl?.getAttribute("src")).toBe(
-      "/videos/ndh-walkthrough-admin-v2.mp4"
+      "/videos/ndh-walkthrough-admin-v4.mp4"
     );
 
     fireEvent.ended(videoEl!);
     const nextVideoEl = player.querySelector("video");
     expect(nextVideoEl?.getAttribute("src")).toBe(
-      "/videos/ndh-walkthrough-class-teacher-v2.mp4"
+      "/videos/ndh-walkthrough-exam-officer-v4.mp4"
     );
 
     // Official ndh.com.ng contact info in footer

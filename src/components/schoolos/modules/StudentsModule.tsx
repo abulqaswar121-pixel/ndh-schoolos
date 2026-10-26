@@ -1,4 +1,5 @@
 import {
+  ArrowRightLeft,
   ArrowUpCircle,
   Edit3,
   Eye,
@@ -41,6 +42,7 @@ export function StudentsModule() {
     db,
     portal,
     upsertStudent,
+    transferStudentClass,
     deleteStudent,
     runEndOfSessionPromotion,
     openPrintPreview,
@@ -73,6 +75,62 @@ export function StudentsModule() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
   const [promotionOpen, setPromotionOpen] = useState(false);
+
+  // Mid-Session Class Transfer Modal
+  const [transferTargetStudent, setTransferTargetStudent] =
+    useState<Student | null>(null);
+  const [transferProgId, setTransferProgId] = useState<ProgrammeId>(
+    activeProgrammes[0]?.id ?? "prog-main"
+  );
+  const [transferToClassId, setTransferToClassId] = useState<string>("");
+  const [transferReason, setTransferReason] = useState<string>("");
+  const [carryScoresOnTransfer, setCarryScoresOnTransfer] =
+    useState<boolean>(true);
+
+  const openTransferDialog = (stu: Student) => {
+    const defaultProg = activeProgrammes[0]?.id ?? "prog-main";
+    const currentCls = stu.programmeClasses[defaultProg] ?? "";
+    const otherCls =
+      classes.find((c) => c.programmeId === defaultProg && c.id !== currentCls)
+        ?.id ?? "";
+    setTransferTargetStudent(stu);
+    setTransferProgId(defaultProg);
+    setTransferToClassId(otherCls);
+    setTransferReason("");
+    setCarryScoresOnTransfer(true);
+  };
+
+  const handleConfirmMidSessionTransfer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transferTargetStudent) return;
+    if (!transferToClassId) {
+      toast.error(
+        `Select a destination ${settings.labels.classSingular.toLowerCase()}.`
+      );
+      return;
+    }
+    const res = transferStudentClass({
+      studentId: transferTargetStudent.id,
+      programmeId: transferProgId,
+      toClassId: transferToClassId,
+      reason: transferReason,
+      carryCurrentTermScores: carryScoresOnTransfer,
+    });
+    if (!res.ok) {
+      toast.error(res.error ?? "Unable to transfer student.");
+      return;
+    }
+    const destName =
+      classes.find((c) => c.id === transferToClassId)?.name ?? "new class";
+    toast.success(
+      `Transferred ${transferTargetStudent.fullName} to ${destName}${
+        (res.migratedScoresCount ?? 0) > 0
+          ? ` (${res.migratedScoresCount} current-term subject scores carried over)`
+          : ""
+      }.`
+    );
+    setTransferTargetStudent(null);
+  };
 
   // Promotion Decisions Map: `${studentId}__${programmeId}` -> true if held back
   const [holdBackKeys, setHoldBackKeys] = useState<Record<string, boolean>>({});
@@ -424,6 +482,17 @@ export function StudentsModule() {
                             title="Print Report Card"
                           >
                             <Printer className="h-3.5 w-3.5 text-[#1E3A8A]" />
+                          </Button>
+                        )}
+                        {canEdit && stu.status === "Active" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openTransferDialog(stu)}
+                            title={`Transfer ${settings.labels.classSingular}`}
+                            className="h-8 border-[#9ed9d6] bg-[#edf7f6] px-2.5 text-xs font-semibold text-[#1a4a6e] hover:bg-[#d8efed]"
+                          >
+                            <ArrowRightLeft className="h-3.5 w-3.5" />
                           </Button>
                         )}
                         {(canEdit || canWaive) && (
@@ -782,7 +851,198 @@ export function StudentsModule() {
                   </div>
                 )}
               </div>
+
+              {(viewingStudent.transferHistory?.length ?? 0) > 0 && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1.5">
+                  <div className="font-bold text-[#0F172A]">
+                    Class Transfer History
+                  </div>
+                  <div className="space-y-1.5">
+                    {viewingStudent.transferHistory?.map((tr) => (
+                      <div
+                        key={tr.id}
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px]"
+                      >
+                        <div className="font-bold text-[#1a4a6e]">
+                          {tr.fromClassName} → {tr.toClassName}
+                        </div>
+                        <div className="text-slate-600">
+                          {tr.date} • {tr.session} ({tr.term}) • {tr.reason}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {canEdit && viewingStudent.status === "Active" && (
+                <div className="flex justify-end pt-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const target = viewingStudent;
+                      setViewingStudent(null);
+                      openTransferDialog(target);
+                    }}
+                    className="border-[#9ed9d6] bg-[#edf7f6] text-xs font-bold text-[#1a4a6e] hover:bg-[#d8efed]"
+                  >
+                    <ArrowRightLeft className="mr-1.5 h-3.5 w-3.5" />
+                    Transfer to Another {settings.labels.classSingular}
+                  </Button>
+                </div>
+              )}
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Mid-Session / Immediate Class Transfer Dialog */}
+      <Dialog
+        open={Boolean(transferTargetStudent)}
+        onOpenChange={(o) => !o && setTransferTargetStudent(null)}
+      >
+        <DialogContent className="max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base font-extrabold text-[#0F172A]">
+              <ArrowRightLeft className="h-4 w-4 text-[#1a4a6e]" />
+              <span>
+                Mid-Session {settings.labels.classSingular} Transfer
+              </span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-600">
+              Move{" "}
+              <strong>{transferTargetStudent?.fullName ?? "student"}</strong> to
+              another {settings.labels.classSingular.toLowerCase()} immediately
+              — even mid-term — while keeping fee records and current-term
+              scores intact.
+            </DialogDescription>
+          </DialogHeader>
+
+          {transferTargetStudent && (
+            <form
+              onSubmit={handleConfirmMidSessionTransfer}
+              className="space-y-3.5 text-xs"
+            >
+              {settings.multiProgrammeEnabled && (
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Programme</Label>
+                  <select
+                    value={transferProgId}
+                    onChange={(e) => {
+                      const pid = e.target.value;
+                      setTransferProgId(pid);
+                      const cur =
+                        transferTargetStudent.programmeClasses[pid] ?? "";
+                      const firstOther =
+                        classes.find(
+                          (c) => c.programmeId === pid && c.id !== cur
+                        )?.id ?? "";
+                      setTransferToClassId(firstOther);
+                    }}
+                    className="h-9 w-full rounded-lg border border-slate-200 bg-[#F8FAFC] px-3 text-xs font-semibold"
+                  >
+                    {activeProgrammes.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                <div className="text-[11px] font-semibold text-slate-500">
+                  Current {settings.labels.classSingular}
+                </div>
+                <div className="mt-0.5 text-sm font-extrabold text-[#0F172A]">
+                  {classes.find(
+                    (c) =>
+                      c.id ===
+                      transferTargetStudent.programmeClasses[transferProgId]
+                  )?.name ?? "Unassigned"}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label
+                  htmlFor="transfer-dest-class"
+                  className="text-xs font-bold"
+                >
+                  Transfer To {settings.labels.classSingular}
+                </Label>
+                <select
+                  id="transfer-dest-class"
+                  value={transferToClassId}
+                  onChange={(e) => setTransferToClassId(e.target.value)}
+                  className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs font-bold text-[#0F172A]"
+                  required
+                >
+                  <option value="">
+                    Select destination {settings.labels.classSingular.toLowerCase()}...
+                  </option>
+                  {classes
+                    .filter(
+                      (c) =>
+                        c.programmeId === transferProgId &&
+                        c.id !==
+                          transferTargetStudent.programmeClasses[transferProgId]
+                    )
+                    .map((cls) => (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="transfer-reason" className="text-xs font-bold">
+                  Reason for Transfer
+                </Label>
+                <Input
+                  id="transfer-reason"
+                  placeholder="e.g. Class arm balancing, academic placement, parent request"
+                  value={transferReason}
+                  onChange={(e) => setTransferReason(e.target.value)}
+                />
+              </div>
+
+              <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-[#9ed9d6] bg-[#edf7f6] p-3">
+                <input
+                  type="checkbox"
+                  checked={carryScoresOnTransfer}
+                  onChange={(e) => setCarryScoresOnTransfer(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-[#1a4a6e]"
+                />
+                <span className="leading-relaxed text-slate-700">
+                  <strong className="text-[#0b1220]">
+                    Carry over {settings.currentTerm} CA/Exam scores & remarks
+                  </strong>{" "}
+                  so the new Class Teacher immediately sees any marks already
+                  entered this term.
+                </span>
+              </label>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTransferTargetStudent(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="bg-[#1a4a6e] font-bold text-white hover:bg-[#0c2340]"
+                >
+                  Confirm Transfer
+                </Button>
+              </div>
+            </form>
           )}
         </DialogContent>
       </Dialog>

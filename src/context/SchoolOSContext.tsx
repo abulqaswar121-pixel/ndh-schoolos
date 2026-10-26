@@ -25,6 +25,7 @@ import {
   evaluateScoreWritePermission,
   getAllowedNavSections,
   getAuthorizedSnapshot,
+  hasExamOfficerPrivileges,
 } from "@/services/accessControl";
 import {
   type BackupEnvelope,
@@ -45,7 +46,11 @@ import {
   getResolvedCustomization,
   normalizeGradeKey,
 } from "@/services/customizationDefaults";
-import { schoolRepository } from "@/services/schoolRepository";
+import {
+  type RegisteredSchoolTenant,
+  normalizeSchoolCodeKey,
+  schoolRepository,
+} from "@/services/schoolRepository";
 import type {
   ActivePortalSession,
   AffectiveRatingRecord,
@@ -53,6 +58,7 @@ import type {
   AuditCategory,
   AuditLogEntry,
   ClassGroup,
+  ExamPaperSubmission,
   FeePayment,
   FeeScheduleItem,
   NavSectionId,
@@ -66,7 +72,9 @@ import type {
   SchoolSettings,
   StaffMember,
   Student,
+  StudentClassTransferEntry,
   Subject,
+  SubjectTeachingGroup,
   UserRole,
 } from "@/types/school";
 
@@ -93,6 +101,15 @@ export type PrintJob =
   | {
       type: "payslip";
       payrollId: string;
+    }
+  | {
+      type: "exam_paper";
+      examPaperId: string;
+      layout?: "standard" | "compact_two_column" | undefined;
+    }
+  | {
+      type: "marking_scheme";
+      examPaperId: string;
     }
   | {
       type: "table";
@@ -139,15 +156,22 @@ interface SchoolOSContextValue {
   activeNav: NavSectionId;
   setActiveNav: (nav: NavSectionId) => void;
 
-  // Live Staff & Parent Authentication
+  // Live Staff & Parent Authentication (Scoped strictly to School Code)
+  registeredSchools: RegisteredSchoolTenant[];
   loginProductionStaff: (params: {
     identifier: string;
     pin: string;
+    schoolCode?: string | undefined;
   }) => { ok: boolean; error?: string };
   loginProductionParent: (params: {
     phone: string;
+    schoolCode?: string | undefined;
   }) => { ok: boolean; error?: string };
   logoutSession: () => void;
+
+  // In-Portal Role-Locked Video Guide (shows ONLY current portal's role video)
+  portalVideoGuideOpen: boolean;
+  setPortalVideoGuideOpen: (open: boolean) => void;
 
   setupWizardOpen: boolean;
   setSetupWizardOpen: (open: boolean) => void;
@@ -163,14 +187,37 @@ interface SchoolOSContextValue {
     auditDescription?: string
   ) => void;
 
-  // Classes & Subjects (Admin only)
+  // Classes, Subjects & Combined Cross-Class Teaching Groups
   upsertClassGroup: (group: ClassGroup) => void;
   deleteClassGroup: (id: string) => void;
   upsertSubject: (subject: Subject) => void;
   deleteSubject: (id: string) => void;
+  upsertTeachingGroup: (group: SubjectTeachingGroup) => void;
+  deleteTeachingGroup: (id: string) => void;
 
-  // Students & Promotion
+  // Exam Questions & Exam Officer Moderation
+  upsertExamPaper: (
+    paper: ExamPaperSubmission
+  ) => { ok: boolean; error?: string };
+  submitExamPaperToOfficer: (
+    paperId: string
+  ) => { ok: boolean; error?: string };
+  reviewExamPaper: (params: {
+    paperId: string;
+    decision: "approved" | "returned" | "draft";
+    feedback?: string | undefined;
+  }) => { ok: boolean; error?: string };
+  deleteExamPaper: (paperId: string) => void;
+
+  // Students, Mid-Session Class Transfer & End-of-Session Promotion
   upsertStudent: (student: Student) => void;
+  transferStudentClass: (params: {
+    studentId: string;
+    programmeId: ProgrammeId;
+    toClassId: string;
+    reason: string;
+    carryCurrentTermScores?: boolean | undefined;
+  }) => { ok: boolean; error?: string; migratedScoresCount?: number };
   deleteStudent: (id: string) => void;
   runEndOfSessionPromotion: (
     decisions: PromotionDecision[],
@@ -324,6 +371,8 @@ export function buildPortalSessionForRole(
 ): ActivePortalSession {
   const isAuthenticated = options?.isAuthenticated ?? true;
 
+  const schoolCode = rawDb.settings.code;
+
   if (role === "admin") {
     const adminStaff =
       rawDb.staff.find((s) => s.id === options?.staffId) ??
@@ -332,9 +381,27 @@ export function buildPortalSessionForRole(
     return {
       isAuthenticated,
       role: "admin",
+      isExamOfficer: true,
+      schoolCode,
       staffId: adminStaff?.id,
       displayName: adminStaff?.fullName ?? "School Proprietor",
       subtitle: "Proprietor / Admin • Full School Access",
+    };
+  }
+
+  if (role === "exam_officer") {
+    const eo =
+      rawDb.staff.find((s) => s.id === options?.staffId) ??
+      rawDb.staff.find((s) => s.systemRole === "exam_officer");
+    return {
+      isAuthenticated,
+      role: "exam_officer",
+      isExamOfficer: true,
+      schoolCode,
+      staffId: eo?.id,
+      displayName: eo?.fullName ?? "Exam Officer",
+      subtitle:
+        "Exam Officer • All-Classes Results, Report Sheets & Question Bank",
     };
   }
 
@@ -346,12 +413,15 @@ export function buildPortalSessionForRole(
       .map((cid) => rawDb.classes.find((c) => c.id === cid)?.name)
       .filter(Boolean)
       .join(", ");
+    const eoTag = ct?.isExamOfficer ? " + Exam Officer" : "";
     return {
       isAuthenticated,
       role: "class_teacher",
+      isExamOfficer: Boolean(ct?.isExamOfficer),
+      schoolCode,
       staffId: ct?.id,
       displayName: ct?.fullName ?? "Class Teacher",
-      subtitle: `Class Teacher • ${classNames || "Assigned Class Only"}`,
+      subtitle: `Class Teacher${eoTag} • ${classNames || "Assigned Class Only"}`,
     };
   }
 
@@ -367,12 +437,15 @@ export function buildPortalSessionForRole(
       .map((sid) => rawDb.subjects.find((s) => s.id === sid)?.name)
       .filter(Boolean)
       .join(", ");
+    const eoTag = st?.isExamOfficer ? " + Exam Officer" : "";
     return {
       isAuthenticated,
       role: "subject_teacher",
+      isExamOfficer: Boolean(st?.isExamOfficer),
+      schoolCode,
       staffId: st?.id,
       displayName: st?.fullName ?? "Subject Teacher",
-      subtitle: `Subject Teacher • ${subNames || "Subject"} (${classNames || "Assigned Classes"})`,
+      subtitle: `Subject Teacher${eoTag} • ${subNames || "Subject"} (${classNames || "Assigned Classes"})`,
     };
   }
 
@@ -383,6 +456,7 @@ export function buildPortalSessionForRole(
     return {
       isAuthenticated,
       role: "bursar",
+      schoolCode,
       staffId: bursar?.id,
       displayName: bursar?.fullName ?? "School Bursar",
       subtitle: "Bursar / Accountant • Fees, Receipts, Debtors & Payroll",
@@ -396,6 +470,7 @@ export function buildPortalSessionForRole(
     return {
       isAuthenticated,
       role: "secretary",
+      schoolCode,
       staffId: sec?.id,
       displayName: sec?.fullName ?? "School Secretary",
       subtitle: "Secretary • Student Records, Attendance & Printing",
@@ -413,6 +488,7 @@ export function buildPortalSessionForRole(
     return {
       isAuthenticated,
       role: "muallim",
+      schoolCode,
       staffId: muallim?.id,
       displayName: muallim?.fullName ?? "Qur'an Instructor",
       subtitle: `Qur'an Instructor • ${classNames || "Assigned Classes"}`,
@@ -438,6 +514,7 @@ export function buildPortalSessionForRole(
   return {
     isAuthenticated,
     role: "parent",
+    schoolCode,
     parentPhone: matchedPhone,
     displayName: matchedStudent?.guardianName ?? "Parent / Guardian",
     subtitle: `Parent Portal • ${kidsCount} Linked ${kidsCount === 1 ? "Child" : "Children"}`,
@@ -450,6 +527,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   );
   const [hydrated, setHydrated] = useState(false);
   const [onboardingWizardOpen, setOnboardingWizardOpen] = useState(false);
+  const [portalVideoGuideOpen, setPortalVideoGuideOpen] = useState(false);
+  const [registeredSchools, setRegisteredSchools] = useState<
+    RegisteredSchoolTenant[]
+  >([]);
   const [activeNav, setActiveNavState] = useState<NavSectionId>("overview");
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
   const [printJob, setPrintJob] = useState<PrintJob | null>(null);
@@ -464,6 +545,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loaded = schoolRepository.loadSnapshot();
     setRawDb(loaded);
+    setRegisteredSchools(schoolRepository.listRegisteredSchools());
     try {
       const savedPortal =
         window.sessionStorage.getItem(PORTAL_STORAGE_KEY) ||
@@ -471,14 +553,34 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       if (savedPortal) {
         const parsed = JSON.parse(savedPortal) as ActivePortalSession;
         if (parsed && parsed.role) {
-          if (parsed.role === "muallim" && !loaded.settings.enableQuranModule) {
+          // Strict cross-school session guard: if session schoolCode mismatches active school, force sign-out
+          const sessionCode = normalizeSchoolCodeKey(parsed.schoolCode ?? "");
+          const loadedCode = normalizeSchoolCodeKey(loaded.settings.code ?? "");
+          if (
+            parsed.isAuthenticated &&
+            sessionCode &&
+            loadedCode &&
+            sessionCode !== loadedCode
+          ) {
+            setPortal(
+              buildPortalSessionForRole("admin", loaded, {
+                isAuthenticated: false,
+              })
+            );
+          } else if (
+            parsed.role === "muallim" &&
+            !loaded.settings.enableQuranModule
+          ) {
             setPortal(
               buildPortalSessionForRole("class_teacher", loaded, {
                 isAuthenticated: parsed.isAuthenticated,
               })
             );
           } else {
-            setPortal(parsed);
+            setPortal({
+              ...parsed,
+              schoolCode: loaded.settings.code,
+            });
           }
         }
       }
@@ -492,6 +594,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     schoolRepository.saveSnapshot(rawDb);
+    setRegisteredSchools(schoolRepository.listRegisteredSchools());
   }, [rawDb, hydrated]);
 
   // Toggle body class for clean @media print isolation
@@ -534,7 +637,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     (nav: NavSectionId) => {
       const allowed = getAllowedNavSections(
         portal.role,
-        rawDb.settings.enableQuranModule
+        rawDb.settings.enableQuranModule,
+        hasExamOfficerPrivileges(rawDb, portal)
       );
       if (!allowed.includes(nav)) {
         setActiveNavState("overview");
@@ -542,16 +646,37 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       }
       setActiveNavState(nav);
     },
-    [portal.role, rawDb.settings.enableQuranModule]
+    [rawDb, portal]
   );
 
-  // Production Staff Login (NO demo role switcher!)
+  // Production Staff Login (Scoped strictly to target School Workspace Code!)
   const loginProductionStaff = useCallback(
-    (params: { identifier: string; pin: string }) => {
+    (params: {
+      identifier: string;
+      pin: string;
+      schoolCode?: string | undefined;
+    }) => {
+      let targetDb = rawDb;
+      if (params.schoolCode && params.schoolCode.trim().length > 0) {
+        const requestedCode = normalizeSchoolCodeKey(params.schoolCode);
+        const activeCode = normalizeSchoolCodeKey(rawDb.settings.code);
+        if (requestedCode !== activeCode) {
+          const tenantDb = schoolRepository.loadTenantByCode(requestedCode);
+          if (!tenantDb) {
+            return {
+              ok: false,
+              error: `School Code "${requestedCode}" does not match any registered school on this device. Staff from one school cannot enter another school's portal.`,
+            };
+          }
+          targetDb = tenantDb;
+          setRawDb(tenantDb);
+        }
+      }
+
       const cleanId = params.identifier.trim().toLowerCase();
       const cleanPin = params.pin.trim();
-      const matched = rawDb.staff.find((s) => {
-        if (s.systemRole === "muallim" && !rawDb.settings.enableQuranModule) {
+      const matched = targetDb.staff.find((s) => {
+        if (s.systemRole === "muallim" && !targetDb.settings.enableQuranModule) {
           return false;
         }
         return (
@@ -565,7 +690,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         return {
           ok: false,
           error:
-            "Staff record not found. Check your Staff ID, email or phone number.",
+            "Staff record not found in this school workspace. Check your School Code, Staff ID, email or phone.",
         };
       }
       if (matched.loginPin && matched.loginPin !== cleanPin) {
@@ -575,10 +700,14 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       }
 
-      const nextPortal = buildPortalSessionForRole(matched.systemRole, rawDb, {
-        staffId: matched.id,
-        isAuthenticated: true,
-      });
+      const nextPortal = buildPortalSessionForRole(
+        matched.systemRole,
+        targetDb,
+        {
+          staffId: matched.id,
+          isAuthenticated: true,
+        }
+      );
       persistPortal(nextPortal);
       setActiveNavState("overview");
       return { ok: true };
@@ -586,9 +715,26 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     [rawDb, persistPortal]
   );
 
-  // Live Parent Login
+  // Live Parent Login (Scoped strictly to target School Workspace Code!)
   const loginProductionParent = useCallback(
-    (params: { phone: string }) => {
+    (params: { phone: string; schoolCode?: string | undefined }) => {
+      let targetDb = rawDb;
+      if (params.schoolCode && params.schoolCode.trim().length > 0) {
+        const requestedCode = normalizeSchoolCodeKey(params.schoolCode);
+        const activeCode = normalizeSchoolCodeKey(rawDb.settings.code);
+        if (requestedCode !== activeCode) {
+          const tenantDb = schoolRepository.loadTenantByCode(requestedCode);
+          if (!tenantDb) {
+            return {
+              ok: false,
+              error: `School Code "${requestedCode}" does not match this school workspace. Parents cannot enter another school's portal.`,
+            };
+          }
+          targetDb = tenantDb;
+          setRawDb(tenantDb);
+        }
+      }
+
       const norm = normalizePhoneKey(params.phone);
       if (norm.length < 7) {
         return {
@@ -596,17 +742,17 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           error: "Enter the guardian phone number registered with the school.",
         };
       }
-      const matched = rawDb.students.find(
+      const matched = targetDb.students.find(
         (s) => normalizePhoneKey(s.parentPhone) === norm
       );
       if (!matched) {
         return {
           ok: false,
           error:
-            "No student linked to this phone number. Contact the school secretary.",
+            "No student linked to this phone number in this school workspace. Check the School Code or contact the school secretary.",
         };
       }
-      const nextPortal = buildPortalSessionForRole("parent", rawDb, {
+      const nextPortal = buildPortalSessionForRole("parent", targetDb, {
         parentPhone: matched.parentPhone,
         isAuthenticated: true,
       });
@@ -662,7 +808,28 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         },
       };
 
-      setRawDb((prev) => {
+      const basePrefix =
+        payload.schoolName
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 3)
+          .map((w) => (w[0] ?? "").toUpperCase().replace(/[^A-Z0-9]/g, ""))
+          .join("") || "SCH";
+      const existingCodes = new Set(
+        schoolRepository
+          .listRegisteredSchools()
+          .map((item) => normalizeSchoolCodeKey(item.code))
+      );
+      let resolvedSchoolCode = basePrefix;
+      if (existingCodes.has(normalizeSchoolCodeKey(resolvedSchoolCode))) {
+        const suffix = String(Math.floor(1000 + Math.random() * 9000));
+        resolvedSchoolCode = `${basePrefix}-${suffix}`;
+      }
+
+      setRawDb(() => {
+        // Always start a newly registered school from a clean blank tenant snapshot
+        // so zero students, staff, scores, or fees ever cross between schools.
+        const freshBase = createSeedDatabase();
         const names =
           payload.classNames.length > 0
             ? payload.classNames
@@ -699,7 +866,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
               : ["Evening Lessons"];
           extraNames.forEach((pName, pIdx) => {
             const pid = `prog-${pIdx + 2}`;
-            programmes.push({ id: pid, name: pName.trim() || `Programme ${pIdx + 2}` });
+            programmes.push({
+              id: pid,
+              name: pName.trim() || `Programme ${pIdx + 2}`,
+            });
             extraClasses.push({
               id: `cls-${pid}-1`,
               name: `${pName.trim() || "Programme"} Group 1`,
@@ -711,32 +881,27 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           });
         }
 
-        const codeGuess =
-          payload.schoolName
-            .split(/\s+/)
-            .filter(Boolean)
-            .slice(0, 3)
-            .map((w) => w[0]?.toUpperCase() ?? "")
-            .join("") || "SCH";
-
         const nextSettings: SchoolSettings = {
-          ...prev.settings,
-          name: payload.schoolName.trim() || prev.settings.name,
+          ...freshBase.settings,
+          name: payload.schoolName.trim() || freshBase.settings.name,
           country: payload.country || "Nigeria",
-          code: codeGuess,
-          address: payload.schoolAddress?.trim() || prev.settings.address,
-          phone: payload.schoolPhone?.trim() || adminPhone || prev.settings.phone,
-          email: adminEmail || prev.settings.email,
+          code: resolvedSchoolCode,
+          address: payload.schoolAddress?.trim() || freshBase.settings.address,
+          phone:
+            payload.schoolPhone?.trim() ||
+            adminPhone ||
+            freshBase.settings.phone,
+          email: adminEmail || freshBase.settings.email,
           currencySymbol: payload.currencySymbol || "₦",
           currencyCode: payload.currencyCode || "NGN",
-          logoDataUrl: payload.logoDataUrl ?? prev.settings.logoDataUrl,
+          logoDataUrl: payload.logoDataUrl ?? freshBase.settings.logoDataUrl,
           multiProgrammeEnabled: payload.multiProgrammeEnabled,
           programmes,
           enableQuranModule: false,
           setupCompleted: true,
-          sessions: prev.settings.sessions.includes(payload.currentSession)
-            ? prev.settings.sessions
-            : [...prev.settings.sessions, payload.currentSession],
+          sessions: freshBase.settings.sessions.includes(payload.currentSession)
+            ? freshBase.settings.sessions
+            : [...freshBase.settings.sessions, payload.currentSession],
           currentSession: payload.currentSession,
           terms: ["First Term", "Second Term", "Third Term"],
           currentTerm: payload.currentTerm || "First Term",
@@ -749,15 +914,11 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           },
         };
 
-        const existingAdminsRemoved = prev.staff.filter(
-          (s) => s.id !== adminStaffId && s.staffCode !== "ADM-001"
-        );
-        const nextStaff = [adminStaffMember, ...existingAdminsRemoved];
-
         const audit = makeAuditEntry({
           portal: {
             isAuthenticated: true,
             role: "admin",
+            schoolCode: resolvedSchoolCode,
             staffId: adminStaffId,
             displayName: adminFullName,
             subtitle: "School Registration",
@@ -766,15 +927,15 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           action: "Registered School Workspace",
           targetLabel: nextSettings.name,
           oldValue: "Unregistered",
-          newValue: `${nextSettings.name} (${names.length} classes • Owner: ${adminFullName})`,
+          newValue: `${nextSettings.name} (Code: ${resolvedSchoolCode} • ${names.length} classes • Owner: ${adminFullName})`,
         });
 
         return {
-          ...prev,
+          ...freshBase,
           settings: nextSettings,
           classes: [...mainClasses, ...extraClasses],
-          staff: nextStaff,
-          auditLogs: [audit, ...prev.auditLogs],
+          staff: [adminStaffMember],
+          auditLogs: [audit],
         };
       });
 
@@ -782,6 +943,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       persistPortal({
         isAuthenticated: true,
         role: "admin",
+        schoolCode: resolvedSchoolCode,
         staffId: adminStaffId,
         displayName: adminFullName,
         subtitle: "Proprietor / Admin • Full School Access",
@@ -805,7 +967,11 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
               ? { type: "broadsheet", classId: job.classId }
               : job.type === "payslip"
                 ? { type: "payslip", payrollId: job.payrollId }
-                : { type: "table" }
+                : job.type === "exam_paper"
+                  ? { type: "exam_paper", examPaperId: job.examPaperId }
+                  : job.type === "marking_scheme"
+                    ? { type: "marking_scheme", examPaperId: job.examPaperId }
+                    : { type: "table" }
       );
       if (!permitted) {
         toast.error("Access denied: you cannot print records outside your assigned scope.");
@@ -944,6 +1110,282 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     [portal]
   );
 
+  // Combined / Cross-Class Teaching Groups (for Multi-Section / Integrated Subject Teachers)
+  const upsertTeachingGroup = useCallback(
+    (group: SubjectTeachingGroup) => {
+      const isOfficer = hasExamOfficerPrivileges(rawDb, portal);
+      const isTeacher =
+        portal.role === "subject_teacher" ||
+        portal.role === "class_teacher" ||
+        portal.role === "muallim";
+      if (!isOfficer && !isTeacher) {
+        toast.error("You do not have permission to manage teaching groups.");
+        return;
+      }
+      const nextGroup: SubjectTeachingGroup = {
+        ...group,
+        teacherStaffId: group.teacherStaffId ?? portal.staffId,
+      };
+      setRawDb((prev) => {
+        const list = prev.teachingGroups ?? [];
+        const exists = list.some((g) => g.id === nextGroup.id);
+        return {
+          ...prev,
+          teachingGroups: exists
+            ? list.map((g) => (g.id === nextGroup.id ? nextGroup : g))
+            : [...list, nextGroup],
+        };
+      });
+    },
+    [rawDb, portal]
+  );
+
+  const deleteTeachingGroup = useCallback(
+    (id: string) => {
+      const isOfficer = hasExamOfficerPrivileges(rawDb, portal);
+      const target = (rawDb.teachingGroups ?? []).find((g) => g.id === id);
+      if (!target) return;
+      if (!isOfficer && target.teacherStaffId !== portal.staffId) {
+        toast.error("Only the Admin, Exam Officer, or group teacher can remove this group.");
+        return;
+      }
+      setRawDb((prev) => ({
+        ...prev,
+        teachingGroups: (prev.teachingGroups ?? []).filter((g) => g.id !== id),
+      }));
+    },
+    [rawDb, portal]
+  );
+
+  // Exam Question Paper Creation, Submission & Exam Officer Review
+  const upsertExamPaper = useCallback(
+    (paper: ExamPaperSubmission): { ok: boolean; error?: string } => {
+      const isOfficer = hasExamOfficerPrivileges(rawDb, portal);
+      const isTeacher =
+        portal.role === "class_teacher" ||
+        portal.role === "subject_teacher" ||
+        portal.role === "muallim";
+
+      if (!isOfficer && !isTeacher) {
+        return {
+          ok: false,
+          error: "Your role does not have permission to create or edit exam papers.",
+        };
+      }
+
+      const existing = (rawDb.examPapers ?? []).find((ep) => ep.id === paper.id);
+      if (existing && existing.status === "approved" && !isOfficer) {
+        return {
+          ok: false,
+          error:
+            "This paper is already approved and locked for printing. Ask the Exam Officer to unlock it for changes.",
+        };
+      }
+
+      if (
+        paper.status === "submitted" &&
+        paper.objectives.length === 0 &&
+        paper.theory.length === 0
+      ) {
+        return {
+          ok: false,
+          error:
+            "Add at least one Objective or Theory question before submitting.",
+        };
+      }
+
+      const nowIso = new Date().toISOString();
+      const normalizedPaper: ExamPaperSubmission = {
+        ...paper,
+        submittedByStaffId:
+          paper.submittedByStaffId ?? existing?.submittedByStaffId ?? portal.staffId,
+        submittedByName:
+          paper.submittedByName || existing?.submittedByName || portal.displayName,
+        ...(paper.status === "submitted" ? { submittedAt: nowIso } : {}),
+        updatedAt: nowIso,
+      };
+
+      setRawDb((prev) => {
+        const list = prev.examPapers ?? [];
+        const found = list.some((ep) => ep.id === normalizedPaper.id);
+        const subName =
+          prev.subjects.find((s) => s.id === normalizedPaper.id)?.name ??
+          prev.subjects.find((s) => s.id === normalizedPaper.subjectId)?.name ??
+          "Subject";
+        const clsNames = normalizedPaper.classIds
+          .map((cid) => prev.classes.find((c) => c.id === cid)?.name)
+          .filter(Boolean)
+          .join(", ");
+
+        return {
+          ...prev,
+          examPapers: found
+            ? list.map((ep) =>
+                ep.id === normalizedPaper.id ? normalizedPaper : ep
+              )
+            : [normalizedPaper, ...list],
+          auditLogs:
+            normalizedPaper.status === "submitted"
+              ? [
+                  makeAuditEntry({
+                    portal,
+                    category: "exam_paper",
+                    action: "Submitted Exam Paper to Exam Officer",
+                    targetLabel: `${subName} (${clsNames || "Class"})`,
+                    oldValue: existing?.status ?? "new",
+                    newValue: `submitted (${normalizedPaper.objectives.length} Obj, ${normalizedPaper.theory.length} Theory)`,
+                  }),
+                  ...prev.auditLogs,
+                ]
+              : prev.auditLogs,
+        };
+      });
+      return { ok: true };
+    },
+    [rawDb, portal]
+  );
+
+  const submitExamPaperToOfficer = useCallback(
+    (paperId: string): { ok: boolean; error?: string } => {
+      const existing = (rawDb.examPapers ?? []).find((ep) => ep.id === paperId);
+      if (!existing) {
+        return { ok: false, error: "Exam paper not found." };
+      }
+      if (existing.objectives.length === 0 && existing.theory.length === 0) {
+        return {
+          ok: false,
+          error: "Add at least one Objective or Theory question before submitting.",
+        };
+      }
+
+      const nowIso = new Date().toISOString();
+      const subName =
+        rawDb.subjects.find((s) => s.id === existing.subjectId)?.name ??
+        "Subject";
+      const clsNames = existing.classIds
+        .map((cid) => rawDb.classes.find((c) => c.id === cid)?.name)
+        .filter(Boolean)
+        .join(", ");
+
+      setRawDb((prev) => {
+        const list = prev.examPapers ?? [];
+        const audit = makeAuditEntry({
+          portal,
+          category: "exam_paper",
+          action: "Submitted Exam Paper to Exam Officer",
+          targetLabel: `${subName} (${clsNames || "Class"})`,
+          oldValue: existing.status,
+          newValue: `submitted (${existing.objectives.length} Obj, ${existing.theory.length} Theory)`,
+        });
+        return {
+          ...prev,
+          examPapers: list.map((ep) =>
+            ep.id === paperId
+              ? {
+                  ...ep,
+                  status: "submitted",
+                  submittedAt: nowIso,
+                  updatedAt: nowIso,
+                }
+              : ep
+          ),
+          auditLogs: [audit, ...prev.auditLogs],
+        };
+      });
+
+      return { ok: true };
+    },
+    [rawDb, portal]
+  );
+
+  const reviewExamPaper = useCallback(
+    (params: {
+      paperId: string;
+      decision: "approved" | "returned" | "draft";
+      feedback?: string | undefined;
+    }): { ok: boolean; error?: string } => {
+      if (!hasExamOfficerPrivileges(rawDb, portal)) {
+        return {
+          ok: false,
+          error:
+            "Only the Exam Officer or Proprietor/Admin can approve or return submitted exam papers.",
+        };
+      }
+      const existing = (rawDb.examPapers ?? []).find(
+        (ep) => ep.id === params.paperId
+      );
+      if (!existing) {
+        return { ok: false, error: "Exam paper not found." };
+      }
+
+      const nowIso = new Date().toISOString();
+      const subName =
+        rawDb.subjects.find((s) => s.id === existing.subjectId)?.name ??
+        "Subject";
+      const clsNames = existing.classIds
+        .map((cid) => rawDb.classes.find((c) => c.id === cid)?.name)
+        .filter(Boolean)
+        .join(", ");
+
+      setRawDb((prev) => {
+        const list = prev.examPapers ?? [];
+        const audit = makeAuditEntry({
+          portal,
+          category: "exam_paper",
+          action:
+            params.decision === "approved"
+              ? "Approved Exam Paper for Printing"
+              : params.decision === "returned"
+                ? "Returned Exam Paper for Correction"
+                : "Unlocked Exam Paper to Draft",
+          targetLabel: `${subName} (${clsNames || "Class"})`,
+          oldValue: existing.status,
+          newValue: `${params.decision}${params.feedback ? ` — ${params.feedback}` : ""}`,
+        });
+        return {
+          ...prev,
+          examPapers: list.map((ep) =>
+            ep.id === params.paperId
+              ? {
+                  ...ep,
+                  status: params.decision,
+                  reviewedByName: portal.displayName,
+                  reviewedAt: nowIso,
+                  reviewerFeedback: params.feedback?.trim() || ep.reviewerFeedback,
+                  updatedAt: nowIso,
+                }
+              : ep
+          ),
+          auditLogs: [audit, ...prev.auditLogs],
+        };
+      });
+
+      return { ok: true };
+    },
+    [rawDb, portal]
+  );
+
+  const deleteExamPaper = useCallback(
+    (paperId: string) => {
+      const isOfficer = hasExamOfficerPrivileges(rawDb, portal);
+      const target = (rawDb.examPapers ?? []).find((ep) => ep.id === paperId);
+      if (!target) return;
+      if (
+        !isOfficer &&
+        (target.submittedByStaffId !== portal.staffId ||
+          target.status === "approved")
+      ) {
+        toast.error("Only the Exam Officer or Admin can delete approved papers.");
+        return;
+      }
+      setRawDb((prev) => ({
+        ...prev,
+        examPapers: (prev.examPapers ?? []).filter((ep) => ep.id !== paperId),
+      }));
+    },
+    [rawDb, portal]
+  );
+
   const upsertStudent = useCallback(
     (student: Student) => {
       const existing = rawDb.students.find((s) => s.id === student.id);
@@ -980,16 +1422,157 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
             })
           );
         }
+
+        // If a student's class changed via the Edit form, keep current-term scores synced
+        let nextScores = prev.scores;
+        if (prevStu) {
+          Object.entries(student.programmeClasses).forEach(([progId, newClsId]) => {
+            const oldClsId = prevStu.programmeClasses[progId];
+            if (oldClsId && newClsId && oldClsId !== newClsId) {
+              const oldName =
+                prev.classes.find((c) => c.id === oldClsId)?.name ?? oldClsId;
+              const newName =
+                prev.classes.find((c) => c.id === newClsId)?.name ?? newClsId;
+              nextScores = nextScores.map((sc) =>
+                sc.studentId === student.id &&
+                sc.programmeId === progId &&
+                sc.session === prev.settings.currentSession &&
+                sc.term === prev.settings.currentTerm
+                  ? { ...sc, classId: newClsId }
+                  : sc
+              );
+              logs.unshift(
+                makeAuditEntry({
+                  portal,
+                  category: "student_transfer",
+                  action: "Changed Student Class",
+                  targetLabel: `${student.fullName} (${student.admissionId})`,
+                  oldValue: oldName,
+                  newValue: newName,
+                })
+              );
+            }
+          });
+        }
+
         return {
           ...prev,
           students: prevStu
             ? prev.students.map((s) => (s.id === student.id ? student : s))
             : [student, ...prev.students],
+          scores: nextScores,
           auditLogs: logs,
         };
       });
     },
     [rawDb.students, portal]
+  );
+
+  const transferStudentClass = useCallback(
+    (params: {
+      studentId: string;
+      programmeId: ProgrammeId;
+      toClassId: string;
+      reason: string;
+      carryCurrentTermScores?: boolean | undefined;
+    }) => {
+      if (!canManageStudents(portal)) {
+        return {
+          ok: false,
+          error:
+            "Only the Proprietor / Admin or Secretary can transfer students between classes.",
+        };
+      }
+      const student = rawDb.students.find((s) => s.id === params.studentId);
+      if (!student) {
+        return { ok: false, error: "Student record not found." };
+      }
+      const toClass = rawDb.classes.find((c) => c.id === params.toClassId);
+      if (!toClass) {
+        return { ok: false, error: "Destination class not found." };
+      }
+      const fromClassId = student.programmeClasses[params.programmeId] ?? "";
+      if (fromClassId === params.toClassId) {
+        return {
+          ok: false,
+          error: `${student.fullName} is already enrolled in ${toClass.name}.`,
+        };
+      }
+
+      const fromClassName =
+        rawDb.classes.find((c) => c.id === fromClassId)?.name ?? "Unassigned";
+      const carryScores = params.carryCurrentTermScores ?? true;
+      const cleanReason =
+        params.reason.trim() || "Mid-session administrative class transfer";
+      const migratedScoresCount = carryScores
+        ? rawDb.scores.filter(
+            (sc) =>
+              sc.studentId === student.id &&
+              sc.programmeId === params.programmeId &&
+              sc.session === rawDb.settings.currentSession &&
+              sc.term === rawDb.settings.currentTerm
+          ).length
+        : 0;
+
+      const transferEntry: StudentClassTransferEntry = {
+        id: `trf-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        date: new Date().toISOString().slice(0, 10),
+        session: rawDb.settings.currentSession,
+        term: rawDb.settings.currentTerm,
+        programmeId: params.programmeId,
+        fromClassId,
+        fromClassName,
+        toClassId: toClass.id,
+        toClassName: toClass.name,
+        reason: cleanReason,
+        transferredBy: portal.displayName,
+        carriedCurrentTermScores: carryScores,
+      };
+
+      setRawDb((prev) => {
+        const nextStudents = prev.students.map((s) => {
+          if (s.id !== student.id) return s;
+          return {
+            ...s,
+            programmeClasses: {
+              ...s.programmeClasses,
+              [params.programmeId]: toClass.id,
+            },
+            transferHistory: [transferEntry, ...(s.transferHistory ?? [])],
+          };
+        });
+
+        const nextScores = carryScores
+          ? prev.scores.map((sc) =>
+              sc.studentId === student.id &&
+              sc.programmeId === params.programmeId &&
+              sc.session === prev.settings.currentSession &&
+              sc.term === prev.settings.currentTerm
+                ? { ...sc, classId: toClass.id }
+                : sc
+            )
+          : prev.scores;
+
+        const audit = makeAuditEntry({
+          portal,
+          category: "student_transfer",
+          action: "Mid-Session Class Transfer",
+          targetLabel: `${student.fullName} (${student.admissionId})`,
+          oldValue: fromClassName,
+          newValue: `${toClass.name} (${cleanReason}${carryScores ? ` • ${migratedScoresCount} subject scores carried over` : ""})`,
+        });
+
+        return {
+          ...prev,
+          students: nextStudents,
+          scores: nextScores,
+          auditLogs: [audit, ...prev.auditLogs],
+        };
+      });
+
+      return { ok: true, migratedScoresCount };
+    },
+    [rawDb, portal]
   );
 
   const deleteStudent = useCallback(
@@ -1103,6 +1686,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const decision = evaluateScoreWritePermission(rawDb, portal, {
         classId: params.classId,
         subjectId: params.subjectId,
+        studentId: params.studentId,
         session: params.session,
         term: params.term,
       });
@@ -2203,9 +2787,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       completeSchoolOnboarding,
       activeNav,
       setActiveNav,
+      registeredSchools,
       loginProductionStaff,
       loginProductionParent,
       logoutSession,
+      portalVideoGuideOpen,
+      setPortalVideoGuideOpen,
       setupWizardOpen,
       setSetupWizardOpen,
       printJob,
@@ -2216,7 +2803,14 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       deleteClassGroup,
       upsertSubject,
       deleteSubject,
+      upsertTeachingGroup,
+      deleteTeachingGroup,
+      upsertExamPaper,
+      submitExamPaperToOfficer,
+      reviewExamPaper,
+      deleteExamPaper,
       upsertStudent,
+      transferStudentClass,
       deleteStudent,
       runEndOfSessionPromotion,
       updateScoreCell,
@@ -2251,9 +2845,11 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       completeSchoolOnboarding,
       activeNav,
       setActiveNav,
+      registeredSchools,
       loginProductionStaff,
       loginProductionParent,
       logoutSession,
+      portalVideoGuideOpen,
       setupWizardOpen,
       printJob,
       openPrintPreview,
@@ -2263,7 +2859,14 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       deleteClassGroup,
       upsertSubject,
       deleteSubject,
+      upsertTeachingGroup,
+      deleteTeachingGroup,
+      upsertExamPaper,
+      submitExamPaperToOfficer,
+      reviewExamPaper,
+      deleteExamPaper,
       upsertStudent,
+      transferStudentClass,
       deleteStudent,
       runEndOfSessionPromotion,
       updateScoreCell,

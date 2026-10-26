@@ -13,10 +13,13 @@ const CATEGORY_LABELS: Record<AuditCategory, string> = {
   fee_waiver: "Fee Waiver",
   payment: "Fee Payment",
   settings: "Settings",
+  student_transfer: "Class Transfer",
+  exam_paper: "Exam Question Paper",
 };
 
 const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Proprietor / Admin",
+  exam_officer: "Exam Officer",
   class_teacher: "Class Teacher",
   subject_teacher: "Subject Teacher",
   bursar: "Bursar / Accountant",

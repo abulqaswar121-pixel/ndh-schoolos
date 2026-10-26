@@ -1,13 +1,16 @@
-import { Columns2, FileStack, Printer, X } from "lucide-react";
+import { Columns2, FileDown, FileStack, Printer, X } from "lucide-react";
 import React from "react";
+import { toast } from "sonner";
 import { PrintableBroadsheet } from "./printables/PrintableBroadsheet";
 import { PrintableDataTable } from "./printables/PrintableDataTable";
+import { PrintableExamPaper } from "./printables/PrintableExamPaper";
 import { PrintablePayslip } from "./printables/PrintablePayslip";
 import { PrintableReceipt } from "./printables/PrintableReceipt";
 import { PrintableReportCard } from "./printables/PrintableReportCard";
 import { Button } from "@/components/ui/button";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import { getActiveProgrammes } from "@/services/calculations";
+import { exportExamPaperToWordDoc } from "@/services/examPaperExportService";
 
 export function PrintOverlay() {
   const { db, printJob, openPrintPreview, closePrintPreview } = useSchoolOS();
@@ -20,12 +23,18 @@ export function PrintOverlay() {
       ? db.students.find((s) => s.id === printJob.studentId)
       : undefined;
   const studentProgCount = targetStudent
-    ? activeProgs.filter((p) => Boolean(targetStudent.programmeClasses[p.id])).length
+    ? activeProgs.filter((p) => Boolean(targetStudent.programmeClasses[p.id]))
+        .length
     : 0;
   const isMultiProgrammeReport =
     printJob.type === "report_card" &&
     db.settings.multiProgrammeEnabled &&
     studentProgCount > 1;
+
+  const activeExamPaper =
+    printJob.type === "exam_paper" || printJob.type === "marking_scheme"
+      ? (db.examPapers ?? []).find((ep) => ep.id === printJob.examPaperId)
+      : undefined;
 
   return (
     <div
@@ -36,9 +45,9 @@ export function PrintOverlay() {
       <div className="no-print sticky top-0 z-10 mx-auto mb-4 flex max-w-4xl flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-700 bg-[#0F172A] px-4 py-3 text-white shadow-lg">
         <div className="flex items-center gap-2.5">
           <Printer className="h-4 w-4 text-sky-300" />
-          <span className="text-sm font-bold">A4 Print Preview</span>
+          <span className="text-sm font-bold">A4 Print &amp; Export Preview</span>
           <span className="hidden text-xs text-slate-300 sm:inline">
-            • Menus, buttons & footer are hidden automatically on paper/PDF
+            • Menus, buttons &amp; footer are hidden automatically on paper/PDF
           </span>
         </div>
 
@@ -78,6 +87,68 @@ export function PrintOverlay() {
               </button>
             </div>
           )}
+
+          {printJob.type === "exam_paper" && activeExamPaper && (
+            <div className="flex items-center rounded-lg border border-slate-700 bg-slate-800 p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() =>
+                  openPrintPreview(
+                    { ...printJob, layout: "standard" },
+                    false
+                  )
+                }
+                className={`rounded-md px-2.5 py-1 font-semibold transition ${
+                  (printJob.layout ?? activeExamPaper.paperLayout) ===
+                  "standard"
+                    ? "bg-white text-[#0F172A]"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                Standard 1-Col
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  openPrintPreview(
+                    { ...printJob, layout: "compact_two_column" },
+                    false
+                  )
+                }
+                className={`rounded-md px-2.5 py-1 font-semibold transition ${
+                  (printJob.layout ?? activeExamPaper.paperLayout) ===
+                  "compact_two_column"
+                    ? "bg-white text-[#0F172A]"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                2-Col Paper Saver
+              </button>
+            </div>
+          )}
+
+          {(printJob.type === "exam_paper" ||
+            printJob.type === "marking_scheme") &&
+            activeExamPaper && (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  const fname = exportExamPaperToWordDoc(
+                    activeExamPaper,
+                    db,
+                    printJob.type === "marking_scheme"
+                      ? "marking_scheme"
+                      : "question_paper"
+                  );
+                  toast.success(`Downloaded editable Word document (${fname}).`);
+                }}
+                className="bg-emerald-500 text-xs font-bold text-slate-950 hover:bg-emerald-400"
+              >
+                <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                Download Word (.doc)
+              </Button>
+            )}
 
           <Button
             type="button"
@@ -127,6 +198,21 @@ export function PrintOverlay() {
         )}
         {printJob.type === "payslip" && (
           <PrintablePayslip db={db} payrollId={printJob.payrollId} />
+        )}
+        {printJob.type === "exam_paper" && (
+          <PrintableExamPaper
+            db={db}
+            examPaperId={printJob.examPaperId}
+            mode="question_paper"
+            layoutOverride={printJob.layout}
+          />
+        )}
+        {printJob.type === "marking_scheme" && (
+          <PrintableExamPaper
+            db={db}
+            examPaperId={printJob.examPaperId}
+            mode="marking_scheme"
+          />
         )}
         {printJob.type === "table" && (
           <PrintableDataTable

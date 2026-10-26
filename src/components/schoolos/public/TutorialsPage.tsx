@@ -4,6 +4,7 @@ import {
   BookOpen,
   Calculator,
   ClipboardCheck,
+  FileCheck2,
   ShieldCheck,
   Smartphone,
   Sparkles,
@@ -20,37 +21,50 @@ const ROLE_CARDS = [
     icon: ShieldCheck,
     role: "School Owner",
     scope: "Full Control",
-    summary: "Setup, staff PINs, fee waivers, score approvals, result lock & Audit Log.",
+    summary:
+      "School Code setup, staff PINs, class transfers, Exam Officer provisioning, custom report studio & full backups.",
+  },
+  {
+    icon: FileCheck2,
+    role: "Exam Officer",
+    scope: "Exams & All Reports",
+    summary:
+      "Missing-paper tracker, question moderation, PDF & Word (.doc) exam/scheme export, and all-classes broadsheets & report sheets.",
   },
   {
     icon: BookOpen,
     role: "Class Teacher",
     scope: "Assigned Class",
-    summary: "1-tap attendance, CA1/CA2/Exam grading, remarks & A4 report cards.",
+    summary:
+      "1-tap attendance, auto-synced subject scores on class broadsheet, AI exam question refiner & A4 report cards.",
   },
   {
     icon: ClipboardCheck,
     role: "Subject Teacher",
-    scope: "Assigned Subject",
-    summary: "Enters CA & Exam scores for assigned subjects only; requests edits if published.",
+    scope: "Subjects & Groups",
+    summary:
+      "Single-class or combined cross-class group recording (enter once -> routes to home classes) + AI exam question digitizer.",
   },
   {
     icon: Calculator,
     role: "Bursar",
     scope: "Fees & Payroll",
-    summary: "Fee schedules, transfer confirmation, numbered receipts, debtors & payroll.",
+    summary:
+      "Fee schedules, transfer confirmation, numbered receipts, debtors & monthly staff payroll.",
   },
   {
     icon: Users,
     role: "Secretary",
     scope: "Front Office",
-    summary: "Admissions, sibling phone linking, parent notices & read-only report printing.",
+    summary:
+      "Admissions, sibling phone linking, mid-session class transfers, notices & read-only report printing.",
   },
   {
     icon: Smartphone,
     role: "Parent",
     scope: "Own Children",
-    summary: "One phone login for all siblings — attendance, report cards, fees & receipts.",
+    summary:
+      "School Code + phone login for all siblings — attendance, published report cards, fees & receipts.",
   },
 ];
 

@@ -167,6 +167,8 @@ export function computeSubjectMarksheet(params: {
   components: ScoreComponentConfig[];
   gradeBands: GradeBand[];
   classId: string;
+  classIds?: string[] | undefined;
+  customStudentIds?: string[] | undefined;
   subjectId: string;
   programmeId: ProgrammeId;
   session: string;
@@ -178,6 +180,8 @@ export function computeSubjectMarksheet(params: {
     components,
     gradeBands,
     classId,
+    classIds,
+    customStudentIds,
     subjectId,
     programmeId,
     session,
@@ -186,9 +190,25 @@ export function computeSubjectMarksheet(params: {
 
   const maxPossible =
     components.reduce((acc, c) => acc + c.maxScore, 0) || 100;
-  const enrolled = students.filter(
-    (s) => s.status === "Active" && s.programmeClasses?.[programmeId] === classId
-  );
+  const classIdSet =
+    classIds && classIds.length > 0 ? new Set(classIds) : null;
+  const studentIdSet =
+    customStudentIds && customStudentIds.length > 0
+      ? new Set(customStudentIds)
+      : null;
+
+  const enrolled = students.filter((s) => {
+    if (s.status !== "Active") return false;
+    const homeCls = s.programmeClasses?.[programmeId];
+    if (!homeCls) return false;
+    if (classIdSet || studentIdSet) {
+      return Boolean(
+        (classIdSet && classIdSet.has(homeCls)) ||
+          (studentIdSet && studentIdSet.has(s.id))
+      );
+    }
+    return homeCls === classId;
+  });
 
   const prelim = enrolled.map((student) => {
     const rec = scores.find(

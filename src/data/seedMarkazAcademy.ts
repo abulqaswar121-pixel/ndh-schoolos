@@ -177,5 +177,7 @@ export function createSeedDatabase(): SchoolDatabaseSnapshot {
     parentNotices: [],
     staff: [],
     payroll: [],
+    teachingGroups: [],
+    examPapers: [],
   };
 }

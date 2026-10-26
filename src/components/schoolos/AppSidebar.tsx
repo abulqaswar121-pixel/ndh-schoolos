@@ -6,6 +6,7 @@ import {
   CalendarCheck2,
   ClipboardList,
   DatabaseBackup,
+  FileText,
   GraduationCap,
   LayoutDashboard,
   Palette,
@@ -44,13 +45,25 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
   const { primaryColor, accentColor, highlightColor } = custom.workspaceTheme;
 
   const allowedSet = new Set(
-    getAllowedNavSections(portal.role, settings.enableQuranModule)
+    getAllowedNavSections(
+      portal.role,
+      settings.enableQuranModule,
+      Boolean(portal.isExamOfficer)
+    )
   );
+
+  const isOfficer =
+    portal.role === "admin" ||
+    portal.role === "exam_officer" ||
+    Boolean(portal.isExamOfficer);
 
   const pendingScoreApprovals =
     portal.role === "admin"
       ? db.pendingScoreEdits.filter((r) => r.status === "pending").length
       : 0;
+  const pendingExamPapers = isOfficer
+    ? (db.examPapers ?? []).filter((ep) => ep.status === "submitted").length
+    : (db.examPapers ?? []).filter((ep) => ep.status === "returned").length;
   const pendingBankTransfers =
     portal.role === "admin" || portal.role === "bursar"
       ? db.payments.filter((p) => p.confirmationStatus === "Pending Confirmation")
@@ -80,6 +93,12 @@ export function AppSidebar({ mobileOpen, onMobileOpenChange }: AppSidebarProps) 
         : "Results & Report Cards",
       icon: BookOpenCheck,
       badge: pendingScoreApprovals > 0 ? pendingScoreApprovals : undefined,
+    },
+    {
+      id: "exams",
+      label: "Exam Questions",
+      icon: FileText,
+      badge: pendingExamPapers > 0 ? pendingExamPapers : undefined,
     },
     {
       id: "attendance",

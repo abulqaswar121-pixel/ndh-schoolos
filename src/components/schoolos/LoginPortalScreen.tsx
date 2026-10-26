@@ -24,10 +24,22 @@ export function LoginPortalScreen() {
   const navigate = useNavigate();
   const {
     db,
+    registeredSchools,
     loginProductionStaff,
     loginProductionParent,
     setOnboardingWizardOpen,
   } = useSchoolOS();
+
+  const [schoolCodeInput, setSchoolCodeInput] = useState(
+    db.settings.code || ""
+  );
+  const [userEditedSchoolCode, setUserEditedSchoolCode] = useState(false);
+
+  React.useEffect(() => {
+    if (!userEditedSchoolCode && db.settings.code) {
+      setSchoolCodeInput(db.settings.code);
+    }
+  }, [db.settings.code, userEditedSchoolCode]);
 
   const [staffIdentifier, setStaffIdentifier] = useState("");
   const [staffPin, setStaffPin] = useState("");
@@ -41,7 +53,11 @@ export function LoginPortalScreen() {
   const handleStaffSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStaffError("");
-    if (!isSchoolRegistered && db.staff.length === 0) {
+    if (
+      !isSchoolRegistered &&
+      db.staff.length === 0 &&
+      registeredSchools.length === 0
+    ) {
       setStaffError(
         "No school registered on this device yet. Click 'Register Your School' below."
       );
@@ -50,6 +66,7 @@ export function LoginPortalScreen() {
     const res = loginProductionStaff({
       identifier: staffIdentifier,
       pin: staffPin,
+      schoolCode: schoolCodeInput,
     });
     if (!res.ok) {
       setStaffError(res.error ?? "Unable to sign in.");
@@ -62,7 +79,10 @@ export function LoginPortalScreen() {
   const handleParentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setParentError("");
-    const res = loginProductionParent({ phone: parentPhone });
+    const res = loginProductionParent({
+      phone: parentPhone,
+      schoolCode: schoolCodeInput,
+    });
     if (!res.ok) {
       setParentError(res.error ?? "Phone number not found.");
       return;
@@ -190,6 +210,41 @@ export function LoginPortalScreen() {
               <TabsContent value="staff">
                 <form onSubmit={handleStaffSubmit} className="space-y-4">
                   <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label htmlFor="login-school-code" className="text-xs font-bold">
+                        School Workspace Code
+                      </Label>
+                      {registeredSchools.length > 1 && (
+                        <select
+                          aria-label="Choose registered school workspace"
+                          value={schoolCodeInput}
+                          onChange={(e) => {
+                            setUserEditedSchoolCode(true);
+                            setSchoolCodeInput(e.target.value);
+                          }}
+                          className="h-7 rounded border border-[#d0d5dd] bg-[#f5f6f8] px-2 text-[11px] font-semibold text-[#1a4a6e]"
+                        >
+                          {registeredSchools.map((sch) => (
+                            <option key={sch.code} value={sch.code}>
+                              {sch.name} ({sch.code})
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                    <Input
+                      id="login-school-code"
+                      placeholder="e.g. GHA or MRK-2026"
+                      value={schoolCodeInput}
+                      onChange={(e) => {
+                        setUserEditedSchoolCode(true);
+                        setSchoolCodeInput(e.target.value.toUpperCase());
+                      }}
+                      className="h-10 border-[#d0d5dd] bg-[#f5f6f8] font-mono text-xs font-bold tracking-wider uppercase"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
                     <Label htmlFor="login-staff-id" className="text-xs font-bold">
                       Staff ID, Email or Phone
                     </Label>
@@ -238,6 +293,22 @@ export function LoginPortalScreen() {
 
               <TabsContent value="parent">
                 <form onSubmit={handleParentSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="login-parent-school-code" className="text-xs font-bold">
+                      School Workspace Code
+                    </Label>
+                    <Input
+                      id="login-parent-school-code"
+                      placeholder="e.g. GHA or MRK-2026"
+                      value={schoolCodeInput}
+                      onChange={(e) => {
+                        setUserEditedSchoolCode(true);
+                        setSchoolCodeInput(e.target.value.toUpperCase());
+                      }}
+                      className="h-10 border-[#d0d5dd] bg-[#f5f6f8] font-mono text-xs font-bold tracking-wider uppercase"
+                    />
+                  </div>
+
                   <div className="space-y-1.5">
                     <Label htmlFor="login-parent-phone" className="text-xs font-bold">
                       Guardian Phone Number

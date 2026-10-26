@@ -87,6 +87,11 @@ export function StaffPayrollModule() {
         jobTitle: "Proprietor / Principal",
       },
       {
+        role: "exam_officer",
+        label: "Exam Officer (All-Classes Results & Exam Papers)",
+        jobTitle: "Exam Officer",
+      },
+      {
         role: "class_teacher",
         label: `${settings.labels.classSingular} ${settings.labels.teacherSingular}`,
         jobTitle: "Class Teacher",
@@ -510,11 +515,13 @@ export function StaffPayrollModule() {
                         <td className="px-4 py-3 text-xs text-slate-700">
                           {member.systemRole === "admin"
                             ? "All Classes & Settings"
-                            : member.systemRole === "bursar"
-                              ? "Fees, Receipts & Payroll"
-                              : member.systemRole === "secretary"
-                                ? "Students, Attendance & Printing"
-                                : `${clsNames || "No classes"}${subNames ? ` • ${subNames}` : ""}`}
+                            : member.systemRole === "exam_officer"
+                              ? "All Classes' Results, Report Sheets & Exam Papers"
+                              : member.systemRole === "bursar"
+                                ? "Fees, Receipts & Payroll"
+                                : member.systemRole === "secretary"
+                                  ? "Students, Attendance & Printing"
+                                  : `${clsNames || "No classes"}${subNames ? ` • ${subNames}` : ""}${member.isExamOfficer ? " • + Exam Officer Duty" : ""}`}
                         </td>
                         <td className="px-4 py-3 text-xs text-slate-600">
                           <div>{member.phone}</div>
@@ -766,6 +773,32 @@ export function StaffPayrollModule() {
                   />
                 </div>
               </div>
+
+              {(editingStaff.systemRole === "class_teacher" ||
+                editingStaff.systemRole === "subject_teacher" ||
+                editingStaff.systemRole === "muallim") && (
+                <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-[#9ed9d6] bg-[#edf7f6] p-3">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(editingStaff.isExamOfficer)}
+                    onChange={(e) =>
+                      setEditingStaff({
+                        ...editingStaff,
+                        isExamOfficer: e.target.checked,
+                      })
+                    }
+                    className="mt-0.5 h-4 w-4 accent-[#1a4a6e]"
+                  />
+                  <span className="leading-relaxed text-slate-700">
+                    <strong className="text-[#0b1220]">
+                      Also Grant Exam Officer Duty
+                    </strong>{" "}
+                    — allows this teacher to review/approve submitted exam
+                    papers (PDF &amp; Word .doc) and view/print all classes&apos;
+                    broadsheets &amp; report sheets.
+                  </span>
+                </label>
+              )}
 
               {(editingStaff.systemRole === "class_teacher" ||
                 editingStaff.systemRole === "subject_teacher" ||
