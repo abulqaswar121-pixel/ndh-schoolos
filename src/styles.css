@@ -5,27 +5,91 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * NDH Family Brand Design System — Aligned with Parent Web (ndh.com.ng)
+ * Paper (#ffffff), Soft Surfaces (#f5f6f8 / #eef1f6), Deep Ink (#0b1220),
+ * NDH Teal-Navy Accent (#1a4a6e / #0c2340 / #edf7f6 / #9ed9d6),
+ * Space Grotesk headings + DM Sans body + Amiri Arabic.
  */
+
+:root {
+  /* Official ndh.com.ng surface & ink tokens */
+  --paper: #ffffff;
+  --surface: #f5f6f8;
+  --surface-2: #eef1f6;
+  --ink: #0b1220;
+  --ink-soft: #364152;
+  --muted: #667085;
+  --line: #e4e7ec;
+  --line-strong: #d0d5dd;
+
+  /* Official ndh.com.ng primary accent tokens */
+  --accent: #1a4a6e;
+  --accent-hover: #0c2340;
+  --accent-soft: #edf7f6;
+  --accent-line: #9ed9d6;
+
+  /* Official ndh.com.ng status tokens */
+  --success: #067647;
+  --success-soft: #ecfdf3;
+  --danger: #b42318;
+  --danger-soft: #fef3f2;
+
+  /* Official NDH Family Open Gateway tile tokens */
+  --family-tile-start: #0a1a30;
+  --family-tile-end: #312e81;
+  --family-symbol-glint: #e0f2fe;
+  --family-sector-surface: #ffffff;
+  --family-sector-ink: #0a1a30;
+
+  /* Radii & Shadows */
+  --radius: 0.875rem;
+  --shadow-hairline: 0 1px 2px rgba(11, 18, 32, 0.04);
+  --shadow-soft: 0 4px 16px rgba(11, 18, 32, 0.05);
+  --shadow-lift: 0 18px 40px rgba(11, 18, 32, 0.1);
+  --shadow-deep: 0 30px 70px rgba(11, 18, 32, 0.14);
+
+  /* Shadcn UI Bridge */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--accent);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted-bg: var(--surface);
+  --muted-foreground: var(--muted);
+  --accent-bg: var(--accent-soft);
+  --accent-foreground: var(--ink);
+  --destructive: var(--danger);
+  --destructive-foreground: #ffffff;
+  --border: var(--line);
+  --input: var(--line-strong);
+  --ring: var(--accent);
+  --chart-1: #1a4a6e;
+  --chart-2: #067647;
+  --chart-3: #d97706;
+  --chart-4: #312e81;
+  --chart-5: #b42318;
+  --sidebar: #0c2340;
+  --sidebar-foreground: #f5f6f8;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #0c2340;
+  --sidebar-accent: #1a4a6e;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1e3a5f;
+  --sidebar-ring: #9ed9d6;
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 6px);
+  --radius-3xl: calc(var(--radius) + 10px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -36,9 +100,9 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
+  --color-muted: var(--muted-bg);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
+  --color-accent: var(--accent-bg);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -59,77 +123,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-}
-
-:root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-}
-
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
@@ -137,8 +132,295 @@
     border-color: var(--color-border);
   }
 
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
   }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  select,
+  option {
+    color: var(--ink);
+    background-color: var(--paper);
+  }
+}
+
+.font-display {
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Arabic RTL precision typography */
+.font-arabic {
+  font-family:
+    "Amiri",
+    "Noto Naskh Arabic",
+    "Scheherazade New",
+    "Traditional Arabic",
+    "Geeza Pro",
+    serif;
+  line-height: 1.75;
+}
+
+/* NDH Card Surface — Matches ndh.com.ng clean border & soft lift */
+.ndh-card {
+  background-color: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* ============================================================
+   NDH Family Open Gateway Symbol (Matches ndh.com.ng/approach)
+   ============================================================ */
+.ndh-family-symbol {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  margin-right: 3px;
+  margin-bottom: 3px;
+}
+
+.ndh-family-tile {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, var(--family-tile-start), var(--family-tile-end));
+  border: 1px solid rgba(224, 242, 254, 0.24);
+  box-shadow: 0 6px 16px -6px rgba(49, 46, 129, 0.55);
+  overflow: hidden;
+}
+
+.ndh-family-tile img {
+  width: 84%;
+  height: 84%;
+  object-fit: contain;
+  display: block;
+}
+
+.ndh-family-sector {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 6px;
+  background: var(--family-sector-surface);
+  border: 2px solid var(--family-tile-end);
+  box-shadow: 0 2px 6px rgba(10, 26, 48, 0.22);
+  color: var(--family-sector-ink);
+}
+
+.ndh-family-sector svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* ============================================================
+   NDH Parent-Web AI Assistant Launcher & Dialog (ndh.com.ng)
+   ============================================================ */
+@keyframes ai-assistant-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ai-assistant-launcher {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  padding: 4px;
+  border: 1.5px solid var(--accent-line);
+  border-radius: 9999px;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow:
+    0 14px 36px rgba(11, 18, 32, 0.18),
+    0 0 0 1px rgba(26, 74, 110, 0.12);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.ai-assistant-launcher:hover {
+  background: var(--accent-soft);
+}
+
+.ai-assistant-avatar {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  object-position: 50% 9%;
+  border-radius: 9999px;
+  display: block;
+}
+
+.ai-assistant-orbit {
+  position: absolute;
+  inset: -5px;
+  border: 1.5px solid rgba(26, 74, 110, 0.42);
+  border-right-color: transparent;
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: ai-assistant-orbit-spin 8s linear infinite;
+}
+
+.ai-assistant-status {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--success);
+  border: 2px solid var(--paper);
+}
+
+.ai-assistant-dialog {
+  position: fixed;
+  right: 20px;
+  bottom: 94px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  width: min(390px, calc(100vw - 32px));
+  height: min(540px, calc(100dvh - 118px));
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-deep);
+}
+
+@media (max-width: 640px) {
+  .ai-assistant-launcher {
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .ai-assistant-dialog {
+    right: 10px;
+    bottom: 86px;
+    width: calc(100vw - 20px);
+    height: min(540px, calc(100dvh - 104px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-assistant-orbit {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Clean A4 Printing Architecture
+   ============================================================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0b1220 !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  body.ndh-printing #ndh-app-shell {
+    display: none !important;
+  }
+
+  body.ndh-printing #ndh-print-portal {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* Pre-Nav Moving Announcement Bar (scrolls away naturally; main <header> stays sticky) */
+.ndh-top-ticker {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(90deg, #071326 0%, #0c2340 50%, #071326 100%);
+  border-bottom: 1px solid rgba(158, 217, 214, 0.22);
+}
+
+.ndh-top-ticker-viewport {
+  position: relative;
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+.ndh-top-ticker-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  will-change: transform;
 }
