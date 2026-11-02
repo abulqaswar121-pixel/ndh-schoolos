@@ -8,6 +8,13 @@
       "when": 1793601595169,
       "tag": "0000_create_schoolos_core",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793601595170,
+      "tag": "0001_cloud_workspaces",
+      "breakpoints": true
     }
   ]
 }

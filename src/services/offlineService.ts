@@ -62,7 +62,7 @@ export async function warmAllPortalModulesAndRoutes(
         urls: routesToWarm,
       });
     } else if ("caches" in window) {
-      const cache = await window.caches.open("ndh-schoolos-offline-v3");
+      const cache = await window.caches.open("ndh-schoolos-offline-v6");
       await Promise.allSettled(
         routesToWarm.map(async (u) => {
           const res = await fetch(u, { credentials: "same-origin" });

@@ -44,7 +44,7 @@ export function SaaSOnboardingWizard() {
     db,
     onboardingWizardOpen,
     setOnboardingWizardOpen,
-    completeSchoolOnboarding,
+    registerSchoolAdmin,
   } = useSchoolOS();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -63,7 +63,10 @@ export function SaaSOnboardingWizard() {
   // Step 2: Proprietor / Admin credentials
   const [adminName, setAdminName] = useState("");
   const [adminContact, setAdminContact] = useState("");
-  const [adminPin, setAdminPin] = useState("1234");
+  const [adminPin, setAdminPin] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [registrationError, setRegistrationError] = useState("");
+  const [confirmationEmail, setConfirmationEmail] = useState("");
 
   // Step 3: Session, Term, Programmes & Classes
   const [currentSession, setCurrentSession] = useState("2026/2027");
@@ -136,47 +139,75 @@ export function SaaSOnboardingWizard() {
       toast.error("Enter the School Owner / Principal full name.");
       return;
     }
-    if (!adminPin.trim() || adminPin.trim().length < 4) {
-      toast.error("Set at least a 4-digit Admin PIN for staff login.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adminContact.trim())) {
+      toast.error("Enter a valid administrator email address.");
+      return;
+    }
+    if (adminPin.length < 8) {
+      toast.error("Choose a password with at least 8 characters.");
       return;
     }
     setStep(3);
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     if (!schoolName.trim()) {
       toast.error("Please enter your school name.");
       setStep(1);
       return;
     }
 
-    completeSchoolOnboarding({
-      schoolName: schoolName.trim(),
-      country: selectedCurrency.country,
-      currencySymbol: selectedCurrency.symbol,
-      currencyCode: selectedCurrency.code,
-      schoolPhone: schoolPhone.trim(),
-      schoolAddress: schoolAddress.trim(),
-      logoDataUrl,
-      multiProgrammeEnabled: multiProgramme,
-      additionalProgrammeNames: multiProgramme ? extraProgrammes : [],
-      currentSession: currentSession.trim() || "2026/2027",
-      currentTerm,
-      classNames: classList,
-      adminName: adminName.trim() || "School Proprietor",
-      adminContact: adminContact.trim() || schoolPhone.trim(),
-      adminPin: adminPin.trim() || "1234",
-    });
-
-    toast.success(
-      `${schoolName.trim()} is ready! Signed in as ${adminName.trim() || "School Proprietor"} (Staff ID: ADM-001).`
-    );
-    void navigate({ to: "/app" });
+    setBusy(true);
+    setRegistrationError("");
+    try {
+      const result = await registerSchoolAdmin(
+        {
+          schoolName: schoolName.trim(),
+          country: selectedCurrency.country,
+          currencySymbol: selectedCurrency.symbol,
+          currencyCode: selectedCurrency.code,
+          schoolPhone: schoolPhone.trim(),
+          schoolAddress: schoolAddress.trim(),
+          logoDataUrl,
+          multiProgrammeEnabled: multiProgramme,
+          additionalProgrammeNames: multiProgramme ? extraProgrammes : [],
+          currentSession: currentSession.trim() || "2026/2027",
+          currentTerm,
+          classNames: classList,
+          adminName: adminName.trim() || "School Proprietor",
+          adminContact: adminContact.trim(),
+        },
+        adminPin
+      );
+      setAdminPin("");
+      if (result.needsConfirmation) {
+        setConfirmationEmail(adminContact.trim());
+        toast.success(
+          "Check your email to confirm your account, then sign in."
+        );
+        return;
+      }
+      toast.success(`${schoolName.trim()} is saved to the cloud.`);
+      await navigate({ to: result.isOwner ? "/platform" : "/app" });
+    } catch (error) {
+      setRegistrationError(
+        error instanceof Error
+          ? error.message
+          : "Registration failed. Please try again."
+      );
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <Dialog open={onboardingWizardOpen} onOpenChange={setOnboardingWizardOpen}>
-      <DialogContent className="max-h-[92vh] max-w-2xl overflow-y-auto border-[#e4e7ec] bg-white p-0">
+      <DialogContent
+        onInteractOutside={(event) => {
+          if (busy) event.preventDefault();
+        }}
+        className="max-h-[92vh] max-w-2xl overflow-y-auto border-[#e4e7ec] bg-white p-0"
+      >
         {/* Top Banner matching ndh.com.ng deep gateway navy (pr-12 prevents Close [X] overlap) */}
         <div className="border-b border-white/10 bg-[#0c2340] py-4 pr-12 pl-5 text-white sm:py-5 sm:pr-14 sm:pl-6">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] font-bold tracking-wider text-[#9ed9d6] uppercase sm:text-xs">
@@ -188,7 +219,9 @@ export function SaaSOnboardingWizard() {
               Set Up Your Live School Workspace
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-300 sm:text-sm">
-              Register your school, create your Proprietor login PIN, and start admitting students, recording scores and issuing receipts immediately.
+              Register your school, create your administrator email and
+              password, and start admitting students, recording scores and
+              issuing receipts immediately.
             </DialogDescription>
           </DialogHeader>
 
@@ -229,7 +262,10 @@ export function SaaSOnboardingWizard() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="onb-school-phone" className="text-xs font-bold">
+                  <Label
+                    htmlFor="onb-school-phone"
+                    className="text-xs font-bold"
+                  >
                     Official School Phone
                   </Label>
                   <Input
@@ -281,7 +317,9 @@ export function SaaSOnboardingWizard() {
                   <label className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#d0d5dd] bg-[#f5f6f8] px-3 text-xs font-semibold text-[#364152] hover:border-[#1a4a6e] hover:bg-white">
                     <ImagePlus className="h-4 w-4 text-[#1a4a6e]" />
                     <span>
-                      {logoDataUrl ? "Logo Uploaded ✓ (Change)" : "Upload PNG / JPG"}
+                      {logoDataUrl
+                        ? "Logo Uploaded ✓ (Change)"
+                        : "Upload PNG / JPG"}
                     </span>
                     <input
                       type="file"
@@ -304,7 +342,10 @@ export function SaaSOnboardingWizard() {
               </div>
 
               <div className="rounded-xl border border-[#9ed9d6] bg-[#edf7f6] p-3.5 text-xs text-[#0c2340]">
-                Your account receives Staff ID <strong>ADM-001</strong> with full Proprietor & Principal control. You can create logins for your Class Teachers, Subject Teachers, Bursar, and Secretary right inside <strong>Staff & Payroll</strong>.
+                Your account receives Staff ID <strong>ADM-001</strong> with
+                full Proprietor & Principal control after email verification.
+                Staff records remain available in <strong>Staff & Payroll</strong>;
+                legacy PINs do not grant access to cloud records.
               </div>
 
               <div className="space-y-1.5">
@@ -322,12 +363,17 @@ export function SaaSOnboardingWizard() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="onb-admin-contact" className="text-xs font-bold">
-                    Admin Phone or Email (For Login)
+                  <Label
+                    htmlFor="onb-admin-contact"
+                    className="text-xs font-bold"
+                  >
+                    Administrator Email *
                   </Label>
                   <Input
                     id="onb-admin-contact"
-                    placeholder="e.g. 08031234567 or admin@school.ng"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="admin@school.ng"
                     value={adminContact}
                     onChange={(e) => setAdminContact(e.target.value)}
                     className="h-10 border-[#d0d5dd] bg-[#f5f6f8] text-sm"
@@ -336,14 +382,16 @@ export function SaaSOnboardingWizard() {
 
                 <div className="space-y-1.5">
                   <Label htmlFor="onb-admin-pin" className="text-xs font-bold">
-                    Set 4–6 Digit Login PIN *
+                    Set Account Password *
                   </Label>
                   <div className="relative">
                     <Lock className="pointer-events-none absolute top-3 left-3 h-4 w-4 text-[#667085]" />
                     <Input
                       id="onb-admin-pin"
                       type="password"
-                      placeholder="4+ digits"
+                      minLength={8}
+                      autoComplete="new-password"
+                      placeholder="At least 8 characters"
                       value={adminPin}
                       onChange={(e) => setAdminPin(e.target.value)}
                       className="h-10 border-[#d0d5dd] bg-[#f5f6f8] pl-9 text-sm font-semibold"
@@ -354,6 +402,24 @@ export function SaaSOnboardingWizard() {
             </div>
           )}
 
+          {registrationError && (
+            <p
+              role="alert"
+              className="rounded-lg border border-red-200 bg-[#fef3f2] p-3 text-xs font-semibold text-[#b42318]"
+            >
+              {registrationError}
+            </p>
+          )}
+          {confirmationEmail && (
+            <p
+              role="status"
+              className="rounded-lg border border-[#e4e7ec] p-3 text-sm"
+            >
+              Check <strong>{confirmationEmail}</strong> for your confirmation
+              link, then sign in with your email and password. Keep this tab
+              open to preserve your setup draft.
+            </p>
+          )}
           {/* STEP 3: Session, Programmes & Classes */}
           {step === 3 && (
             <div className="space-y-4">
@@ -481,7 +547,8 @@ export function SaaSOnboardingWizard() {
 
               <div className="space-y-2">
                 <Label className="text-xs font-bold">
-                  Classes ({classList.length}) — Click × to remove any class you don&apos;t run
+                  Classes ({classList.length}) — Click × to remove any class you
+                  don&apos;t run
                 </Label>
                 <div className="flex max-h-36 flex-wrap gap-1.5 overflow-y-auto rounded-xl border border-[#e4e7ec] bg-[#f5f6f8] p-3">
                   {classList.map((cls) => (
@@ -564,11 +631,16 @@ export function SaaSOnboardingWizard() {
             ) : (
               <Button
                 type="button"
-                onClick={handleFinish}
+                onClick={() => void handleFinish()}
+                disabled={busy || Boolean(confirmationEmail)}
                 className="gap-1.5 bg-[#067647] px-5 text-xs font-bold text-white hover:bg-[#055a36]"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Complete Setup & Open Workspace
+                {busy
+                  ? "Creating Cloud Account…"
+                  : confirmationEmail
+                    ? "Check Your Email"
+                    : "Complete Setup & Open Workspace"}
               </Button>
             )}
           </div>

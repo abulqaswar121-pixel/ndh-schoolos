@@ -609,7 +609,24 @@ export interface PayrollRecord {
   paidDate?: string | undefined;
 }
 
+/** Derived by the cloud adapter; existing fee screens retain their original calculations. */
+export interface PersistedFeeInvoice {
+  id: string;
+  studentId: string;
+  session: string;
+  term: string;
+  programmeId: string;
+  grossSubtotal: number;
+  siblingDiscount: number;
+  waiver: number;
+  netPayable: number;
+  amountPaid: number;
+  balance: number;
+  status: "Paid" | "Partial" | "Owing";
+}
+
 export interface SchoolDatabaseSnapshot {
+  feeInvoices?: PersistedFeeInvoice[] | undefined;
   version: number;
   settings: SchoolSettings;
   classes: ClassGroup[];

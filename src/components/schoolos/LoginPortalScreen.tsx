@@ -24,9 +24,14 @@ export function LoginPortalScreen() {
   const navigate = useNavigate();
   const {
     db,
+    portal,
     registeredSchools,
-    loginProductionStaff,
-    loginProductionParent,
+    loginSchoolAdmin,
+    cloudConfigured,
+    cloudStatus,
+    cloudError,
+    isPlatformOwner,
+    hydrated,
     setOnboardingWizardOpen,
   } = useSchoolOS();
 
@@ -49,40 +54,34 @@ export function LoginPortalScreen() {
   const [parentError, setParentError] = useState("");
 
   const isSchoolRegistered = db.settings.setupCompleted;
+  const [busy, setBusy] = useState(false);
 
-  const handleStaffSubmit = (e: React.FormEvent) => {
+  const handleStaffSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStaffError("");
-    if (
-      !isSchoolRegistered &&
-      db.staff.length === 0 &&
-      registeredSchools.length === 0
-    ) {
+    setBusy(true);
+    try {
+      const owner = await loginSchoolAdmin(staffIdentifier, staffPin);
+      setStaffPin("");
+      toast.success("Signed in to your cloud account.");
+      await navigate({ to: owner ? "/platform" : "/app" });
+    } catch (error) {
       setStaffError(
-        "No school registered on this device yet. Click 'Register Your School' below."
+        error instanceof Error ? error.message : "Unable to sign in."
       );
-      return;
+    } finally {
+      setBusy(false);
     }
-    const res = loginProductionStaff({
-      identifier: staffIdentifier,
-      pin: staffPin,
-      schoolCode: schoolCodeInput,
-    });
-    if (!res.ok) {
-      setStaffError(res.error ?? "Unable to sign in.");
-      return;
-    }
-    toast.success("Signed in to your school workspace.");
-    void navigate({ to: "/app" });
   };
 
   const handleParentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setParentError("");
-    const res = loginProductionParent({
-      phone: parentPhone,
-      schoolCode: schoolCodeInput,
-    });
+    const res = {
+      ok: false,
+      error:
+        "Phone-only sign-in cannot access cloud records. Ask your school for a verified account.",
+    };
     if (!res.ok) {
       setParentError(res.error ?? "Phone number not found.");
       return;
@@ -151,7 +150,8 @@ export function LoginPortalScreen() {
             Sign in to your portal
           </h1>
           <p className="text-sm text-[#364152]">
-            Staff sign in with Staff ID & PIN. Parents sign in with their registered phone number.
+            School administrators sign in with their verified email and
+            password. Your account is linked securely to your school.
           </p>
 
           <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
@@ -162,7 +162,10 @@ export function LoginPortalScreen() {
             />
             <div className="flex items-center gap-2 px-4 py-3 text-xs font-semibold text-[#0b1220]">
               <ShieldCheck className="h-4 w-4 shrink-0 text-[#067647]" />
-              <span>Role-scoped access for Owners, Teachers, Bursar, Secretary & Parents</span>
+              <span>
+                Role-scoped access for Owners, Teachers, Bursar, Secretary &
+                Parents
+              </span>
             </div>
           </div>
 
@@ -197,11 +200,17 @@ export function LoginPortalScreen() {
           <div className="rounded-2xl border border-[#e4e7ec] bg-white p-5 shadow-sm sm:p-8">
             <Tabs defaultValue="staff" className="space-y-5">
               <TabsList className="grid w-full grid-cols-2 bg-[#eef1f6] p-1">
-                <TabsTrigger value="staff" className="px-2 py-2 text-xs font-bold sm:px-3 sm:text-sm">
+                <TabsTrigger
+                  value="staff"
+                  className="px-2 py-2 text-xs font-bold sm:px-3 sm:text-sm"
+                >
                   <UserCheck className="mr-1.5 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
                   <span>Staff Sign In</span>
                 </TabsTrigger>
-                <TabsTrigger value="parent" className="px-2 py-2 text-xs font-bold sm:px-3 sm:text-sm">
+                <TabsTrigger
+                  value="parent"
+                  className="px-2 py-2 text-xs font-bold sm:px-3 sm:text-sm"
+                >
                   <Phone className="mr-1.5 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
                   <span>Parent Portal</span>
                 </TabsTrigger>
@@ -209,10 +218,22 @@ export function LoginPortalScreen() {
 
               <TabsContent value="staff">
                 <form onSubmit={handleStaffSubmit} className="space-y-4">
+                  {portal.isAuthenticated && <Link to="/app" className="text-xs font-bold underline">Open School Workspace</Link>}
+                  {isPlatformOwner && (
+                    <Link
+                      to="/platform"
+                      className="text-xs font-bold underline"
+                    >
+                      Open Super Admin
+                    </Link>
+                  )}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
-                      <Label htmlFor="login-school-code" className="text-xs font-bold">
-                        School Workspace Code
+                      <Label
+                        htmlFor="login-school-code"
+                        className="text-xs font-bold"
+                      >
+                        School Workspace Code (assigned to your account)
                       </Label>
                       {registeredSchools.length > 1 && (
                         <select
@@ -234,7 +255,8 @@ export function LoginPortalScreen() {
                     </div>
                     <Input
                       id="login-school-code"
-                      placeholder="e.g. GHA or MRK-2026"
+                      placeholder="Automatically linked after sign-in"
+                      disabled
                       value={schoolCodeInput}
                       onChange={(e) => {
                         setUserEditedSchoolCode(true);
@@ -245,12 +267,17 @@ export function LoginPortalScreen() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="login-staff-id" className="text-xs font-bold">
-                      Staff ID, Email or Phone
+                    <Label
+                      htmlFor="login-staff-id"
+                      className="text-xs font-bold"
+                    >
+                      Administrator Email
                     </Label>
                     <Input
                       id="login-staff-id"
-                      placeholder="e.g. ADM-001 or phone / email"
+                      type="email"
+                      autoComplete="username"
+                      placeholder="admin@school.ng"
                       value={staffIdentifier}
                       onChange={(e) => setStaffIdentifier(e.target.value)}
                       required
@@ -259,15 +286,19 @@ export function LoginPortalScreen() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="login-staff-pin" className="text-xs font-bold">
-                      Staff PIN
+                    <Label
+                      htmlFor="login-staff-pin"
+                      className="text-xs font-bold"
+                    >
+                      Password
                     </Label>
                     <div className="relative">
                       <Lock className="pointer-events-none absolute top-3.5 left-3 h-4 w-4 text-[#667085]" />
                       <Input
                         id="login-staff-pin"
                         type="password"
-                        placeholder="Enter PIN"
+                        autoComplete="current-password"
+                        placeholder="Enter password"
                         value={staffPin}
                         onChange={(e) => setStaffPin(e.target.value)}
                         required
@@ -276,26 +307,47 @@ export function LoginPortalScreen() {
                     </div>
                   </div>
 
-                  {staffError && (
+                  {(staffError ||
+                    cloudError ||
+                    !cloudConfigured ||
+                    cloudStatus === "loading") && (
                     <div className="rounded-lg border border-red-200 bg-[#fef3f2] px-3 py-2 text-xs font-semibold text-[#b42318]">
-                      {staffError}
+                      {staffError ||
+                        cloudError ||
+                        (!cloudConfigured
+                          ? "Cloud setup is required. Connect Lovable Cloud / Supabase; browser-only sign-in is disabled."
+                          : "Loading your cloud school…")}
                     </div>
                   )}
 
                   <Button
                     type="submit"
+                    disabled={
+                      busy ||
+                      !hydrated ||
+                      cloudStatus === "loading" ||
+                      !cloudConfigured
+                    }
                     className="h-11 w-full rounded-full bg-[#1a4a6e] text-sm font-bold text-white hover:bg-[#0c2340]"
                   >
-                    Sign In
+                    {busy ? "Signing In…" : "Sign In"}
                   </Button>
                 </form>
               </TabsContent>
 
               <TabsContent value="parent">
                 <form onSubmit={handleParentSubmit} className="space-y-4">
+                  <p className="text-xs text-[#667085]">
+                    Cloud access currently requires a verified school
+                    administrator account. Phone-only parent sign-in is
+                    disabled; contact your school for access.
+                  </p>
                   <div className="space-y-1.5">
-                    <Label htmlFor="login-parent-school-code" className="text-xs font-bold">
-                      School Workspace Code
+                    <Label
+                      htmlFor="login-parent-school-code"
+                      className="text-xs font-bold"
+                    >
+                      School Workspace Code (assigned to your account)
                     </Label>
                     <Input
                       id="login-parent-school-code"
@@ -310,7 +362,10 @@ export function LoginPortalScreen() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="login-parent-phone" className="text-xs font-bold">
+                    <Label
+                      htmlFor="login-parent-phone"
+                      className="text-xs font-bold"
+                    >
                       Guardian Phone Number
                     </Label>
                     <Input
