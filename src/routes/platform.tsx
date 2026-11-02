@@ -148,4 +148,16 @@ export function PlatformAdminPage() {
   );
 }
 
-export const Route = createFileRoute("/platform")({ component: PlatformAdminPage });
+export const Route = createFileRoute("/platform")({
+  head: () => ({
+    meta: [
+      { title: "Super Admin \u2014 NDH SchoolOS" },
+      { name: "description", content: "Platform owner dashboard for managing all schools on NDH SchoolOS." },
+      { property: "og:title", content: "Super Admin \u2014 NDH SchoolOS" },
+      { property: "og:description", content: "Platform owner dashboard for managing all schools on NDH SchoolOS." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: PlatformAdminPage,
+});

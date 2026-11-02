@@ -19,5 +19,15 @@ function LoginRoutePage() {
 }
 
 export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Sign In or Register \u2014 NDH SchoolOS" },
+      { name: "description", content: "Sign in to your school workspace or register a new school on NDH SchoolOS." },
+      { property: "og:title", content: "Sign In or Register \u2014 NDH SchoolOS" },
+      { property: "og:description", content: "Sign in to your school workspace or register a new school on NDH SchoolOS." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: LoginRoutePage,
 });
