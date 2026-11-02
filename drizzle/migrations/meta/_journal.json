@@ -15,6 +15,13 @@
       "when": 1793601595170,
       "tag": "0001_cloud_workspaces",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793607070953,
+      "tag": "0002_platform_owner_by_email",
+      "breakpoints": true
     }
   ]
 }
