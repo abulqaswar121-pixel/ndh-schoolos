@@ -6,12 +6,11 @@ import { computeStudentInvoices } from "./calculations";
 import type { OnboardingPayload } from "@/context/SchoolOSContext";
 import type { SchoolDatabaseSnapshot } from "@/types/school";
 
+// The generated client is always wired to Lovable Cloud, so cloud is configured
+// whenever that client exists. Avoid env lookups here: they were not reliably
+// inlined in published builds and caused a false "Cloud setup is required".
 export function isCloudConfigured(): boolean {
-  const server = typeof window === "undefined" && typeof process !== "undefined" ? process.env : {};
-  return Boolean(
-    (import.meta.env["VITE_SUPABASE_URL"] || server["SUPABASE_URL"]) &&
-    (import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || server["SUPABASE_PUBLISHABLE_KEY"]),
-  );
+  return Boolean(supabase);
 }
 
 type CloudDatabase = Omit<Database, "public"> & {
