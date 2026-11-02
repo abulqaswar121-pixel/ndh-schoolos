@@ -1,3 +1,4 @@
+import { createEmptySchoolDatabase } from "@/data/emptySchoolDatabase";
 import { normalizePhoneKey } from "./calculations";
 import type {
   ActivePortalSession,
@@ -28,7 +29,7 @@ export function getActiveProgrammeIds(db: SchoolDatabaseSnapshot): ProgrammeId[]
 
 export function getStaffForPortal(
   rawDb: SchoolDatabaseSnapshot,
-  portal: ActivePortalSession
+  portal: ActivePortalSession,
 ): StaffMember | undefined {
   if (!portal.staffId) return undefined;
   return rawDb.staff.find((s) => s.id === portal.staffId);
@@ -40,8 +41,9 @@ export function getStaffForPortal(
  */
 export function hasExamOfficerPrivileges(
   rawDb: SchoolDatabaseSnapshot,
-  portal: ActivePortalSession
+  portal: ActivePortalSession,
 ): boolean {
+  if (!portal.isAuthenticated) return false;
   if (portal.role === "admin" || portal.role === "exam_officer") return true;
   if (portal.isExamOfficer) return true;
   const staffMember = getStaffForPortal(rawDb, portal);
@@ -51,24 +53,22 @@ export function hasExamOfficerPrivileges(
 export function isStudentInAnyClass(
   student: Student,
   allowedClassIds: Set<string>,
-  activeProgrammeIds: Set<string>
+  activeProgrammeIds: Set<string>,
 ): boolean {
   return Object.entries(student.programmeClasses).some(
     ([progId, classId]) =>
-      activeProgrammeIds.has(progId) &&
-      Boolean(classId) &&
-      allowedClassIds.has(classId)
+      activeProgrammeIds.has(progId) && Boolean(classId) && allowedClassIds.has(classId),
   );
 }
 
 export function getTermControl(
   rawDb: SchoolDatabaseSnapshot,
   session: string,
-  term: string
+  term: string,
 ): TermResultControl {
   const id = `${session}__${term}`;
   const found = rawDb.termLocks.find(
-    (t) => t.id === id || (t.session === session && t.term === term)
+    (t) => t.id === id || (t.session === session && t.term === term),
   );
   return (
     found ?? {
@@ -84,7 +84,7 @@ export function getTermControl(
 export function getAllowedNavSections(
   role: UserRole,
   enableQuranModule: boolean,
-  isExamOfficerDuty = false
+  isExamOfficerDuty = false,
 ): NavSectionId[] {
   switch (role) {
     case "admin":
@@ -104,58 +104,19 @@ export function getAllowedNavSections(
         "settings",
       ];
     case "exam_officer":
-      return [
-        "overview",
-        "students",
-        "classes",
-        "academics",
-        "exams",
-        "attendance",
-        "backups",
-      ];
+      return ["overview", "students", "classes", "academics", "exams", "attendance", "backups"];
     case "class_teacher":
       return isExamOfficerDuty
-        ? [
-            "overview",
-            "students",
-            "classes",
-            "academics",
-            "exams",
-            "attendance",
-            "backups",
-          ]
-        : [
-            "overview",
-            "students",
-            "classes",
-            "academics",
-            "exams",
-            "attendance",
-          ];
+        ? ["overview", "students", "classes", "academics", "exams", "attendance", "backups"]
+        : ["overview", "students", "classes", "academics", "exams", "attendance"];
     case "subject_teacher":
       return isExamOfficerDuty
-        ? [
-            "overview",
-            "students",
-            "classes",
-            "academics",
-            "exams",
-            "attendance",
-            "backups",
-          ]
+        ? ["overview", "students", "classes", "academics", "exams", "attendance", "backups"]
         : ["overview", "academics", "exams"];
     case "bursar":
       return ["overview", "students", "fees", "notices", "staff", "backups"];
     case "secretary":
-      return [
-        "overview",
-        "students",
-        "classes",
-        "exams",
-        "attendance",
-        "notices",
-        "backups",
-      ];
+      return ["overview", "students", "classes", "exams", "attendance", "notices", "backups"];
     case "muallim":
       return enableQuranModule
         ? ["overview", "students", "classes", "academics", "exams", "attendance"]
@@ -168,6 +129,7 @@ export function getAllowedNavSections(
 function zeroStaffSalaries(staffList: StaffMember[]): StaffMember[] {
   return staffList.map((s) => ({
     ...s,
+    loginPin: undefined,
     salary: {
       baseSalary: 0,
       teachingAllowance: 0,
@@ -183,13 +145,13 @@ function zeroStaffSalaries(staffList: StaffMember[]): StaffMember[] {
 function getTeacherAssignedGroups(
   allGroups: SubjectTeachingGroup[],
   staffMember: StaffMember | undefined,
-  allowedSubjectIds: Set<string>
+  allowedSubjectIds: Set<string>,
 ): SubjectTeachingGroup[] {
   if (!staffMember) return [];
   return allGroups.filter(
     (g) =>
       g.teacherStaffId === staffMember.id ||
-      (!g.teacherStaffId && allowedSubjectIds.has(g.subjectId))
+      (!g.teacherStaffId && allowedSubjectIds.has(g.subjectId)),
   );
 }
 
@@ -199,24 +161,24 @@ function getTeacherAssignedGroups(
  */
 export function getAuthorizedSnapshot(
   rawDb: SchoolDatabaseSnapshot,
-  portal: ActivePortalSession
+  portal: ActivePortalSession,
 ): SchoolDatabaseSnapshot {
+  if (!portal.isAuthenticated) return createEmptySchoolDatabase();
   const activeProgSet = new Set(getActiveProgrammeIds(rawDb));
   const quranEnabled = Boolean(rawDb.settings.enableQuranModule);
-  const allTeachingGroups = (rawDb.teachingGroups ?? []).filter((g) =>
-    activeProgSet.has(g.programmeId)
-  );
-  const allExamPapers = (rawDb.examPapers ?? []).filter((ep) =>
-    activeProgSet.has(ep.programmeId)
+  const staff = rawDb.staff.find((s) => s.id === portal.staffId);
+  const visibleTimetable = (rawDb.timetable || []).filter(
+    (t) => portal.role === "admin" || Boolean(staff?.assignedClassIds.includes(t.classId)),
   );
 
+  const allTeachingGroups = (rawDb.teachingGroups ?? []).filter((g) =>
+    activeProgSet.has(g.programmeId),
+  );
+  const allExamPapers = (rawDb.examPapers ?? []).filter((ep) => activeProgSet.has(ep.programmeId));
+
   // Filter classes & subjects by active programmes first
-  const progFilteredClasses = rawDb.classes.filter((c) =>
-    activeProgSet.has(c.programmeId)
-  );
-  const progFilteredSubjects = rawDb.subjects.filter((s) =>
-    activeProgSet.has(s.programmeId)
-  );
+  const progFilteredClasses = rawDb.classes.filter((c) => activeProgSet.has(c.programmeId));
+  const progFilteredSubjects = rawDb.subjects.filter((s) => activeProgSet.has(s.programmeId));
   const progFilteredStaff = quranEnabled
     ? rawDb.staff
     : rawDb.staff.filter((s) => s.systemRole !== "muallim");
@@ -229,6 +191,7 @@ export function getAuthorizedSnapshot(
   if (portal.role === "admin") {
     return {
       ...rawDb,
+      timetable: visibleTimetable,
       classes: progFilteredClasses,
       subjects: progFilteredSubjects,
       staff: progFilteredStaff,
@@ -242,12 +205,10 @@ export function getAuthorizedSnapshot(
   // 1B. Dedicated Exam Officer OR Teacher with Exam Officer Duty:
   // Full visibility across ALL classes' students, scores, broadsheets, report cards,
   // and exam question papers for moderation & printing — ZERO access to fees or salaries!
-  if (
-    portal.role === "exam_officer" ||
-    hasExamOfficerPrivileges(rawDb, portal)
-  ) {
+  if (portal.role === "exam_officer" || hasExamOfficerPrivileges(rawDb, portal)) {
     return {
       ...rawDb,
+      timetable: visibleTimetable,
       classes: progFilteredClasses,
       subjects: progFilteredSubjects,
       auditLogs: [],
@@ -265,9 +226,7 @@ export function getAuthorizedSnapshot(
   if (portal.role === "class_teacher" || portal.role === "muallim") {
     const staffMember = getStaffForPortal(rawDb, portal);
     const assignedClassSet = new Set(staffMember?.assignedClassIds ?? []);
-    const myGroups = allTeachingGroups.filter(
-      (g) => g.teacherStaffId === staffMember?.id
-    );
+    const myGroups = allTeachingGroups.filter((g) => g.teacherStaffId === staffMember?.id);
     myGroups.forEach((g) => g.classIds.forEach((cid) => assignedClassSet.add(cid)));
 
     const groupStudentIds = new Set<string>();
@@ -275,8 +234,7 @@ export function getAuthorizedSnapshot(
 
     const allowedStudents = rawDb.students.filter(
       (stu) =>
-        isStudentInAnyClass(stu, assignedClassSet, activeProgSet) ||
-        groupStudentIds.has(stu.id)
+        isStudentInAnyClass(stu, assignedClassSet, activeProgSet) || groupStudentIds.has(stu.id),
     );
     const allowedStudentIdSet = new Set(allowedStudents.map((s) => s.id));
 
@@ -287,46 +245,35 @@ export function getAuthorizedSnapshot(
       });
     });
 
-    const allowedClasses = progFilteredClasses.filter((c) =>
-      assignedClassSet.has(c.id)
-    );
+    const allowedClasses = progFilteredClasses.filter((c) => assignedClassSet.has(c.id));
     const allowedClassIdSet = new Set(allowedClasses.map((c) => c.id));
-    const allowedProgSetForTeacher = new Set(
-      allowedClasses.map((c) => c.programmeId)
-    );
+    const allowedProgSetForTeacher = new Set(allowedClasses.map((c) => c.programmeId));
 
     const myExamPapers = allExamPapers.filter(
       (ep) =>
         ep.submittedByStaffId === staffMember?.id ||
-        ep.classIds.some((cid) => allowedClassIdSet.has(cid))
+        ep.classIds.some((cid) => allowedClassIdSet.has(cid)),
     );
 
     return {
       ...rawDb,
+      timetable: visibleTimetable,
       classes: allowedClasses,
-      subjects: progFilteredSubjects.filter((sub) =>
-        allowedProgSetForTeacher.has(sub.programmeId)
-      ),
+      subjects: progFilteredSubjects.filter((sub) => allowedProgSetForTeacher.has(sub.programmeId)),
       students: allowedStudents,
       scores: rawDb.scores.filter(
-        (sc) =>
-          allowedClassIdSet.has(sc.classId) &&
-          allowedStudentIdSet.has(sc.studentId)
+        (sc) => allowedClassIdSet.has(sc.classId) && allowedStudentIdSet.has(sc.studentId),
       ),
       pendingScoreEdits: rawDb.pendingScoreEdits.filter((req) =>
-        allowedClassIdSet.has(req.classId)
+        allowedClassIdSet.has(req.classId),
       ),
       auditLogs: [],
       quranRecords: quranEnabled
         ? rawDb.quranRecords.filter((q) => allowedStudentIdSet.has(q.studentId))
         : [],
-      affective: rawDb.affective.filter((a) =>
-        allowedStudentIdSet.has(a.studentId)
-      ),
+      affective: rawDb.affective.filter((a) => allowedStudentIdSet.has(a.studentId)),
       attendance: rawDb.attendance.filter(
-        (att) =>
-          allowedClassIdSet.has(att.classId) &&
-          allowedStudentIdSet.has(att.studentId)
+        (att) => allowedClassIdSet.has(att.classId) && allowedStudentIdSet.has(att.studentId),
       ),
       feeItems: [],
       payments: [],
@@ -344,16 +291,10 @@ export function getAuthorizedSnapshot(
     const assignedClassSet = new Set(staffMember?.assignedClassIds ?? []);
     const assignedSubjectSet = new Set(staffMember?.assignedSubjectIds ?? []);
 
-    const allowedSubjects = progFilteredSubjects.filter((sub) =>
-      assignedSubjectSet.has(sub.id)
-    );
+    const allowedSubjects = progFilteredSubjects.filter((sub) => assignedSubjectSet.has(sub.id));
     const allowedSubjectIdSet = new Set(allowedSubjects.map((s) => s.id));
 
-    const myGroups = getTeacherAssignedGroups(
-      allTeachingGroups,
-      staffMember,
-      allowedSubjectIdSet
-    );
+    const myGroups = getTeacherAssignedGroups(allTeachingGroups, staffMember, allowedSubjectIdSet);
     const groupStudentIds = new Set<string>();
     myGroups.forEach((g) => {
       g.classIds.forEach((cid) => assignedClassSet.add(cid));
@@ -362,8 +303,7 @@ export function getAuthorizedSnapshot(
 
     const allowedStudents = rawDb.students.filter(
       (stu) =>
-        isStudentInAnyClass(stu, assignedClassSet, activeProgSet) ||
-        groupStudentIds.has(stu.id)
+        isStudentInAnyClass(stu, assignedClassSet, activeProgSet) || groupStudentIds.has(stu.id),
     );
     const allowedStudentIdSet = new Set(allowedStudents.map((s) => s.id));
 
@@ -377,20 +317,19 @@ export function getAuthorizedSnapshot(
       });
     });
 
-    const allowedClasses = progFilteredClasses.filter((c) =>
-      assignedClassSet.has(c.id)
-    );
+    const allowedClasses = progFilteredClasses.filter((c) => assignedClassSet.has(c.id));
     const allowedClassIdSet = new Set(allowedClasses.map((c) => c.id));
 
     const myExamPapers = allExamPapers.filter(
       (ep) =>
         ep.submittedByStaffId === staffMember?.id ||
         (allowedSubjectIdSet.has(ep.subjectId) &&
-          ep.classIds.some((cid) => allowedClassIdSet.has(cid)))
+          ep.classIds.some((cid) => allowedClassIdSet.has(cid))),
     );
 
     return {
       ...rawDb,
+      timetable: visibleTimetable,
       classes: allowedClasses,
       subjects: allowedSubjects,
       students: allowedStudents,
@@ -398,12 +337,10 @@ export function getAuthorizedSnapshot(
         (sc) =>
           allowedClassIdSet.has(sc.classId) &&
           allowedSubjectIdSet.has(sc.subjectId) &&
-          allowedStudentIdSet.has(sc.studentId)
+          allowedStudentIdSet.has(sc.studentId),
       ),
       pendingScoreEdits: rawDb.pendingScoreEdits.filter(
-        (req) =>
-          allowedClassIdSet.has(req.classId) &&
-          allowedSubjectIdSet.has(req.subjectId)
+        (req) => allowedClassIdSet.has(req.classId) && allowedSubjectIdSet.has(req.subjectId),
       ),
       auditLogs: [],
       quranRecords: [],
@@ -423,6 +360,7 @@ export function getAuthorizedSnapshot(
   if (portal.role === "bursar") {
     return {
       ...rawDb,
+      timetable: visibleTimetable,
       classes: progFilteredClasses,
       subjects: progFilteredSubjects,
       scores: [],
@@ -442,6 +380,7 @@ export function getAuthorizedSnapshot(
   if (portal.role === "secretary") {
     return {
       ...rawDb,
+      timetable: visibleTimetable,
       classes: progFilteredClasses,
       subjects: progFilteredSubjects,
       pendingScoreEdits: [],
@@ -459,9 +398,7 @@ export function getAuthorizedSnapshot(
   // 6. Parent: ONLY their own linked children! ZERO exam question papers!
   const targetPhoneKey = normalizePhoneKey(portal.parentPhone ?? "");
   const myChildren = rawDb.students.filter(
-    (s) =>
-      targetPhoneKey.length >= 7 &&
-      normalizePhoneKey(s.parentPhone) === targetPhoneKey
+    (s) => targetPhoneKey.length >= 7 && normalizePhoneKey(s.parentPhone) === targetPhoneKey,
   );
   const childIdSet = new Set(myChildren.map((c) => c.id));
   const childClassIdSet = new Set<string>();
@@ -475,15 +412,17 @@ export function getAuthorizedSnapshot(
 
   return {
     ...rawDb,
+    timetable: [],
     classes: progFilteredClasses.filter((c) => childClassIdSet.has(c.id)),
     subjects: progFilteredSubjects,
     students: myChildren,
-    scores: rawDb.scores.filter((sc) => childIdSet.has(sc.studentId)),
+    scores: rawDb.scores.filter(
+      (sc) =>
+        childIdSet.has(sc.studentId) && getTermControl(rawDb, sc.session, sc.term).isPublished,
+    ),
     pendingScoreEdits: [],
     auditLogs: [],
-    quranRecords: quranEnabled
-      ? rawDb.quranRecords.filter((q) => childIdSet.has(q.studentId))
-      : [],
+    quranRecords: quranEnabled ? rawDb.quranRecords.filter((q) => childIdSet.has(q.studentId)) : [],
     affective: rawDb.affective.filter((a) => childIdSet.has(a.studentId)),
     attendance: rawDb.attendance.filter((att) => childIdSet.has(att.studentId)),
     feeItems: rawDb.feeItems.filter((f) => activeProgSet.has(f.programmeId)),
@@ -500,51 +439,56 @@ export function getAuthorizedSnapshot(
  * Data-Layer Write Permission Checks
  */
 export function canManageSettings(portal: ActivePortalSession): boolean {
+  if (!portal.isAuthenticated) return false;
   return portal.role === "admin";
 }
 
 export function canManageResultLocks(
   portal: ActivePortalSession,
-  rawDb?: SchoolDatabaseSnapshot
+  rawDb?: SchoolDatabaseSnapshot,
 ): boolean {
+  if (!portal.isAuthenticated) return false;
   if (portal.role === "admin" || portal.role === "exam_officer") return true;
   if (rawDb && hasExamOfficerPrivileges(rawDb, portal)) return true;
   return Boolean(portal.isExamOfficer);
 }
 
 export function canManageStudents(portal: ActivePortalSession): boolean {
+  if (!portal.isAuthenticated) return false;
   return portal.role === "admin" || portal.role === "secretary";
 }
 
 export function canManageClassesAndSubjects(portal: ActivePortalSession): boolean {
+  if (!portal.isAuthenticated) return false;
   return portal.role === "admin";
 }
 
 export function canManageFees(portal: ActivePortalSession): boolean {
+  if (!portal.isAuthenticated) return false;
   return portal.role === "admin" || portal.role === "bursar";
 }
 
 export function canManageFeeWaivers(portal: ActivePortalSession): boolean {
+  if (!portal.isAuthenticated) return false;
   return portal.role === "admin";
 }
 
 export function canManagePayroll(portal: ActivePortalSession): boolean {
+  if (!portal.isAuthenticated) return false;
   return portal.role === "admin" || portal.role === "bursar";
 }
 
 export function canSendParentNotices(portal: ActivePortalSession): boolean {
-  return (
-    portal.role === "admin" ||
-    portal.role === "bursar" ||
-    portal.role === "secretary"
-  );
+  if (!portal.isAuthenticated) return false;
+  return portal.role === "admin" || portal.role === "bursar" || portal.role === "secretary";
 }
 
 export function canMarkAttendanceForClass(
   rawDb: SchoolDatabaseSnapshot,
   portal: ActivePortalSession,
-  classId: string
+  classId: string,
 ): boolean {
+  if (!portal.isAuthenticated) return false;
   if (portal.role === "admin" || portal.role === "secretary") return true;
   if (portal.role === "class_teacher" || portal.role === "muallim") {
     const staffMember = getStaffForPortal(rawDb, portal);
@@ -568,8 +512,10 @@ export function evaluateScoreWritePermission(
     studentId?: string | undefined;
     session: string;
     term: string;
-  }
+  },
 ): ScoreWriteDecision {
+  if (!portal.isAuthenticated)
+    return { allowed: false, mode: "denied", reason: "Sign in to edit scores." };
   const termControl = getTermControl(rawDb, params.session, params.term);
 
   // Admin or Exam Officer can moderate/enter scores across classes unless locked
@@ -589,11 +535,7 @@ export function evaluateScoreWritePermission(
   }
 
   // Non-teaching roles can NEVER edit scores
-  if (
-    portal.role === "bursar" ||
-    portal.role === "secretary" ||
-    portal.role === "parent"
-  ) {
+  if (portal.role === "bursar" || portal.role === "secretary" || portal.role === "parent") {
     return {
       allowed: false,
       mode: "denied",
@@ -615,8 +557,7 @@ export function evaluateScoreWritePermission(
   const inCombinedGroup = (rawDb.teachingGroups ?? []).some((g) => {
     const teacherMatches =
       g.teacherStaffId === staffMember.id ||
-      (!g.teacherStaffId &&
-        staffMember.assignedSubjectIds.includes(g.subjectId));
+      (!g.teacherStaffId && staffMember.assignedSubjectIds.includes(g.subjectId));
     if (!teacherMatches || g.subjectId !== params.subjectId) return false;
     return (
       g.classIds.includes(params.classId) ||
@@ -628,8 +569,7 @@ export function evaluateScoreWritePermission(
     return {
       allowed: false,
       mode: "denied",
-      reason:
-        "You can only enter scores for your assigned class or combined teaching group.",
+      reason: "You can only enter scores for your assigned class or combined teaching group.",
     };
   }
 
@@ -674,12 +614,11 @@ export function canPrintDocument(
     | { type: "payslip"; payrollId: string }
     | { type: "exam_paper"; examPaperId: string }
     | { type: "marking_scheme"; examPaperId: string }
-    | { type: "table" }
+    | { type: "table" },
 ): boolean {
+  if (!portal.isAuthenticated) return false;
   const isOfficer =
-    portal.role === "admin" ||
-    portal.role === "exam_officer" ||
-    Boolean(portal.isExamOfficer);
+    portal.role === "admin" || portal.role === "exam_officer" || Boolean(portal.isExamOfficer);
 
   switch (job.type) {
     case "report_card":
@@ -687,24 +626,17 @@ export function canPrintDocument(
     case "receipt":
       return scopedDb.payments.some((p) => p.id === job.paymentId);
     case "broadsheet":
-      if (
-        !isOfficer &&
-        (portal.role === "subject_teacher" || portal.role === "bursar")
-      ) {
+      if (!isOfficer && (portal.role === "subject_teacher" || portal.role === "bursar")) {
         return false;
       }
       return scopedDb.classes.some((c) => c.id === job.classId);
     case "payslip":
       return scopedDb.payroll.some((p) => p.id === job.payrollId);
     case "exam_paper":
-      return (scopedDb.examPapers ?? []).some(
-        (ep) => ep.id === job.examPaperId
-      );
+      return (scopedDb.examPapers ?? []).some((ep) => ep.id === job.examPaperId);
     case "marking_scheme":
       if (portal.role === "secretary" || portal.role === "parent") return false;
-      return (scopedDb.examPapers ?? []).some(
-        (ep) => ep.id === job.examPaperId
-      );
+      return (scopedDb.examPapers ?? []).some((ep) => ep.id === job.examPaperId);
     case "table":
       return true;
   }

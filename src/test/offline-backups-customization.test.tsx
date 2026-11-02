@@ -2,7 +2,16 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
 import { PrintableReportCard } from "@/components/schoolos/printables/PrintableReportCard";
-import { createSeedDatabase } from "@/data/seedMarkazAcademy";
+import { createEmptySchoolDatabase as createEmptyDatabase } from "@/data/emptySchoolDatabase";
+import { buildDefaultNigerianClasses, buildDefaultNigerianSubjects } from "./fixtures";
+
+// Explicit test-only fixtures. The application itself always starts empty.
+function createSeedDatabase() {
+  const db = createEmptyDatabase();
+  db.classes = buildDefaultNigerianClasses();
+  db.subjects = buildDefaultNigerianSubjects();
+  return db;
+}
 import { getAuthorizedSnapshot } from "@/services/accessControl";
 import {
   buildBackupEnvelope,
@@ -48,9 +57,7 @@ describe("Offline Vault, Backups, Multi-Sheet Excel Export & Report Sheet Custom
     if (validated.ok) {
       expect(validated.checksumVerified).toBe(true);
       expect(validated.envelope.schoolName).toBe("Crescent Royal Academy");
-      expect(validated.envelope.snapshot.students[0]?.fullName).toBe(
-        "Zainab Musa"
-      );
+      expect(validated.envelope.snapshot.students[0]?.fullName).toBe("Zainab Musa");
     }
   });
 
@@ -78,10 +85,7 @@ describe("Offline Vault, Backups, Multi-Sheet Excel Export & Report Sheet Custom
       displayName: "Bursar",
       subtitle: "Bursar",
     });
-    const bursarSheets = buildMasterSchoolWorkbookSheets(
-      bursarScoped,
-      "bursar"
-    );
+    const bursarSheets = buildMasterSchoolWorkbookSheets(bursarScoped, "bursar");
     const bursarSheetNames = bursarSheets.map((s) => s.name);
     expect(bursarSheetNames).toContain("Fee Ledger & Debtors");
     expect(bursarSheetNames).toContain("Staff & Payroll");
@@ -121,12 +125,8 @@ describe("Offline Vault, Backups, Multi-Sheet Excel Export & Report Sheet Custom
       averagePercentage: 31.5,
       studentName: "Ibrahim Bello",
     });
-    expect(remarksF.teacherRemark).toBe(
-      "Ibrahim requires structured remedial coaching."
-    );
-    expect(remarksF.principalRemark).toBe(
-      "Parent conference requested for Ibrahim."
-    );
+    expect(remarksF.teacherRemark).toBe("Ibrahim requires structured remedial coaching.");
+    expect(remarksF.principalRemark).toBe("Parent conference requested for Ibrahim.");
 
     // Add an active student with an A score (88%) and render PrintableReportCard
     db.students.push({
@@ -164,18 +164,16 @@ describe("Offline Vault, Backups, Multi-Sheet Excel Export & Report Sheet Custom
         session={db.settings.currentSession}
         term={db.settings.currentTerm}
         layout="merged"
-      />
+      />,
     );
 
-    expect(
-      screen.getByText(/Terminal Progress Certificate/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Terminal Progress Certificate/i)).toBeInTheDocument();
     expect(screen.getByText(/Final Grade: A/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/Superb distinction, Fatima! Keep shining \(A\)\./i)
+      screen.getByText(/Superb distinction, Fatima! Keep shining \(A\)\./i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Outstanding 88\.0% average — proud of you, Fatima Abdullahi\./i)
+      screen.getByText(/Outstanding 88\.0% average — proud of you, Fatima Abdullahi\./i),
     ).toBeInTheDocument();
 
     // Ensure positions are completely hidden in grade_only mode

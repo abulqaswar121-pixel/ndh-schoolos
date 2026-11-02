@@ -83,11 +83,7 @@ export type WorkspaceThemePresetId =
   | "slate_executive"
   | "custom";
 
-export type WorkspaceFontId =
-  | "modern_sans"
-  | "geometric"
-  | "classic_serif"
-  | "system_clean";
+export type WorkspaceFontId = "modern_sans" | "geometric" | "classic_serif" | "system_clean";
 
 export type CrestShapeId = "rounded" | "circle" | "shield";
 
@@ -103,15 +99,9 @@ export interface WorkspaceThemeConfig {
 }
 
 export type ReportTemplateId =
-  | "classic_grid"
-  | "executive_banner"
-  | "compact_single_page"
-  | "royal_certificate";
+  "classic_grid" | "executive_banner" | "compact_single_page" | "royal_certificate";
 
-export type ReportRankingMode =
-  | "positions_and_grade"
-  | "class_position_only"
-  | "grade_only";
+export type ReportRankingMode = "positions_and_grade" | "class_position_only" | "grade_only";
 
 export type ReportFontFamily = "sans" | "serif" | "mono_tabular";
 export type ReportFontScale = "compact" | "standard" | "large";
@@ -262,11 +252,12 @@ export interface StudentClassTransferEntry {
 export interface Student {
   id: string;
   admissionId: string;
+  arm?: string | undefined;
   fullName: string;
   arabicName?: string | undefined;
-  gender: "Male" | "Female";
+  gender: "" | "Male" | "Female";
   dateOfBirth: string;
-  bloodGroup: "O+" | "O-" | "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-";
+  bloodGroup: "" | "O+" | "O-" | "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-";
   healthNotes: string;
   photoUrl?: string | undefined;
   homeAddress: string;
@@ -330,6 +321,7 @@ export interface PendingScoreEditRequest {
 }
 
 export type AuditActionCategory =
+  | "student"
   | "score"
   | "attendance"
   | "fee_waiver"
@@ -354,13 +346,7 @@ export interface AuditLogEntry {
 }
 
 export type MurajaahStatus =
-  | "Fluent"
-  | "Strong"
-  | "Needs Work"
-  | "Excellent"
-  | "Good"
-  | "Needs Revision"
-  | "Pending";
+  "Fluent" | "Strong" | "Needs Work" | "Excellent" | "Good" | "Needs Revision" | "Pending";
 
 export interface QuranSessionLog {
   id: string;
@@ -444,12 +430,7 @@ export interface FeeScheduleItem {
   mandatory: boolean;
 }
 
-export type PaymentMethod =
-  | "Paystack"
-  | "Flutterwave"
-  | "Bank Transfer"
-  | "POS"
-  | "Cash";
+export type PaymentMethod = "Paystack" | "Flutterwave" | "Bank Transfer" | "POS" | "Cash";
 
 export interface FeePayment {
   id: string;
@@ -489,10 +470,16 @@ export type StaffJobTitle =
   | "School Secretary"
   | "Programme Instructor"
   | "Mu'allim"
-  | "Support Staff";
+  | "Support Staff"
+  | "Teacher"
+  | "Ustadh"
+  | "Driver"
+  | "Admin"
+  | "Accountant";
 
 export interface StaffMember {
   id: string;
+  photoUrl?: string | undefined;
   staffCode: string;
   fullName: string;
   arabicName?: string | undefined;
@@ -609,6 +596,19 @@ export interface PayrollRecord {
   paidDate?: string | undefined;
 }
 
+export interface TimetableEntry {
+  id: string;
+  day: string;
+  classId: string;
+  subjectId: string;
+  staffId: string;
+  startsAt: string;
+  endsAt: string;
+  room: string;
+  term: string;
+  session: string;
+}
+
 export interface SchoolDatabaseSnapshot {
   version: number;
   settings: SchoolSettings;
@@ -627,6 +627,7 @@ export interface SchoolDatabaseSnapshot {
   parentNotices: ParentNoticeLog[];
   staff: StaffMember[];
   payroll: PayrollRecord[];
+  timetable?: TimetableEntry[] | undefined;
   teachingGroups?: SubjectTeachingGroup[] | undefined;
   examPapers?: ExamPaperSubmission[] | undefined;
 }

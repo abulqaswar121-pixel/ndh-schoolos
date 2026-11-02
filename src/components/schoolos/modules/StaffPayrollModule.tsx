@@ -1,11 +1,4 @@
-import {
-  CheckCheck,
-  CheckCircle2,
-  Edit3,
-  Plus,
-  Printer,
-  Trash2,
-} from "lucide-react";
+import { CheckCheck, CheckCircle2, Edit3, Plus, Printer, Trash2 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TableToolbar } from "../TableToolbar";
@@ -30,12 +23,14 @@ import type {
   UserRole,
 } from "@/types/school";
 
-const PAYROLL_MONTHS = [
-  { key: "2026-09", label: "September 2026" },
-  { key: "2026-10", label: "October 2026" },
-  { key: "2026-11", label: "November 2026" },
-  { key: "2026-12", label: "December 2026" },
-];
+const PAYROLL_MONTHS = Array.from({ length: 24 }, (_, index) => {
+  const now = new Date();
+  const month = new Date(now.getFullYear(), now.getMonth() - 12 + index, 1);
+  return {
+    key: `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, "0")}`,
+    label: month.toLocaleDateString("en", { month: "long", year: "numeric" }),
+  };
+});
 
 export function StaffPayrollModule() {
   const {
@@ -52,19 +47,15 @@ export function StaffPayrollModule() {
   const { settings, staff, payroll, classes, subjects } = db;
   const cur = settings.currencySymbol;
 
-  const [selectedMonthKey, setSelectedMonthKey] = useState("2026-10");
+  const [selectedMonthKey, setSelectedMonthKey] = useState(new Date().toISOString().slice(0, 7));
   const selectedMonthMeta =
     PAYROLL_MONTHS.find((m) => m.key === selectedMonthKey) ?? PAYROLL_MONTHS[1]!;
 
   const [paySearch, setPaySearch] = useState("");
-  const [payProgFilter, setPayProgFilter] = useState<ProgrammeId | "all">(
-    "all"
-  );
+  const [payProgFilter, setPayProgFilter] = useState<ProgrammeId | "all">("all");
   const [payClassFilter, setPayClassFilter] = useState("all");
   const [payTerm, setPayTerm] = useState(settings.currentTerm);
-  const [editingPayroll, setEditingPayroll] = useState<PayrollRecord | null>(
-    null
-  );
+  const [editingPayroll, setEditingPayroll] = useState<PayrollRecord | null>(null);
 
   // Staff Directory Tab State
   const [stfSearch, setStfSearch] = useState("");
@@ -132,10 +123,7 @@ export function StaffPayrollModule() {
       }))
       .filter((row): row is { rec: PayrollRecord; member: StaffMember } => {
         if (!row.member) return false;
-        if (
-          payClassFilter !== "all" &&
-          !row.member.assignedClassIds.includes(payClassFilter)
-        ) {
+        if (payClassFilter !== "all" && !row.member.assignedClassIds.includes(payClassFilter)) {
           return false;
         }
         if (!q) return true;
@@ -157,9 +145,7 @@ export function StaffPayrollModule() {
     const q = stfSearch.trim().toLowerCase();
     return staff.filter((s) => {
       if (!q) return true;
-      return `${s.fullName} ${s.staffCode} ${s.role} ${s.phone}`
-        .toLowerCase()
-        .includes(q);
+      return `${s.fullName} ${s.staffCode} ${s.role} ${s.phone}`.toLowerCase().includes(q);
     });
   }, [staff, stfSearch]);
 
@@ -171,22 +157,22 @@ export function StaffPayrollModule() {
       fullName: "",
       role: "Class Teacher",
       systemRole: "class_teacher",
-      loginPin: "1234",
-      phone: "+234 ",
+      loginPin: "",
+      phone: "",
       email: "",
-      bankName: "GTBank",
+      bankName: "",
       accountNumber: "",
       assignedClassIds: [],
       assignedSubjectIds: [],
       status: "Active",
-      joinedDate: "2026-10-24",
+      joinedDate: new Date().toISOString().slice(0, 10),
       salary: {
-        baseSalary: 100000,
-        teachingAllowance: 10000,
+        baseSalary: 0,
+        teachingAllowance: 0,
         overtime: 0,
-        transport: 15000,
+        transport: 0,
         absenceFines: 0,
-        pension: 8000,
+        pension: 0,
         salaryAdvanceRepayment: 0,
       },
     });
@@ -230,7 +216,7 @@ export function StaffPayrollModule() {
         r.rec.totalDeductions,
         r.rec.netSalary,
         r.rec.status,
-      ])
+      ]),
     );
   };
 
@@ -242,7 +228,8 @@ export function StaffPayrollModule() {
             Staff & Monthly Payroll
           </h1>
           <p className="text-xs text-slate-600 sm:text-sm">
-            Manage teachers, bursars and secretaries, assign {settings.labels.classPlural.toLowerCase()} and print monthly payslips.
+            Manage teachers, bursars and secretaries, assign{" "}
+            {settings.labels.classPlural.toLowerCase()} and print monthly payslips.
           </p>
         </div>
 
@@ -303,14 +290,11 @@ export function StaffPayrollModule() {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  const created = generateMonthlyPayroll(
-                    selectedMonthKey,
-                    selectedMonthMeta.label
-                  );
+                  const created = generateMonthlyPayroll(selectedMonthKey, selectedMonthMeta.label);
                   toast.success(
                     created > 0
                       ? `Generated ${created} payroll entries for ${selectedMonthMeta.label}.`
-                      : `Payroll for ${selectedMonthMeta.label} is already generated.`
+                      : `Payroll for ${selectedMonthMeta.label} is already generated.`,
                   );
                 }}
                 className="h-8 border-slate-200 bg-white text-xs font-semibold text-slate-800 hover:bg-slate-50 hover:text-slate-900"
@@ -324,7 +308,7 @@ export function StaffPayrollModule() {
                   toast.success(
                     n > 0
                       ? `Marked ${n} salaries Paid for ${selectedMonthMeta.label}.`
-                      : "All salaries for this month are already marked Paid."
+                      : "All salaries for this month are already marked Paid.",
                   );
                 }}
                 className="h-8 bg-emerald-700 text-xs font-bold text-white hover:bg-emerald-800"
@@ -354,13 +338,7 @@ export function StaffPayrollModule() {
               openPrintPreview({
                 type: "table",
                 title: `${settings.name} — ${selectedMonthMeta.label} Payroll`,
-                headers: [
-                  "Staff",
-                  "Role",
-                  "Bank & Account",
-                  "Net Salary",
-                  "Status",
-                ],
+                headers: ["Staff", "Role", "Bank & Account", "Net Salary", "Status"],
                 rows: monthPayrollRows.map((r) => [
                   r.member.fullName,
                   r.member.role,
@@ -388,17 +366,13 @@ export function StaffPayrollModule() {
                   {monthPayrollRows.map(({ rec, member }) => (
                     <tr key={rec.id} className="hover:bg-slate-50/70">
                       <td className="px-4 py-3">
-                        <div className="font-bold text-[#0F172A]">
-                          {member.fullName}
-                        </div>
+                        <div className="font-bold text-[#0F172A]">{member.fullName}</div>
                         <div className="text-[11px] text-slate-500">
                           {member.role} • {member.staffCode}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium text-slate-800">
-                          {member.bankName}
-                        </div>
+                        <div className="font-medium text-slate-800">{member.bankName}</div>
                         <div className="font-mono text-[11px] text-slate-500">
                           {member.accountNumber}
                         </div>
@@ -432,9 +406,7 @@ export function StaffPayrollModule() {
                               size="sm"
                               onClick={() => {
                                 markPayrollPaidStatus(rec.id, "Paid");
-                                toast.success(
-                                  `Marked ${member.fullName} Paid.`
-                                );
+                                toast.success(`Marked ${member.fullName} Paid.`);
                               }}
                               className="h-8 bg-emerald-700 px-2.5 text-xs font-bold text-white hover:bg-emerald-800"
                             >
@@ -502,16 +474,12 @@ export function StaffPayrollModule() {
                     return (
                       <tr key={member.id} className="hover:bg-slate-50/70">
                         <td className="px-4 py-3">
-                          <div className="font-bold text-[#0F172A]">
-                            {member.fullName}
-                          </div>
+                          <div className="font-bold text-[#0F172A]">{member.fullName}</div>
                           <div className="font-mono text-[11px] text-slate-500">
                             {member.staffCode}
                           </div>
                         </td>
-                        <td className="px-4 py-3 font-semibold text-[#1E3A8A]">
-                          {member.role}
-                        </td>
+                        <td className="px-4 py-3 font-semibold text-[#1E3A8A]">{member.role}</td>
                         <td className="px-4 py-3 text-xs text-slate-700">
                           {member.systemRole === "admin"
                             ? "All Classes & Settings"
@@ -535,12 +503,8 @@ export function StaffPayrollModule() {
                               onClick={() => {
                                 setEditingStaff({
                                   ...member,
-                                  assignedClassIds: [
-                                    ...member.assignedClassIds,
-                                  ],
-                                  assignedSubjectIds: [
-                                    ...member.assignedSubjectIds,
-                                  ],
+                                  assignedClassIds: [...member.assignedClassIds],
+                                  assignedSubjectIds: [...member.assignedSubjectIds],
                                   salary: { ...member.salary },
                                 });
                                 setStaffModalOpen(true);
@@ -575,10 +539,7 @@ export function StaffPayrollModule() {
       </Tabs>
 
       {/* Edit Payroll Allowances/Deductions Modal */}
-      <Dialog
-        open={Boolean(editingPayroll)}
-        onOpenChange={(o) => !o && setEditingPayroll(null)}
-      >
+      <Dialog open={Boolean(editingPayroll)} onOpenChange={(o) => !o && setEditingPayroll(null)}>
         <DialogContent className="max-w-md bg-white">
           <DialogHeader>
             <DialogTitle className="text-base font-extrabold text-[#0F172A]">
@@ -651,11 +612,7 @@ export function StaffPayrollModule() {
                 />
               </div>
               <div className="col-span-2 flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setEditingPayroll(null)}
-                >
+                <Button type="button" variant="outline" onClick={() => setEditingPayroll(null)}>
                   Cancel
                 </Button>
                 <Button
@@ -680,12 +637,65 @@ export function StaffPayrollModule() {
                 : "Add Staff Member"}
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-600">
-              Assign system role, authorized {settings.labels.classPlural.toLowerCase()} and bank details.
+              Assign system role, authorized {settings.labels.classPlural.toLowerCase()} and bank
+              details.
             </DialogDescription>
           </DialogHeader>
 
           {editingStaff && (
             <form onSubmit={handleSaveStaff} className="space-y-3.5 text-xs">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">Staff Photo</Label>
+                <Input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 2 * 1024 * 1024) {
+                      toast.error("Choose a photo smaller than 2 MB.");
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = () =>
+                      setEditingStaff((prev) =>
+                        prev ? { ...prev, photoUrl: reader.result as string } : null,
+                      );
+                    reader.readAsDataURL(file);
+                  }}
+                />
+                {editingStaff.photoUrl && (
+                  <img
+                    src={editingStaff.photoUrl}
+                    alt="Staff photo"
+                    className="mt-2 h-16 w-14 rounded object-cover"
+                  />
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">Job title</Label>
+                <select
+                  className="h-9 w-full rounded-lg border px-3 text-xs"
+                  value={editingStaff.role}
+                  onChange={(e) =>
+                    setEditingStaff({ ...editingStaff, role: e.target.value as StaffJobTitle })
+                  }
+                >
+                  {Array.from(
+                    new Set([
+                      editingStaff.role,
+                      "Teacher",
+                      "Ustadh",
+                      "Driver",
+                      "Admin",
+                      "Accountant",
+                      "Support Staff",
+                    ]),
+                  ).map((role) => (
+                    <option key={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs font-bold">Full Name</Label>
@@ -706,9 +716,7 @@ export function StaffPayrollModule() {
                     value={editingStaff.systemRole}
                     onChange={(e) => {
                       const sys = e.target.value as Exclude<UserRole, "parent">;
-                      const found = availableSystemRoles.find(
-                        (r) => r.role === sys
-                      );
+                      const found = availableSystemRoles.find((r) => r.role === sys);
                       setEditingStaff({
                         ...editingStaff,
                         systemRole: sys,
@@ -737,8 +745,10 @@ export function StaffPayrollModule() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs font-bold">Login PIN</Label>
+                  <Label className="text-xs font-bold">Login PIN (blank disables sign-in)</Label>
                   <Input
+                    type="password"
+                    minLength={6}
                     value={editingStaff.loginPin ?? ""}
                     onChange={(e) =>
                       setEditingStaff({
@@ -790,12 +800,9 @@ export function StaffPayrollModule() {
                     className="mt-0.5 h-4 w-4 accent-[#1a4a6e]"
                   />
                   <span className="leading-relaxed text-slate-700">
-                    <strong className="text-[#0b1220]">
-                      Also Grant Exam Officer Duty
-                    </strong>{" "}
-                    — allows this teacher to review/approve submitted exam
-                    papers (PDF &amp; Word .doc) and view/print all classes&apos;
-                    broadsheets &amp; report sheets.
+                    <strong className="text-[#0b1220]">Also Grant Exam Officer Duty</strong> —
+                    allows this teacher to review/approve submitted exam papers (PDF &amp; Word
+                    .doc) and view/print all classes&apos; broadsheets &amp; report sheets.
                   </span>
                 </label>
               )}
@@ -809,9 +816,7 @@ export function StaffPayrollModule() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {classes.map((cls) => {
-                      const checked = editingStaff.assignedClassIds.includes(
-                        cls.id
-                      );
+                      const checked = editingStaff.assignedClassIds.includes(cls.id);
                       return (
                         <label
                           key={cls.id}
@@ -823,9 +828,7 @@ export function StaffPayrollModule() {
                             onChange={(e) => {
                               const next = e.target.checked
                                 ? [...editingStaff.assignedClassIds, cls.id]
-                                : editingStaff.assignedClassIds.filter(
-                                    (id) => id !== cls.id
-                                  );
+                                : editingStaff.assignedClassIds.filter((id) => id !== cls.id);
                               setEditingStaff({
                                 ...editingStaff,
                                 assignedClassIds: next,
@@ -847,9 +850,7 @@ export function StaffPayrollModule() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {subjects.map((sub) => {
-                      const checked = editingStaff.assignedSubjectIds.includes(
-                        sub.id
-                      );
+                      const checked = editingStaff.assignedSubjectIds.includes(sub.id);
                       return (
                         <label
                           key={sub.id}
@@ -861,9 +862,7 @@ export function StaffPayrollModule() {
                             onChange={(e) => {
                               const next = e.target.checked
                                 ? [...editingStaff.assignedSubjectIds, sub.id]
-                                : editingStaff.assignedSubjectIds.filter(
-                                    (id) => id !== sub.id
-                                  );
+                                : editingStaff.assignedSubjectIds.filter((id) => id !== sub.id);
                               setEditingStaff({
                                 ...editingStaff,
                                 assignedSubjectIds: next,
@@ -879,11 +878,7 @@ export function StaffPayrollModule() {
               )}
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStaffModalOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setStaffModalOpen(false)}>
                   Cancel
                 </Button>
                 <Button
