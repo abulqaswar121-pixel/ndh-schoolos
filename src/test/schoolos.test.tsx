@@ -23,6 +23,11 @@ import {
 } from "@/services/calculations";
 import { parseRawTextIntoExamQuestions } from "@/services/examAiService";
 import { buildExamPaperWordDocumentHtml } from "@/services/examPaperExportService";
+
+vi.mock("@/services/cloudSchoolRepository", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/services/cloudSchoolRepository")>()),
+  isCloudConfigured: () => false,
+}));
 import type { ActivePortalSession, SchoolDatabaseSnapshot } from "@/types/school";
 
 function buildPopulatedTestDatabase(): SchoolDatabaseSnapshot {
