@@ -4,9 +4,19 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { toast } from "sonner";
+import {
+  CloudSaveQueue,
+  cloudSchoolRepository,
+  emptyCloudSnapshot,
+  isCloudConfigured,
+  sanitizeCloudSnapshot,
+  type CloudSchool,
+  type CloudSyncStatus,
+} from "@/services/cloudSchoolRepository";
 import {
   DEFAULT_NIGERIAN_CLASS_NAMES,
   createSeedDatabase,
@@ -149,6 +159,19 @@ interface SchoolOSContextValue {
    */
   db: SchoolDatabaseSnapshot;
   hydrated: boolean;
+  cloudConfigured: boolean;
+  cloudStatus: CloudSyncStatus;
+  cloudError: string;
+  cloudSchool: CloudSchool | null;
+  isPlatformOwner: boolean;
+  loginSchoolAdmin: (email: string, password: string) => Promise<boolean>;
+  registerSchoolAdmin: (
+    payload: OnboardingPayload,
+    password: string
+  ) => Promise<{ needsConfirmation: boolean; isOwner: boolean }>;
+  refreshCloud: () => Promise<void>;
+  retryCloudSave: () => Promise<void>;
+  importLocalSchool: () => Promise<void>;
   portal: ActivePortalSession;
   onboardingWizardOpen: boolean;
   setOnboardingWizardOpen: (open: boolean) => void;
@@ -166,8 +189,11 @@ interface SchoolOSContextValue {
   loginProductionParent: (params: {
     phone: string;
     schoolCode?: string | undefined;
-  }) => { ok: boolean; error?: string };
-  logoutSession: () => void;
+  }) => {
+    ok: boolean;
+    error?: string;
+  };
+  logoutSession: () => Promise<void>;
 
   // In-Portal Role-Locked Video Guide (shows ONLY current portal's role video)
   portalVideoGuideOpen: boolean;
@@ -196,12 +222,14 @@ interface SchoolOSContextValue {
   deleteTeachingGroup: (id: string) => void;
 
   // Exam Questions & Exam Officer Moderation
-  upsertExamPaper: (
-    paper: ExamPaperSubmission
-  ) => { ok: boolean; error?: string };
-  submitExamPaperToOfficer: (
-    paperId: string
-  ) => { ok: boolean; error?: string };
+  upsertExamPaper: (paper: ExamPaperSubmission) => {
+    ok: boolean;
+    error?: string;
+  };
+  submitExamPaperToOfficer: (paperId: string) => {
+    ok: boolean;
+    error?: string;
+  };
   reviewExamPaper: (params: {
     paperId: string;
     decision: "approved" | "returned" | "draft";
@@ -234,7 +262,10 @@ interface SchoolOSContextValue {
     term: string;
     componentId: string;
     value: number;
-  }) => { outcome: "saved" | "queued_for_approval" | "denied"; message?: string };
+  }) => {
+    outcome: "saved" | "queued_for_approval" | "denied";
+    message?: string;
+  };
   setTermResultStatus: (params: {
     session: string;
     term: string;
@@ -500,7 +531,9 @@ export function buildPortalSessionForRole(
   const normTarget = normalizePhoneKey(targetPhone);
   const matchedStudent =
     (normTarget.length > 0
-      ? rawDb.students.find((s) => normalizePhoneKey(s.parentPhone) === normTarget)
+      ? rawDb.students.find(
+          (s) => normalizePhoneKey(s.parentPhone) === normTarget
+        )
       : undefined) ?? rawDb.students[0];
   const matchedPhone = matchedStudent?.parentPhone ?? targetPhone;
   const kidsCount =
@@ -522,8 +555,17 @@ export function buildPortalSessionForRole(
 }
 
 export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
+  const cloudConfigured = isCloudConfigured();
+  const [cloudStatus, setCloudStatus] = useState<CloudSyncStatus>("signed_out");
+  const [cloudError, setCloudError] = useState("");
+  const [cloudSchool, setCloudSchool] = useState<CloudSchool | null>(null);
+  const [isPlatformOwner, setIsPlatformOwner] = useState(false);
+  const saveQueue = useRef<CloudSaveQueue | null>(null);
+  const activeCloudUser = useRef<string | null>(null);
+  const cloudRequest = useRef(0);
+  const signingOut = useRef(false);
   const [rawDb, setRawDb] = useState<SchoolDatabaseSnapshot>(() =>
-    createSeedDatabase()
+    cloudConfigured ? emptyCloudSnapshot() : createSeedDatabase()
   );
   const [hydrated, setHydrated] = useState(false);
   const [onboardingWizardOpen, setOnboardingWizardOpen] = useState(false);
@@ -541,61 +583,212 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     })
   );
 
-  // Hydrate persisted DB & session on client mount
-  useEffect(() => {
-    const loaded = schoolRepository.loadSnapshot();
-    setRawDb(loaded);
-    setRegisteredSchools(schoolRepository.listRegisteredSchools());
+  // Cloud sessions are verified by Supabase. Browser portal flags are never credentials.
+  const restoreCloudAccount = useCallback(async (userId: string) => {
+    const request = ++cloudRequest.current;
+    saveQueue.current = null;
+    setRawDb(emptyCloudSnapshot());
+    setCloudStatus("loading");
+    setCloudError("");
+    setPortal((previous) => ({ ...previous, isAuthenticated: false }));
+    setIsPlatformOwner(false);
+    setCloudSchool(null);
+    setPrintJob(null);
     try {
-      const savedPortal =
-        window.sessionStorage.getItem(PORTAL_STORAGE_KEY) ||
-        window.localStorage.getItem(PORTAL_STORAGE_KEY);
-      if (savedPortal) {
-        const parsed = JSON.parse(savedPortal) as ActivePortalSession;
-        if (parsed && parsed.role) {
-          // Strict cross-school session guard: if session schoolCode mismatches active school, force sign-out
-          const sessionCode = normalizeSchoolCodeKey(parsed.schoolCode ?? "");
-          const loadedCode = normalizeSchoolCodeKey(loaded.settings.code ?? "");
-          if (
-            parsed.isAuthenticated &&
-            sessionCode &&
-            loadedCode &&
-            sessionCode !== loadedCode
-          ) {
-            setPortal(
-              buildPortalSessionForRole("admin", loaded, {
-                isAuthenticated: false,
-              })
-            );
-          } else if (
-            parsed.role === "muallim" &&
-            !loaded.settings.enableQuranModule
-          ) {
-            setPortal(
-              buildPortalSessionForRole("class_teacher", loaded, {
-                isAuthenticated: parsed.isAuthenticated,
-              })
-            );
-          } else {
-            setPortal({
-              ...parsed,
-              schoolCode: loaded.settings.code,
-            });
+      const account = await cloudSchoolRepository.loadAccount();
+      if (
+        request !== cloudRequest.current ||
+        account.user.id !== userId ||
+        activeCloudUser.current !== userId
+      )
+        return false;
+      setIsPlatformOwner(account.isOwner);
+      setCloudSchool(account.school);
+      const snapshot = account.workspace?.snapshot || emptyCloudSnapshot();
+      if (account.workspace) {
+        const queue = new CloudSaveQueue(
+          account.workspace.schoolId,
+          account.workspace.revision,
+          snapshot,
+          undefined,
+          (status, error) => {
+            if (saveQueue.current !== queue || signingOut.current) return;
+            setCloudStatus(status);
+            setCloudError(error || "");
           }
-        }
+        );
+        saveQueue.current = queue;
       }
-    } catch {
-      // ignore session storage read issue
+      setRawDb(snapshot);
+      // Platform owners without a school can enter only the separate owner screen.
+      setPortal(
+        buildPortalSessionForRole("admin", snapshot, {
+          isAuthenticated: Boolean(account.workspace),
+          staffId: snapshot.staff.find(
+            (staff) =>
+              staff.email.toLowerCase() === account.user.email?.toLowerCase()
+          )?.id,
+        })
+      );
+      setActiveNavState("overview");
+      setCloudStatus("saved");
+      return account.isOwner;
+    } catch (error) {
+      if (request === cloudRequest.current) {
+        setRawDb(emptyCloudSnapshot());
+        setCloudStatus("error");
+        setCloudError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load cloud school."
+        );
+      }
+      throw error;
     }
-    setHydrated(true);
   }, []);
 
-  // Persist DB updates after hydration
   useEffect(() => {
-    if (!hydrated) return;
+    setHydrated(true);
+    // Preserve legacy browser records for an explicit authenticated import, never auto-login/upload.
+    if (!cloudConfigured) return;
+    let disposed = false;
+    const handleUser = (userId: string | null) => {
+      if (disposed || activeCloudUser.current === userId) return;
+      activeCloudUser.current = userId;
+      if (userId) {
+        void restoreCloudAccount(userId).catch(() => {});
+      } else {
+        ++cloudRequest.current;
+        saveQueue.current = null;
+        setPortal((previous) => ({ ...previous, isAuthenticated: false }));
+        setRawDb(emptyCloudSnapshot());
+        setIsPlatformOwner(false);
+        setCloudSchool(null);
+        setCloudStatus("signed_out");
+        setCloudError("");
+        setPrintJob(null);
+      }
+    };
+    let sessionEvents = 0;
+    const unsubscribe = cloudSchoolRepository.subscribe((userId) => {
+      sessionEvents++;
+      handleUser(userId);
+    });
+    const initialEvents = sessionEvents;
+    void cloudSchoolRepository
+      .currentUserId()
+      .then((userId) => {
+        if (sessionEvents === initialEvents) handleUser(userId);
+      })
+      .catch((error) => {
+        if (!disposed) {
+          setCloudStatus("error");
+          setCloudError(
+            error instanceof Error
+              ? error.message
+              : "Unable to restore cloud session."
+          );
+        }
+      });
+    return () => {
+      disposed = true;
+      unsubscribe();
+      ++cloudRequest.current;
+      activeCloudUser.current = null;
+      saveQueue.current = null;
+    };
+  }, [cloudConfigured, restoreCloudAccount]);
+
+  useEffect(() => {
+    if (!hydrated || !portal.isAuthenticated) return;
+    if (cloudConfigured) {
+      if (saveQueue.current)
+        void saveQueue.current.enqueue(rawDb).catch(() => {});
+      return;
+    }
+    // Retained only for backwards-compatible local APIs; the login/registration UI always uses Auth.
     schoolRepository.saveSnapshot(rawDb);
     setRegisteredSchools(schoolRepository.listRegisteredSchools());
-  }, [rawDb, hydrated]);
+  }, [rawDb, hydrated, cloudConfigured, portal.isAuthenticated]);
+
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      if (!saveQueue.current?.dirty) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, []);
+
+  const loginSchoolAdmin = useCallback(
+    async (email: string, password: string) => {
+      if (signingOut.current || saveQueue.current?.dirty) throw new Error("Finish saving your current school before signing into another account.");
+      const user = await cloudSchoolRepository.signIn(email, password);
+      activeCloudUser.current = user.id;
+      return restoreCloudAccount(user.id);
+    },
+    [restoreCloudAccount]
+  );
+  const registerSchoolAdmin = useCallback(
+    async (payload: OnboardingPayload, password: string) => {
+      if (signingOut.current || saveQueue.current?.dirty) throw new Error("Finish saving your current school before registering another account.");
+      const result = await cloudSchoolRepository.signUp(
+        payload,
+        payload.adminContact || "",
+        password
+      );
+      if (result.needsConfirmation)
+        return { needsConfirmation: true, isOwner: false };
+      if (!result.user) throw new Error("Unable to verify the new account.");
+      activeCloudUser.current = result.user.id;
+      const isOwner = await restoreCloudAccount(result.user.id);
+      setOnboardingWizardOpen(false);
+      return { needsConfirmation: false, isOwner };
+    },
+    [restoreCloudAccount]
+  );
+  const refreshCloud = useCallback(async () => {
+    const userId = await cloudSchoolRepository.currentUserId();
+    if (!userId) throw new Error("Sign in before loading cloud data.");
+    activeCloudUser.current = userId;
+    await restoreCloudAccount(userId);
+  }, [restoreCloudAccount]);
+  const retryCloudSave = useCallback(async () => {
+    await saveQueue.current?.retry();
+  }, []);
+  const importLocalSchool = useCallback(async () => {
+    const queue = saveQueue.current;
+    if (!queue || !portal.isAuthenticated)
+      throw new Error(
+        "Sign in to a cloud school before importing browser records."
+      );
+    if (
+      rawDb.students.length ||
+      rawDb.payments.length ||
+      rawDb.attendance.length
+    )
+      throw new Error(
+        "Import is only available into an empty cloud school. Use Backups to review or merge records safely."
+      );
+    const local = schoolRepository.loadSnapshot();
+    if (!local.settings.setupCompleted)
+      throw new Error("No registered school backup was found on this browser.");
+    if (
+      !window.confirm(
+        `Upload the browser school “${local.settings.name}” into your signed-in cloud school “${rawDb.settings.name}”? Its classes and settings will replace this empty workspace. This cannot be undone automatically.`
+      )
+    )
+      return;
+    const imported = sanitizeCloudSnapshot({
+      ...local,
+      settings: { ...local.settings, code: rawDb.settings.code },
+    });
+    await queue.flush();
+    setRawDb(imported);
+    await queue.enqueue(imported);
+    toast.success("Browser records saved to your authenticated cloud school.");
+  }, [portal.isAuthenticated, rawDb]);
 
   // Toggle body class for clean @media print isolation
   useEffect(() => {
@@ -616,22 +809,26 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     [rawDb, portal]
   );
 
-  const persistPortal = useCallback((next: ActivePortalSession) => {
-    setPortal(next);
-    if (typeof window !== "undefined") {
-      try {
-        const serialized = JSON.stringify(next);
-        window.sessionStorage.setItem(PORTAL_STORAGE_KEY, serialized);
-        if (next.isAuthenticated) {
-          window.localStorage.setItem(PORTAL_STORAGE_KEY, serialized);
-        } else {
-          window.localStorage.removeItem(PORTAL_STORAGE_KEY);
+  const persistPortal = useCallback(
+    (next: ActivePortalSession) => {
+      setPortal(next);
+      if (typeof window !== "undefined") {
+        try {
+          if (cloudConfigured) return;
+          const serialized = JSON.stringify(next);
+          window.sessionStorage.setItem(PORTAL_STORAGE_KEY, serialized);
+          if (next.isAuthenticated) {
+            window.localStorage.setItem(PORTAL_STORAGE_KEY, serialized);
+          } else {
+            window.localStorage.removeItem(PORTAL_STORAGE_KEY);
+          }
+        } catch {
+          // ignore
         }
-      } catch {
-        // ignore
       }
-    }
-  }, []);
+    },
+    [cloudConfigured]
+  );
 
   const setActiveNav = useCallback(
     (nav: NavSectionId) => {
@@ -656,6 +853,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       pin: string;
       schoolCode?: string | undefined;
     }) => {
+      if (cloudConfigured)
+        return {
+          ok: false,
+          error:
+            "Use your verified administrator email and password. Legacy PIN/phone accounts cannot access cloud records.",
+        };
       let targetDb = rawDb;
       if (params.schoolCode && params.schoolCode.trim().length > 0) {
         const requestedCode = normalizeSchoolCodeKey(params.schoolCode);
@@ -676,7 +879,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const cleanId = params.identifier.trim().toLowerCase();
       const cleanPin = params.pin.trim();
       const matched = targetDb.staff.find((s) => {
-        if (s.systemRole === "muallim" && !targetDb.settings.enableQuranModule) {
+        if (
+          s.systemRole === "muallim" &&
+          !targetDb.settings.enableQuranModule
+        ) {
           return false;
         }
         return (
@@ -712,12 +918,18 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       setActiveNavState("overview");
       return { ok: true };
     },
-    [rawDb, persistPortal]
+    [rawDb, persistPortal, cloudConfigured]
   );
 
   // Live Parent Login (Scoped strictly to target School Workspace Code!)
   const loginProductionParent = useCallback(
     (params: { phone: string; schoolCode?: string | undefined }) => {
+      if (cloudConfigured)
+        return {
+          ok: false,
+          error:
+            "Use your verified administrator email and password. Legacy PIN/phone accounts cannot access cloud records.",
+        };
       let targetDb = rawDb;
       if (params.schoolCode && params.schoolCode.trim().length > 0) {
         const requestedCode = normalizeSchoolCodeKey(params.schoolCode);
@@ -760,24 +972,55 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       setActiveNavState("overview");
       return { ok: true };
     },
-    [rawDb, persistPortal]
+    [rawDb, persistPortal, cloudConfigured]
   );
 
-  const logoutSession = useCallback(() => {
+  const logoutSession = useCallback(async () => {
+    if (cloudConfigured) {
+      signingOut.current = true;
+      setCloudStatus("loading");
+      try {
+        // Capture the latest render too, rather than relying on the autosave effect timing.
+        if (saveQueue.current && portal.isAuthenticated)
+          await saveQueue.current.enqueue(rawDb);
+        await saveQueue.current?.flush();
+        await cloudSchoolRepository.signOut();
+        ++cloudRequest.current;
+        activeCloudUser.current = null;
+        saveQueue.current = null;
+        setRawDb(emptyCloudSnapshot());
+        setCloudSchool(null);
+        setIsPlatformOwner(false);
+        setCloudStatus("signed_out");
+        setCloudError("");
+      } catch (error) {
+        setCloudStatus("error");
+        setCloudError(
+          error instanceof Error ? error.message : "Sign out failed."
+        );
+        throw error;
+      } finally {
+        signingOut.current = false;
+      }
+    }
     setPrintJob(null);
-    persistPortal({
-      ...portal,
-      isAuthenticated: false,
-    });
-  }, [portal, persistPortal]);
+    persistPortal({ ...portal, isAuthenticated: false });
+  }, [portal, rawDb, persistPortal, cloudConfigured]);
 
   // Live School Onboarding -> Creates Proprietor/Admin Account & Signs In Immediately
   const completeSchoolOnboarding = useCallback(
     (payload: OnboardingPayload) => {
+      if (cloudConfigured)
+        throw new Error(
+          "Use cloud registration to create a verified administrator account."
+        );
       const adminFullName = payload.adminName?.trim() || "School Proprietor";
-      const adminContact = payload.adminContact?.trim() || payload.schoolPhone?.trim() || "";
+      const adminContact =
+        payload.adminContact?.trim() || payload.schoolPhone?.trim() || "";
       const isEmailContact = adminContact.includes("@");
-      const adminPhone = !isEmailContact ? adminContact : (payload.schoolPhone?.trim() || "");
+      const adminPhone = !isEmailContact
+        ? adminContact
+        : payload.schoolPhone?.trim() || "";
       const adminEmail = isEmailContact ? adminContact : "";
       const adminPin = payload.adminPin?.trim() || "1234";
       const adminStaffId = "stf-admin-1";
@@ -837,8 +1080,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
         const mainClasses: ClassGroup[] = names.map((name, idx) => {
           const id = `cls-main-${idx + 1}`;
-          const nextId =
-            idx < names.length - 1 ? `cls-main-${idx + 2}` : null;
+          const nextId = idx < names.length - 1 ? `cls-main-${idx + 2}` : null;
           return {
             id,
             name,
@@ -950,7 +1192,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       });
       setActiveNavState("overview");
     },
-    [persistPortal]
+    [persistPortal, cloudConfigured]
   );
 
   // Data-Layer Print Permission Guard
@@ -974,7 +1216,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                     : { type: "table" }
       );
       if (!permitted) {
-        toast.error("Access denied: you cannot print records outside your assigned scope.");
+        toast.error(
+          "Access denied: you cannot print records outside your assigned scope."
+        );
         return;
       }
       setPrintJob(job);
@@ -1006,7 +1250,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         if (prev.settings.name !== next.name) {
           changes.push(`Name: "${prev.settings.name}" -> "${next.name}"`);
         }
-        if (prev.settings.multiProgrammeEnabled !== next.multiProgrammeEnabled) {
+        if (
+          prev.settings.multiProgrammeEnabled !== next.multiProgrammeEnabled
+        ) {
           changes.push(
             `Multiple Programmes: ${prev.settings.multiProgrammeEnabled ? "On" : "Off"} -> ${next.multiProgrammeEnabled ? "On" : "Off"}`
           );
@@ -1017,10 +1263,14 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           );
         }
         if (prev.settings.billingMode !== next.billingMode) {
-          changes.push(`Billing Mode: ${prev.settings.billingMode} -> ${next.billingMode}`);
+          changes.push(
+            `Billing Mode: ${prev.settings.billingMode} -> ${next.billingMode}`
+          );
         }
         if (prev.settings.currentTerm !== next.currentTerm) {
-          changes.push(`Active Term: ${prev.settings.currentTerm} -> ${next.currentTerm}`);
+          changes.push(
+            `Active Term: ${prev.settings.currentTerm} -> ${next.currentTerm}`
+          );
         }
 
         const audit = makeAuditEntry({
@@ -1146,7 +1396,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const target = (rawDb.teachingGroups ?? []).find((g) => g.id === id);
       if (!target) return;
       if (!isOfficer && target.teacherStaffId !== portal.staffId) {
-        toast.error("Only the Admin, Exam Officer, or group teacher can remove this group.");
+        toast.error(
+          "Only the Admin, Exam Officer, or group teacher can remove this group."
+        );
         return;
       }
       setRawDb((prev) => ({
@@ -1169,11 +1421,14 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       if (!isOfficer && !isTeacher) {
         return {
           ok: false,
-          error: "Your role does not have permission to create or edit exam papers.",
+          error:
+            "Your role does not have permission to create or edit exam papers.",
         };
       }
 
-      const existing = (rawDb.examPapers ?? []).find((ep) => ep.id === paper.id);
+      const existing = (rawDb.examPapers ?? []).find(
+        (ep) => ep.id === paper.id
+      );
       if (existing && existing.status === "approved" && !isOfficer) {
         return {
           ok: false,
@@ -1198,9 +1453,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const normalizedPaper: ExamPaperSubmission = {
         ...paper,
         submittedByStaffId:
-          paper.submittedByStaffId ?? existing?.submittedByStaffId ?? portal.staffId,
+          paper.submittedByStaffId ??
+          existing?.submittedByStaffId ??
+          portal.staffId,
         submittedByName:
-          paper.submittedByName || existing?.submittedByName || portal.displayName,
+          paper.submittedByName ||
+          existing?.submittedByName ||
+          portal.displayName,
         ...(paper.status === "submitted" ? { submittedAt: nowIso } : {}),
         updatedAt: nowIso,
       };
@@ -1254,7 +1513,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       if (existing.objectives.length === 0 && existing.theory.length === 0) {
         return {
           ok: false,
-          error: "Add at least one Objective or Theory question before submitting.",
+          error:
+            "Add at least one Objective or Theory question before submitting.",
         };
       }
 
@@ -1351,7 +1611,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   status: params.decision,
                   reviewedByName: portal.displayName,
                   reviewedAt: nowIso,
-                  reviewerFeedback: params.feedback?.trim() || ep.reviewerFeedback,
+                  reviewerFeedback:
+                    params.feedback?.trim() || ep.reviewerFeedback,
                   updatedAt: nowIso,
                 }
               : ep
@@ -1375,7 +1636,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         (target.submittedByStaffId !== portal.staffId ||
           target.status === "approved")
       ) {
-        toast.error("Only the Exam Officer or Admin can delete approved papers.");
+        toast.error(
+          "Only the Exam Officer or Admin can delete approved papers."
+        );
         return;
       }
       setRawDb((prev) => ({
@@ -1393,18 +1656,27 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const newWaiver = student.manualFeeWaiver ?? 0;
 
       if (oldWaiver !== newWaiver && !canManageFeeWaivers(portal)) {
-        toast.error("Only the Proprietor / Admin can grant or modify fee waivers.");
+        toast.error(
+          "Only the Proprietor / Admin can grant or modify fee waivers."
+        );
         return;
       }
-      if (!canManageStudents(portal) && !(oldWaiver !== newWaiver && canManageFeeWaivers(portal))) {
-        toast.error("Only the Proprietor / Admin or Secretary can edit student records.");
+      if (
+        !canManageStudents(portal) &&
+        !(oldWaiver !== newWaiver && canManageFeeWaivers(portal))
+      ) {
+        toast.error(
+          "Only the Proprietor / Admin or Secretary can edit student records."
+        );
         return;
       }
 
       setRawDb((prev) => {
         const prevStu = prev.students.find((s) => s.id === student.id);
         const logs = [...prev.auditLogs];
-        if ((prevStu?.manualFeeWaiver ?? 0) !== (student.manualFeeWaiver ?? 0)) {
+        if (
+          (prevStu?.manualFeeWaiver ?? 0) !== (student.manualFeeWaiver ?? 0)
+        ) {
           logs.unshift(
             makeAuditEntry({
               portal,
@@ -1426,33 +1698,35 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         // If a student's class changed via the Edit form, keep current-term scores synced
         let nextScores = prev.scores;
         if (prevStu) {
-          Object.entries(student.programmeClasses).forEach(([progId, newClsId]) => {
-            const oldClsId = prevStu.programmeClasses[progId];
-            if (oldClsId && newClsId && oldClsId !== newClsId) {
-              const oldName =
-                prev.classes.find((c) => c.id === oldClsId)?.name ?? oldClsId;
-              const newName =
-                prev.classes.find((c) => c.id === newClsId)?.name ?? newClsId;
-              nextScores = nextScores.map((sc) =>
-                sc.studentId === student.id &&
-                sc.programmeId === progId &&
-                sc.session === prev.settings.currentSession &&
-                sc.term === prev.settings.currentTerm
-                  ? { ...sc, classId: newClsId }
-                  : sc
-              );
-              logs.unshift(
-                makeAuditEntry({
-                  portal,
-                  category: "student_transfer",
-                  action: "Changed Student Class",
-                  targetLabel: `${student.fullName} (${student.admissionId})`,
-                  oldValue: oldName,
-                  newValue: newName,
-                })
-              );
+          Object.entries(student.programmeClasses).forEach(
+            ([progId, newClsId]) => {
+              const oldClsId = prevStu.programmeClasses[progId];
+              if (oldClsId && newClsId && oldClsId !== newClsId) {
+                const oldName =
+                  prev.classes.find((c) => c.id === oldClsId)?.name ?? oldClsId;
+                const newName =
+                  prev.classes.find((c) => c.id === newClsId)?.name ?? newClsId;
+                nextScores = nextScores.map((sc) =>
+                  sc.studentId === student.id &&
+                  sc.programmeId === progId &&
+                  sc.session === prev.settings.currentSession &&
+                  sc.term === prev.settings.currentTerm
+                    ? { ...sc, classId: newClsId }
+                    : sc
+                );
+                logs.unshift(
+                  makeAuditEntry({
+                    portal,
+                    category: "student_transfer",
+                    action: "Changed Student Class",
+                    targetLabel: `${student.fullName} (${student.admissionId})`,
+                    oldValue: oldName,
+                    newValue: newName,
+                  })
+                );
+              }
             }
-          });
+          );
         }
 
         return {
@@ -1592,7 +1866,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const runEndOfSessionPromotion = useCallback(
     (decisions: PromotionDecision[], advanceToNewSession?: string) => {
       if (!canManageStudents(portal)) {
-        toast.error("Only the Proprietor / Admin or Secretary can run promotions.");
+        toast.error(
+          "Only the Proprietor / Admin or Secretary can run promotions."
+        );
         return { promotedCount: 0, graduatedCount: 0, heldBackCount: 0 };
       }
 
@@ -1616,24 +1892,26 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           let moved = false;
           let held = false;
 
-          Object.entries(stu.programmeClasses).forEach(([progId, currClassId]) => {
-            if (!currClassId) return;
-            const shouldPromote = dec.promoteByProgramme[progId] ?? false;
-            if (shouldPromote) {
-              const currClass = classMap.get(currClassId);
-              if (currClass) {
-                if (currClass.nextGroupId) {
-                  nextProgrammeClasses[progId] = currClass.nextGroupId;
-                  moved = true;
-                } else if (progId === "prog-main") {
-                  nextStatus = "Graduated";
-                  graduatedCount += 1;
+          Object.entries(stu.programmeClasses).forEach(
+            ([progId, currClassId]) => {
+              if (!currClassId) return;
+              const shouldPromote = dec.promoteByProgramme[progId] ?? false;
+              if (shouldPromote) {
+                const currClass = classMap.get(currClassId);
+                if (currClass) {
+                  if (currClass.nextGroupId) {
+                    nextProgrammeClasses[progId] = currClass.nextGroupId;
+                    moved = true;
+                  } else if (progId === "prog-main") {
+                    nextStatus = "Graduated";
+                    graduatedCount += 1;
+                  }
                 }
+              } else {
+                held = true;
               }
-            } else {
-              held = true;
             }
-          });
+          );
 
           if (moved && nextStatus === "Active") promotedCount += 1;
           else if (held && nextStatus === "Active") heldBackCount += 1;
@@ -1833,7 +2111,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       isLocked?: boolean;
     }) => {
       if (!canManageResultLocks(portal)) {
-        toast.error("Only the Proprietor / Admin can lock, unlock or publish term results.");
+        toast.error(
+          "Only the Proprietor / Admin can lock, unlock or publish term results."
+        );
         return;
       }
       const lockId = `${params.session}__${params.term}`;
@@ -1856,9 +2136,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           isPublished: nextPub,
           isLocked: nextLock,
           publishedBy: nextPub ? portal.displayName : undefined,
-          publishedAt: nextPub ? existing?.publishedAt ?? now : undefined,
+          publishedAt: nextPub ? (existing?.publishedAt ?? now) : undefined,
           lockedBy: nextLock ? portal.displayName : undefined,
-          lockedAt: nextLock ? existing?.lockedAt ?? now : undefined,
+          lockedAt: nextLock ? (existing?.lockedAt ?? now) : undefined,
         };
 
         const exists = Boolean(existing);
@@ -1889,7 +2169,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const reviewPendingScoreEdit = useCallback(
     (requestId: string, decision: "approved" | "rejected") => {
       if (!canManageResultLocks(portal)) {
-        toast.error("Only the Proprietor / Admin can approve or reject published result edits.");
+        toast.error(
+          "Only the Proprietor / Admin can approve or reject published result edits."
+        );
         return;
       }
       setRawDb((prev) => {
@@ -2043,7 +2325,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         portal.role !== "class_teacher" &&
         portal.role !== "muallim"
       ) {
-        toast.error("Only the Admin or Class Teacher can update conduct remarks.");
+        toast.error(
+          "Only the Admin or Class Teacher can update conduct remarks."
+        );
         return;
       }
       setRawDb((prev) => {
@@ -2071,7 +2355,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       note?: string;
     }) => {
       if (!canMarkAttendanceForClass(rawDb, portal, params.classId)) {
-        toast.error("You do not have permission to mark attendance for this class.");
+        toast.error(
+          "You do not have permission to mark attendance for this class."
+        );
         return;
       }
       const id = `${params.date}_${params.programmeId}_${params.classId}_${params.studentId}`;
@@ -2110,7 +2396,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       studentIds: string[];
     }) => {
       if (!canMarkAttendanceForClass(rawDb, portal, params.classId)) {
-        toast.error("You do not have permission to mark attendance for this class.");
+        toast.error(
+          "You do not have permission to mark attendance for this class."
+        );
         return;
       }
       setRawDb((prev) => {
@@ -2150,7 +2438,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const upsertFeeItem = useCallback(
     (item: FeeScheduleItem) => {
       if (!canManageFees(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can edit fee schedules.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can edit fee schedules."
+        );
         return;
       }
       setRawDb((prev) => {
@@ -2169,7 +2459,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const deleteFeeItem = useCallback(
     (id: string) => {
       if (!canManageFees(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can remove fee items.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can remove fee items."
+        );
         return;
       }
       setRawDb((prev) => ({
@@ -2194,12 +2486,19 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       note?: string | undefined;
     }): FeePayment | null => {
       if (!canManageFees(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can record fee payments.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can record fee payments."
+        );
         return null;
       }
       const year = Number(params.session.split("/")[0]) || 2026;
-      const seq = rawDb.settings.nextReceiptSequence || rawDb.payments.length + 1;
-      const receiptNumber = generateReceiptNumber(rawDb.settings.code, year, seq);
+      const seq =
+        rawDb.settings.nextReceiptSequence || rawDb.payments.length + 1;
+      const receiptNumber = generateReceiptNumber(
+        rawDb.settings.code,
+        year,
+        seq
+      );
       const today = params.date ?? "2026-10-24";
       const confirmationStatus = params.confirmationStatus ?? "Confirmed";
 
@@ -2239,7 +2538,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           settings: {
             ...prev.settings,
             nextReceiptSequence:
-              (prev.settings.nextReceiptSequence || prev.payments.length + 1) + 1,
+              (prev.settings.nextReceiptSequence || prev.payments.length + 1) +
+              1,
           },
           auditLogs: [audit, ...prev.auditLogs],
         };
@@ -2263,9 +2563,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     }): FeePayment | null => {
       // Ensure parent can only submit for their own linked child
       if (portal.role === "parent") {
-        const allowed = scopedDb.students.some((s) => s.id === params.studentId);
+        const allowed = scopedDb.students.some(
+          (s) => s.id === params.studentId
+        );
         if (!allowed) {
-          toast.error("You can only submit payment references for your own child.");
+          toast.error(
+            "You can only submit payment references for your own child."
+          );
           return null;
         }
       } else if (!canManageFees(portal)) {
@@ -2274,8 +2578,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       }
 
       const year = Number(params.session.split("/")[0]) || 2026;
-      const seq = rawDb.settings.nextReceiptSequence || rawDb.payments.length + 1;
-      const receiptNumber = generateReceiptNumber(rawDb.settings.code, year, seq);
+      const seq =
+        rawDb.settings.nextReceiptSequence || rawDb.payments.length + 1;
+      const receiptNumber = generateReceiptNumber(
+        rawDb.settings.code,
+        year,
+        seq
+      );
 
       const payment: FeePayment = {
         id: `pay-${Date.now()}`,
@@ -2287,10 +2596,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         amount: params.amount,
         method: "Bank Transfer",
         confirmationStatus: "Pending Confirmation",
-        reference: params.reference.trim() || `TRF-${Date.now().toString().slice(-6)}`,
+        reference:
+          params.reference.trim() || `TRF-${Date.now().toString().slice(-6)}`,
         date: "2026-10-24",
         recordedBy: `${portal.displayName} (${portal.role === "parent" ? "Parent Portal" : "Bursary"})`,
-        note: params.note ?? "Bank transfer submitted — awaiting bursar confirmation",
+        note:
+          params.note ??
+          "Bank transfer submitted — awaiting bursar confirmation",
       };
 
       setRawDb((prev) => {
@@ -2309,7 +2621,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           settings: {
             ...prev.settings,
             nextReceiptSequence:
-              (prev.settings.nextReceiptSequence || prev.payments.length + 1) + 1,
+              (prev.settings.nextReceiptSequence || prev.payments.length + 1) +
+              1,
           },
           auditLogs: [audit, ...prev.auditLogs],
         };
@@ -2324,7 +2637,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const confirmBankTransfer = useCallback(
     (paymentId: string) => {
       if (!canManageFees(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can confirm bank transfers.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can confirm bank transfers."
+        );
         return;
       }
       setRawDb((prev) => {
@@ -2403,7 +2718,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const upsertStaffMember = useCallback(
     (staff: StaffMember) => {
       if (!canManagePayroll(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can manage staff records.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can manage staff records."
+        );
         return;
       }
       setRawDb((prev) => {
@@ -2436,7 +2753,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const generateMonthlyPayroll = useCallback(
     (monthKey: string, monthLabel: string): number => {
       if (!canManagePayroll(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can generate payroll.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can generate payroll."
+        );
         return 0;
       }
       let createdCount = 0;
@@ -2523,7 +2842,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const markPayrollPaidStatus = useCallback(
     (payrollId: string, status: "Paid" | "Pending", reference?: string) => {
       if (!canManagePayroll(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can mark payroll status.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can mark payroll status."
+        );
         return;
       }
       setRawDb((prev) => ({
@@ -2550,7 +2871,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   const markAllMonthPayrollPaid = useCallback(
     (monthKey: string): number => {
       if (!canManagePayroll(portal)) {
-        toast.error("Only the Proprietor / Admin or Bursar can disburse payroll.");
+        toast.error(
+          "Only the Proprietor / Admin or Bursar can disburse payroll."
+        );
         return 0;
       }
       let count = 0;
@@ -2582,7 +2905,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       term: string;
     }): number => {
       if (portal.role !== "admin" && portal.role !== "class_teacher") {
-        toast.error("Only Admin or the assigned Class Teacher can update remarks.");
+        toast.error(
+          "Only Admin or the assigned Class Teacher can update remarks."
+        );
         return 0;
       }
       if (portal.role === "class_teacher") {
@@ -2694,7 +3019,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
   const downloadCompleteBackup = useCallback((): BackupEnvelope | null => {
     if (!canManageSettings(portal)) {
-      toast.error("Only the Proprietor / Admin can download a full school backup.");
+      toast.error(
+        "Only the Proprietor / Admin can download a full school backup."
+      );
       return null;
     }
     const nowIso = new Date().toISOString();
@@ -2729,10 +3056,14 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         toast.error("Only the Proprietor / Admin can create restore points.");
         return null;
       }
-      const snap = await createLocalSnapshot(rawDb, label);
+      const snap = await createLocalSnapshot(
+        rawDb,
+        label,
+        cloudConfigured ? saveQueue.current?.schoolId : undefined
+      );
       return snap;
     },
-    [portal, rawDb]
+    [portal, rawDb, cloudConfigured]
   );
 
   const restoreFromBackupSnapshot = useCallback(
@@ -2746,10 +3077,16 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           error: "Only the Proprietor / Admin can restore a school backup.",
         };
       }
+      if (cloudConfigured && (!portal.isAuthenticated || !saveQueue.current))
+        return {
+          ok: false,
+          error: "Sign in to your cloud school before restoring a backup.",
+        };
       // Save automatic pre-restore safety snapshot first!
       await createLocalSnapshot(
         rawDb,
-        `Auto-Safety Before Restore (${new Date().toLocaleTimeString()})`
+        `Auto-Safety Before Restore (${new Date().toLocaleTimeString()})`,
+        cloudConfigured ? saveQueue.current?.schoolId : undefined
       );
 
       const auditEntry = makeAuditEntry({
@@ -2767,20 +3104,49 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         auditLogs: [auditEntry, ...(incomingSnapshot.auditLogs ?? [])],
       };
 
-      setRawDb(restoredDb);
+      if (cloudConfigured) {
+        restoredDb.settings = {
+          ...restoredDb.settings,
+          code: rawDb.settings.code,
+        };
+        const clean = sanitizeCloudSnapshot(restoredDb);
+        try {
+          await saveQueue.current!.flush();
+          setRawDb(clean);
+          await saveQueue.current!.enqueue(clean);
+        } catch (error) {
+          return {
+            ok: false,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Cloud restore has not been saved. Keep this tab open.",
+          };
+        }
+      } else setRawDb(restoredDb);
       const nextPortal = buildPortalSessionForRole("admin", restoredDb, {
         isAuthenticated: true,
       });
       persistPortal(nextPortal);
       return { ok: true };
     },
-    [portal, rawDb, persistPortal]
+    [portal, rawDb, persistPortal, cloudConfigured]
   );
 
   const value = useMemo<SchoolOSContextValue>(
     () => ({
       db: scopedDb,
       hydrated,
+      cloudConfigured,
+      cloudStatus,
+      cloudError,
+      cloudSchool,
+      isPlatformOwner,
+      loginSchoolAdmin,
+      registerSchoolAdmin,
+      refreshCloud,
+      retryCloudSave,
+      importLocalSchool,
       portal,
       onboardingWizardOpen,
       setOnboardingWizardOpen,
@@ -2840,6 +3206,16 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     [
       scopedDb,
       hydrated,
+      cloudConfigured,
+      cloudStatus,
+      cloudError,
+      cloudSchool,
+      isPlatformOwner,
+      loginSchoolAdmin,
+      registerSchoolAdmin,
+      refreshCloud,
+      retryCloudSave,
+      importLocalSchool,
       portal,
       onboardingWizardOpen,
       completeSchoolOnboarding,
@@ -2896,7 +3272,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <SchoolOSContext.Provider value={value}>{children}</SchoolOSContext.Provider>
+    <SchoolOSContext.Provider value={value}>
+      {children}
+    </SchoolOSContext.Provider>
   );
 }
 

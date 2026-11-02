@@ -112,7 +112,7 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     ).toBeInTheDocument();
   });
 
-  it("completes 3-step live School Registration & signs Proprietor into '/app' with ADM-001", async () => {
+  it("requires cloud configuration instead of creating a browser-only account", async () => {
     window.localStorage.clear();
     window.sessionStorage.clear();
 
@@ -139,8 +139,9 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     fireEvent.change(adminNameInput, {
       target: { value: "Dr. Najeeb Ibrahim" },
     });
-    const pinInput = screen.getByLabelText(/Set 4–6 Digit Login PIN/i);
-    fireEvent.change(pinInput, { target: { value: "4321" } });
+    fireEvent.change(screen.getByLabelText(/Administrator Email/i), { target: { value: "admin@royalgateway.ng" } });
+    const pinInput = screen.getByLabelText(/Set Account Password/i);
+    fireEvent.change(pinInput, { target: { value: "secure-test-password" } });
     fireEvent.click(screen.getByRole("button", { name: /Continue/i }));
 
     // Step 3: Complete Setup
@@ -150,12 +151,17 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
       })
     );
 
-    expect(
-      await screen.findByText(/Royal Gateway Academy — School Dashboard/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Start your school operations in 4 quick steps/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Connect Lovable Cloud \/ Supabase/i);
+    expect(window.sessionStorage.getItem("ndh_schoolos_portal_v3")).toBeNull();
+    expect(document.body).not.toHaveTextContent(/Royal Gateway Academy — School Dashboard/i);
+  });
+
+  it("protects the Super Admin route without configured verified owner access", async () => {
+    const router = createTestRouter("/platform");
+    await router.load();
+    render(<RouterProvider router={router} />);
+    expect(await screen.findByText("Platform owner access required")).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
   it("renders '/tutorials', '/features', '/for-schools', '/pricing', '/contact', and '/login' with 5 distinct v3 cover images (plus 3 distinct on '/')", async () => {

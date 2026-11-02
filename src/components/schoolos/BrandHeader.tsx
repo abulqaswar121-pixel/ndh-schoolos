@@ -69,6 +69,9 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
     portal,
     updateSettings,
     logoutSession,
+    cloudConfigured,
+    cloudStatus,
+    isPlatformOwner,
     setOnboardingWizardOpen,
     setPortalVideoGuideOpen,
     setActiveNav,
@@ -86,12 +89,33 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
   const roleMeta = ROLE_META[portal.role];
   const RoleIcon = roleMeta.icon;
 
-  const handleSignOut = () => {
-    logoutSession();
-    void navigate({ to: "/login" });
+  const handleSignOut = async () => {
+    try {
+      await logoutSession();
+      await navigate({ to: "/login" });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Sign out failed. Keep this tab open to preserve unsaved work."
+      );
+    }
   };
 
   const handleOfflinePillClick = () => {
+    if (cloudConfigured) {
+      if (cloudStatus === "error" || !offline.isOnline)
+        toast.error(
+          "Cloud changes are not saved while disconnected. Keep this tab open and retry the save."
+        );
+      else if (cloudStatus === "saving")
+        toast.info("Saving school records to the cloud…");
+      else
+        toast.success(
+          "School records are saved to your authenticated cloud school."
+        );
+      return;
+    }
     if (allowedNav.includes("backups")) {
       setActiveNav("backups");
     } else {
@@ -164,9 +188,13 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
           <button
             type="button"
             onClick={handleOfflinePillClick}
-            title="Offline & Local Vault Status"
+            title={
+              cloudConfigured
+                ? "Cloud Save Status"
+                : "Offline & Local Vault Status"
+            }
             className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold transition ${
-              offline.isOnline
+              offline.isOnline && (!cloudConfigured || cloudStatus === "saved")
                 ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"
                 : "border-amber-300/60 bg-amber-500/25 text-amber-100 hover:bg-amber-500/35"
             }`}
@@ -174,12 +202,22 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
             {offline.isOnline ? (
               <>
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <span className="hidden sm:inline">Offline Ready</span>
+                <span className="hidden sm:inline">
+                  {cloudConfigured
+                    ? cloudStatus === "error"
+                      ? "Save Failed"
+                      : cloudStatus === "saving"
+                        ? "Saving…"
+                        : "Cloud Saved"
+                    : "Offline Ready"}
+                </span>
               </>
             ) : (
               <>
                 <CloudOff className="h-3.5 w-3.5 text-amber-300" />
-                <span>Offline Mode</span>
+                <span>
+                  {cloudConfigured ? "Cloud Offline" : "Offline Mode"}
+                </span>
               </>
             )}
           </button>
@@ -269,6 +307,13 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
                 </div>
               </DropdownMenuLabel>
 
+              {isPlatformOwner && (
+                <DropdownMenuItem
+                  onClick={() => void navigate({ to: "/platform" })}
+                >
+                  Super Admin · Schools & Subscriptions
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
 
               {portal.role === "admin" && (

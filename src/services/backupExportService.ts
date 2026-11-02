@@ -21,6 +21,7 @@ const LS_SNAPSHOTS_FALLBACK_KEY = "ndh_schoolos_snapshots_v3";
 const MAX_LOCAL_SNAPSHOTS = 8;
 
 export interface LocalSnapshotRecord {
+  schoolId?: string | undefined;
   id: string;
   label: string;
   createdAt: string;
@@ -185,11 +186,13 @@ export async function listLocalSnapshots(): Promise<LocalSnapshotRecord[]> {
 
 export async function createLocalSnapshot(
   snapshot: SchoolDatabaseSnapshot,
-  label: string
+  label: string,
+  schoolId?: string
 ): Promise<LocalSnapshotRecord> {
   const cloned = JSON.parse(JSON.stringify(snapshot)) as SchoolDatabaseSnapshot;
   const serialized = JSON.stringify(cloned);
   const record: LocalSnapshotRecord = {
+    ...(schoolId ? { schoolId } : {}),
     id: `snap-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     label: label.trim() || "Manual Restore Point",
     createdAt: new Date().toISOString(),

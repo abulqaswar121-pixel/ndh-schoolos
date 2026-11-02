@@ -1,5 +1,5 @@
 /* NDH SchoolOS — Offline-First Minimal-Data Service Worker */
-const CACHE_NAME = "ndh-schoolos-offline-v3";
+const CACHE_NAME = "ndh-schoolos-offline-v6";
 const SHELL_URLS = [
   "/",
   "/app",
@@ -23,11 +23,11 @@ self.addEventListener("install", (event) => {
                 return cache.put(url, res.clone());
               }
               return undefined;
-            })
-          )
-        )
+            }),
+          ),
+        ),
       )
-      .catch(() => undefined)
+      .catch(() => undefined),
   );
 });
 
@@ -39,10 +39,10 @@ self.addEventListener("activate", (event) => {
         Promise.all(
           keys
             .filter((k) => k.startsWith("ndh-schoolos-") && k !== CACHE_NAME)
-            .map((k) => caches.delete(k))
-        )
+            .map((k) => caches.delete(k)),
+        ),
       )
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 
@@ -66,7 +66,7 @@ self.addEventListener("message", (event) => {
         if (event.source && "postMessage" in event.source) {
           event.source.postMessage({ type: "PRECACHE_COMPLETE" });
         }
-      })
+      }),
     );
   }
 });
@@ -77,20 +77,24 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
 
-  // Never intercept range video streams or cross-origin analytics — saves mobile data
+  // Never cache authenticated/API responses, including same-origin Cloud proxies.
+  // A shared browser must not receive another school's cached records after sign-out.
   if (
-    req.headers.has("range") ||
-    url.pathname.endsWith(".mp4") ||
-    url.pathname.endsWith(".webm")
-  ) {
+    req.headers.has("authorization") ||
+    req.headers.has("apikey") ||
+    /^\/(api|rest|auth|storage|functions|realtime)(\/|$)/.test(url.pathname)
+  )
+    return;
+
+  // Never intercept range video streams or cross-origin analytics — saves mobile data
+  if (req.headers.has("range") || url.pathname.endsWith(".mp4") || url.pathname.endsWith(".webm")) {
     return;
   }
 
   // Only cache same-origin assets + Google Fonts stylesheets/woff2
   const isSameOrigin = url.origin === self.location.origin;
   const isFontAsset =
-    url.hostname === "fonts.googleapis.com" ||
-    url.hostname === "fonts.gstatic.com";
+    url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
 
   if (!isSameOrigin && !isFontAsset) {
     return;
@@ -101,7 +105,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 1. HTML Page Navigations: Fast network attempt (2.5s timeout) -> Cached page or /app shell fallback
+  // 1. HTML Page Navigations: Fast network attempt (2.5s timeout) -> Cached page or route-appropriate shell fallback
   if (req.mode === "navigate" || req.headers.get("accept")?.includes("text/html")) {
     event.respondWith(
       (async () => {
@@ -119,19 +123,19 @@ self.addEventListener("fetch", (event) => {
           // Offline or slow connection: serve instantaneously from cache
         }
 
-        const exactMatch =
-          (await cache.match(req)) || (await cache.match(url.pathname));
+        const exactMatch = (await cache.match(req)) || (await cache.match(url.pathname));
         if (exactMatch) return exactMatch;
 
-        const fallbackShell =
-          (await cache.match("/app")) || (await cache.match("/"));
+        const fallbackPath =
+          url.pathname === "/app" || url.pathname.startsWith("/app/") ? "/app" : "/";
+        const fallbackShell = await cache.match(fallbackPath);
         if (fallbackShell) return fallbackShell;
 
         return new Response(
           "<!doctype html><html><head><meta charset='utf-8'><title>NDH SchoolOS Offline</title></head><body style='font-family:sans-serif;padding:2rem'><h1>NDH SchoolOS — Offline</h1><p>Please open the app once with data enabled to save offline assets, then reload.</p></body></html>",
-          { headers: { "Content-Type": "text/html; charset=utf-8" } }
+          { headers: { "Content-Type": "text/html; charset=utf-8" } },
         );
-      })()
+      })(),
     );
     return;
   }
@@ -159,7 +163,7 @@ self.addEventListener("fetch", (event) => {
         } catch {
           return cached || Response.error();
         }
-      })
+      }),
     );
     return;
   }
@@ -178,6 +182,6 @@ self.addEventListener("fetch", (event) => {
         .catch(() => cached);
 
       return cached || (await fetchPromise) || Response.error();
-    })
+    }),
   );
 });

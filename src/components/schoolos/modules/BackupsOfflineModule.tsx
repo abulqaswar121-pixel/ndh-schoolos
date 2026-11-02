@@ -48,6 +48,8 @@ export function BackupsOfflineModule({
   const {
     db,
     portal,
+    cloudConfigured,
+    cloudSchool,
     updateSettings,
     downloadCompleteBackup,
     createManualSnapshot,
@@ -70,8 +72,8 @@ export function BackupsOfflineModule({
   const refreshSnapshots = useCallback(async () => {
     if (!isAdmin) return;
     const list = await listLocalSnapshots();
-    setSnapshots(list);
-  }, [isAdmin]);
+    setSnapshots(cloudConfigured ? list.filter(point => point.schoolId === cloudSchool?.id && Boolean(cloudSchool?.id)) : list);
+  }, [isAdmin, cloudConfigured, cloudSchool?.id]);
 
   useEffect(() => {
     void refreshSnapshots();
@@ -83,11 +85,11 @@ export function BackupsOfflineModule({
     setWarmingOffline(false);
     if (res.ok) {
       toast.success(
-        "App modules & pages saved to this device for zero-data offline work."
+        cloudConfigured ? "App modules cached. Loading and saving cloud records still requires internet." : "App modules & pages saved to this device for zero-data offline work."
       );
     } else {
       toast.info(
-        "Local database is already saved offline on this device."
+        cloudConfigured ? "Cloud records are not automatically saved to this browser. Use a manual backup for offline recovery." : "Local database is already saved offline on this device."
       );
     }
   };
@@ -204,12 +206,12 @@ export function BackupsOfflineModule({
                 {offline.isOnline ? (
                   <>
                     <Wifi className="h-3.5 w-3.5" />
-                    Online • Zero-Data Local Storage Active
+                    {cloudConfigured ? "Online • Cloud Storage Active" : "Online • Zero-Data Local Storage Active"}
                   </>
                 ) : (
                   <>
                     <CloudOff className="h-3.5 w-3.5" />
-                    Offline Mode • Working Without Internet
+                    {cloudConfigured ? "Offline • Cloud Saves Paused" : "Offline Mode • Working Without Internet"}
                   </>
                 )}
               </span>
@@ -220,10 +222,14 @@ export function BackupsOfflineModule({
             </div>
 
             <h2 className="text-base font-extrabold text-[#0F172A]">
-              Works 100% Offline for Daily School Operations
+              {cloudConfigured ? "Cloud Storage with Downloadable Backups" : "Works 100% Offline for Daily School Operations"}
             </h2>
             <p className="max-w-2xl text-xs leading-relaxed text-slate-600">
-              Admissions, attendance, CA & exam grading, report sheet printing, fee receipts, payroll, and Excel/CSV exports run directly on your device with zero mobile data required. Internet is only needed when sending external WhatsApp/SMS links or streaming tutorial videos.
+              {cloudConfigured ? "School records are loaded from and saved to your authenticated cloud school. Internet is required to sign in and save changes. During an interruption, keep this tab open and retry; use downloaded backups for offline recovery." : <>Admissions, attendance, CA & exam grading, report sheet printing,
+              fee receipts, payroll, and Excel/CSV exports run directly on your
+              device with zero mobile data required. Internet is only needed
+              when sending external WhatsApp/SMS links or streaming tutorial
+              videos.</>}
             </p>
           </div>
 

@@ -1,5 +1,9 @@
 import React, { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { AppSidebar } from "./AppSidebar";
+import {
+  CloudWorkspaceStatus,
+  CloudImportButton,
+} from "./CloudWorkspaceStatus";
 import { BrandHeader } from "./BrandHeader";
 import { EcosystemFooter } from "./EcosystemFooter";
 import { LoginPortalScreen } from "./LoginPortalScreen";
@@ -84,7 +88,15 @@ function ModuleLoadingFallback() {
  * Authenticated School Platform Workspace (`/app`)
  */
 export function SchoolOSApplication() {
-  const { db, portal, activeNav, setOnboardingWizardOpen } = useSchoolOS();
+  const {
+    db,
+    portal,
+    activeNav,
+    setOnboardingWizardOpen,
+    cloudConfigured,
+    cloudStatus,
+    hydrated,
+  } = useSchoolOS();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const custom = getResolvedCustomization(db.settings);
@@ -126,6 +138,15 @@ export function SchoolOSApplication() {
     return () => window.clearTimeout(timer);
   }, [portal.isAuthenticated, preloadAllModules]);
 
+  if (!hydrated || cloudStatus === "loading")
+    return (
+      <div
+        className="min-h-screen bg-[#f5f6f8] p-6 text-sm font-semibold text-[#0a192f]"
+        role="status"
+      >
+        Loading your cloud workspace…
+      </div>
+    );
   if (!portal.isAuthenticated) {
     return (
       <>
@@ -144,6 +165,7 @@ export function SchoolOSApplication() {
       style={{ fontFamily: workspaceFontFamily }}
     >
       <BrandHeader onOpenMobileMenu={() => setMobileMenuOpen(true)} />
+      {cloudConfigured && <CloudWorkspaceStatus />}
 
       <div className="flex flex-1">
         <AppSidebar
@@ -153,6 +175,11 @@ export function SchoolOSApplication() {
 
         <main className="min-w-0 flex-1 px-4 py-6 sm:px-7 sm:py-8 lg:px-10">
           <div className="mx-auto max-w-7xl">
+            {cloudConfigured && activeNav === "backups" && (
+              <div className="mb-4">
+                <CloudImportButton />
+              </div>
+            )}
             <Suspense fallback={<ModuleLoadingFallback />}>
               {portal.role === "parent" ? (
                 <ParentPortalView />
