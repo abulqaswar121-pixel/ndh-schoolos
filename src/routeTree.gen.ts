@@ -15,7 +15,6 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as ForSchoolsRouteImport } from './routes/for-schools'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as TutorialsRouteImport } from './routes/tutorials'
 
@@ -49,11 +48,6 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlatformRoute = PlatformRouteImport.update({
-  id: '/platform',
-  path: '/platform',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -72,7 +66,6 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
   '/login': typeof LoginRoute
-  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/tutorials': typeof TutorialsRoute
 }
@@ -83,7 +76,6 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
   '/login': typeof LoginRoute
-  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/tutorials': typeof TutorialsRoute
 }
@@ -95,7 +87,6 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/for-schools': typeof ForSchoolsRoute
   '/login': typeof LoginRoute
-  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/tutorials': typeof TutorialsRoute
 }
@@ -108,7 +99,6 @@ export interface FileRouteTypes {
     | '/features'
     | '/for-schools'
     | '/login'
-    | '/platform'
     | '/pricing'
     | '/tutorials'
   fileRoutesByTo: FileRoutesByTo
@@ -119,7 +109,6 @@ export interface FileRouteTypes {
     | '/features'
     | '/for-schools'
     | '/login'
-    | '/platform'
     | '/pricing'
     | '/tutorials'
   id:
@@ -130,7 +119,6 @@ export interface FileRouteTypes {
     | '/features'
     | '/for-schools'
     | '/login'
-    | '/platform'
     | '/pricing'
     | '/tutorials'
   fileRoutesById: FileRoutesById
@@ -142,7 +130,6 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   ForSchoolsRoute: typeof ForSchoolsRoute
   LoginRoute: typeof LoginRoute
-  PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
   TutorialsRoute: typeof TutorialsRoute
 }
@@ -191,13 +178,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/platform': {
-      id: '/platform'
-      path: '/platform'
-      fullPath: '/platform'
-      preLoaderRoute: typeof PlatformRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -222,7 +202,6 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   ForSchoolsRoute: ForSchoolsRoute,
   LoginRoute: LoginRoute,
-  PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
   TutorialsRoute: TutorialsRoute,
 }

@@ -7,7 +7,6 @@ import { exportRowsToCsv } from "@/services/calculations";
 import type { AuditCategory, UserRole } from "@/types/school";
 
 const CATEGORY_LABELS: Record<AuditCategory, string> = {
-  student: "Student Registration",
   score: "Score Change",
   result_lock: "Result Lock / Publish",
   attendance: "Attendance",
@@ -32,7 +31,9 @@ const ROLE_LABELS: Record<UserRole, string> = {
 export function AuditLogModule() {
   const { db, portal, openPrintPreview } = useSchoolOS();
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<AuditCategory | "all">("all");
+  const [categoryFilter, setCategoryFilter] = useState<AuditCategory | "all">(
+    "all"
+  );
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
 
   const filtered = useMemo(() => {
@@ -85,7 +86,7 @@ export function AuditLogModule() {
         e.targetLabel,
         e.oldValue,
         e.newValue,
-      ]),
+      ])
     );
   };
 
@@ -94,7 +95,15 @@ export function AuditLogModule() {
       type: "table",
       title: "School Security & Change Audit Log",
       subtitle: `${filtered.length} recorded changes`,
-      headers: ["Time", "User", "Category", "Action", "Record", "Old Value", "New Value"],
+      headers: [
+        "Time",
+        "User",
+        "Category",
+        "Action",
+        "Record",
+        "Old Value",
+        "New Value",
+      ],
       rows: filtered.map((e) => [
         formatTimestamp(e.timestamp),
         `${e.actorName} (${ROLE_LABELS[e.actorRole]})`,
@@ -115,10 +124,11 @@ export function AuditLogModule() {
             <ShieldCheck className="h-3.5 w-3.5" />
             Admin Accountability Record
           </div>
-          <h1 className="mt-0.5 text-xl font-extrabold text-[#0F172A] sm:text-2xl">Audit Log</h1>
+          <h1 className="mt-0.5 text-xl font-extrabold text-[#0F172A] sm:text-2xl">
+            Audit Log
+          </h1>
           <p className="text-xs text-slate-600 sm:text-sm">
-            Every score edit, result lock, attendance mark, fee waiver, payment and settings change
-            is recorded automatically.
+            Every score edit, result lock, attendance mark, fee waiver, payment and settings change is recorded automatically.
           </p>
         </div>
 
@@ -161,7 +171,9 @@ export function AuditLogModule() {
           <select
             aria-label="Filter audit category"
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value as AuditCategory | "all")}
+            onChange={(e) =>
+              setCategoryFilter(e.target.value as AuditCategory | "all")
+            }
             className="h-9 rounded-lg border border-slate-200 bg-[#F8FAFC] px-3 text-xs font-semibold text-slate-700"
           >
             <option value="all">All Change Types</option>
@@ -207,7 +219,10 @@ export function AuditLogModule() {
             <tbody className="divide-y divide-slate-200">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-500">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-10 text-center text-sm text-slate-500"
+                  >
                     <ClipboardList className="mx-auto mb-2 h-6 w-6 text-slate-400" />
                     No audit entries match your filter.
                   </td>
@@ -219,7 +234,9 @@ export function AuditLogModule() {
                       {formatTimestamp(entry.timestamp)}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-bold text-[#0F172A]">{entry.actorName}</div>
+                      <div className="font-bold text-[#0F172A]">
+                        {entry.actorName}
+                      </div>
                       <div className="text-[11px] text-slate-500">
                         {ROLE_LABELS[entry.actorRole]}
                       </div>
@@ -230,10 +247,16 @@ export function AuditLogModule() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-[#0F172A]">{entry.action}</div>
-                      <div className="text-xs text-slate-600">{entry.targetLabel}</div>
+                      <div className="font-semibold text-[#0F172A]">
+                        {entry.action}
+                      </div>
+                      <div className="text-xs text-slate-600">
+                        {entry.targetLabel}
+                      </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-600">{entry.oldValue}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-600">
+                      {entry.oldValue}
+                    </td>
                     <td className="px-4 py-3 font-mono text-xs font-bold text-[#1E3A8A]">
                       {entry.newValue}
                     </td>

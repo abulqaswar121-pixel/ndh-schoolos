@@ -1,7 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Workspace } from "@/components/schoolos/Workspace";
+import { LoginPortalScreen } from "@/components/schoolos/LoginPortalScreen";
+import { SaaSOnboardingWizard } from "@/components/schoolos/SaaSOnboardingWizard";
+import { SchoolOSAIAssistant } from "@/components/schoolos/landing/SchoolOSAIAssistant";
+import { useSchoolOS } from "@/context/SchoolOSContext";
 
 function LoginRoutePage() {
-  return <Workspace initialLogin />;
+  const { setOnboardingWizardOpen } = useSchoolOS();
+
+  return (
+    <>
+      <LoginPortalScreen />
+      <SchoolOSAIAssistant
+        onStartPilot={() => setOnboardingWizardOpen(true)}
+      />
+      <SaaSOnboardingWizard />
+    </>
+  );
 }
-export const Route = createFileRoute("/login")({ component: LoginRoutePage });
+
+export const Route = createFileRoute("/login")({
+  component: LoginRoutePage,
+});
