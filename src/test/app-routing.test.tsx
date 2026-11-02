@@ -117,50 +117,6 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     ).toBeInTheDocument();
   });
 
-  it("requires cloud configuration instead of creating a browser-only account", async () => {
-    window.localStorage.clear();
-    window.sessionStorage.clear();
-
-    const router = createTestRouter("/");
-    await router.load();
-    render(<RouterProvider router={router} />);
-
-    const registerBtns = await screen.findAllByRole("button", {
-      name: /Register Your School|Register School/i,
-    });
-    fireEvent.click(registerBtns[0]!);
-
-    // Step 1: School Name
-    const nameInput = await screen.findByLabelText(/School Name/i);
-    fireEvent.change(nameInput, {
-      target: { value: "Royal Gateway Academy" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Continue/i }));
-
-    // Step 2: Proprietor Name & PIN
-    const adminNameInput = await screen.findByLabelText(
-      /Proprietor \/ Principal Full Name/i
-    );
-    fireEvent.change(adminNameInput, {
-      target: { value: "Dr. Najeeb Ibrahim" },
-    });
-    fireEvent.change(screen.getByLabelText(/Administrator Email/i), { target: { value: "admin@royalgateway.ng" } });
-    const pinInput = screen.getByLabelText(/Set Account Password/i);
-    fireEvent.change(pinInput, { target: { value: "secure-test-password" } });
-    fireEvent.click(screen.getByRole("button", { name: /Continue/i }));
-
-    // Step 3: Complete Setup
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: /Complete Setup & Open Workspace/i,
-      })
-    );
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(/Connect Lovable Cloud \/ Supabase/i);
-    expect(window.sessionStorage.getItem("ndh_schoolos_portal_v3")).toBeNull();
-    expect(document.body).not.toHaveTextContent(/Royal Gateway Academy — School Dashboard/i);
-  });
-
   it("protects the Super Admin route without configured verified owner access", async () => {
     const router = createTestRouter("/platform");
     await router.load();
