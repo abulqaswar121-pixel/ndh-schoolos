@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793601595169,
+      "tag": "0000_create_schoolos_core",
+      "breakpoints": true
+    }
+  ]
 }

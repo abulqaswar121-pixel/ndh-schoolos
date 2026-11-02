@@ -14,13 +14,222 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fee_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          method: string
+          recorded_by: string | null
+          school_id: string
+          session: string | null
+          student_id: string
+          term: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          method: string
+          recorded_by?: string | null
+          school_id: string
+          session?: string | null
+          student_id: string
+          term?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          method?: string
+          recorded_by?: string | null
+          school_id?: string
+          session?: string | null
+          student_id?: string
+          term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_payments_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_owners: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      school_members: {
+        Row: {
+          created_at: string
+          role: string
+          school_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role?: string
+          school_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: string
+          school_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_members_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_records: {
+        Row: {
+          class_id: string | null
+          id: string
+          kind: string
+          payload: Json
+          school_id: string
+          session: string | null
+          student_id: string | null
+          term: string | null
+          updated_at: string
+        }
+        Insert: {
+          class_id?: string | null
+          id: string
+          kind: string
+          payload?: Json
+          school_id: string
+          session?: string | null
+          student_id?: string | null
+          term?: string | null
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string | null
+          id?: string
+          kind?: string
+          payload?: Json
+          school_id?: string
+          session?: string | null
+          student_id?: string | null
+          term?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schools: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          school_type: string
+          subscription_expires_at: string | null
+          subscription_status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          school_type?: string
+          subscription_expires_at?: string | null
+          subscription_status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          school_type?: string
+          subscription_expires_at?: string | null
+          subscription_status?: string
+        }
+        Relationships: []
+      }
+      subscription_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string | null
+          school_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          school_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_platform_owner: { Args: { _user: string }; Returns: boolean }
+      is_school_admin: {
+        Args: { _school: string; _user: string }
+        Returns: boolean
+      }
+      is_school_member: {
+        Args: { _school: string; _user: string }
+        Returns: boolean
+      }
+      manage_subscription: {
+        Args: {
+          next_status: string
+          renew_days?: number
+          target_school: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
