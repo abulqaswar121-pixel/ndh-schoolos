@@ -12,16 +12,15 @@ export interface OfflineStatusSummary {
 const OFFLINE_WARM_TS_KEY = "ndh_schoolos_offline_warmed_at";
 
 export function registerOfflineServiceWorker(): void {
+  if (import.meta.env.DEV) return;
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
   // Skip inside automated jsdom test environment
   if (navigator.userAgent.toLowerCase().includes("jsdom")) return;
 
   const register = () => {
-    navigator.serviceWorker
-      .register("/sw.js", { scope: "/" })
-      .catch(() => {
-        // Non-fatal in unsupported contexts
-      });
+    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {
+      // Non-fatal in unsupported contexts
+    });
   };
 
   if (document.readyState === "complete") {
@@ -32,7 +31,7 @@ export function registerOfflineServiceWorker(): void {
 }
 
 export async function warmAllPortalModulesAndRoutes(
-  preloadImports?: () => Promise<unknown>
+  preloadImports?: () => Promise<unknown>,
 ): Promise<{ ok: boolean; cachedCount: number }> {
   if (typeof window === "undefined") {
     return { ok: false, cachedCount: 0 };
@@ -67,7 +66,7 @@ export async function warmAllPortalModulesAndRoutes(
         routesToWarm.map(async (u) => {
           const res = await fetch(u, { credentials: "same-origin" });
           if (res.ok) await cache.put(u, res.clone());
-        })
+        }),
       );
     }
 
@@ -162,7 +161,7 @@ export async function inspectOfflineCacheStats(): Promise<{
 
 export function useOfflineStatus(): OfflineStatusSummary {
   const [isOnline, setIsOnline] = useState<boolean>(() =>
-    typeof navigator !== "undefined" ? navigator.onLine : true
+    typeof navigator !== "undefined" ? navigator.onLine : true,
   );
   const [stats, setStats] = useState<{
     swReady: boolean;

@@ -3,7 +3,17 @@ import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { RoleVideoTutorialPlayer } from "@/components/schoolos/tutorials/RoleVideoTutorialPlayer";
 import { SchoolOSProvider, useSchoolOS } from "@/context/SchoolOSContext";
-import { createSeedDatabase } from "@/data/seedMarkazAcademy";
+import { createEmptySchoolDatabase as createEmptyDatabase } from "@/data/emptySchoolDatabase";
+import { buildDefaultNigerianClasses, buildDefaultNigerianSubjects } from "./fixtures";
+
+// Explicit test-only fixtures. The application itself always starts empty.
+function createSeedDatabase() {
+  const db = createEmptyDatabase();
+  db.settings.siblingDiscount.enabled = true;
+  db.classes = buildDefaultNigerianClasses();
+  db.subjects = buildDefaultNigerianSubjects();
+  return db;
+}
 import {
   canManageFeeWaivers,
   canManageFees,
@@ -298,7 +308,7 @@ function buildPopulatedTestDatabase(): SchoolDatabaseSnapshot {
 
 describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine", () => {
   it("starts with a clean, zero-demo Nigerian school database ready for live onboarding", () => {
-    const fresh = createSeedDatabase();
+    const fresh = createEmptyDatabase();
     expect(fresh.version).toBe(3);
     expect(fresh.settings.setupCompleted).toBe(false);
     expect(fresh.settings.currencySymbol).toBe("₦");
@@ -312,11 +322,9 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     expect(fresh.staff).toHaveLength(0);
     expect(fresh.auditLogs).toHaveLength(0);
 
-    // Pre-configured Nigerian classes & CA1/CA2/Exam grading ready immediately
-    expect(fresh.classes.map((c) => c.name)).toContain("Nursery");
-    expect(fresh.classes.map((c) => c.name)).toContain("Primary 1");
-    expect(fresh.classes.map((c) => c.name)).toContain("JSS 1");
-    expect(fresh.classes.map((c) => c.name)).toContain("SSS 3");
+    // Strict empty-data contract includes classes and subjects.
+    expect(fresh.classes).toHaveLength(0);
+    expect(fresh.subjects).toHaveLength(0);
     expect(fresh.settings.grading.defaultComponents).toEqual([
       { id: "ca1", label: "CA 1", maxScore: 20 },
       { id: "ca2", label: "CA 2", maxScore: 20 },
@@ -344,8 +352,12 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     expect(ctDb.students.every((s) => s.programmeClasses["prog-main"] === jss1.id)).toBe(true);
     expect(ctDb.payments).toHaveLength(0);
     expect(ctDb.payroll).toHaveLength(0);
-    expect(canPrintDocument(ctDb, classTeacherSession, { type: "report_card", studentId: "stu-1" })).toBe(true);
-    expect(canPrintDocument(ctDb, classTeacherSession, { type: "report_card", studentId: "stu-2" })).toBe(false);
+    expect(
+      canPrintDocument(ctDb, classTeacherSession, { type: "report_card", studentId: "stu-1" }),
+    ).toBe(true);
+    expect(
+      canPrintDocument(ctDb, classTeacherSession, { type: "report_card", studentId: "stu-2" }),
+    ).toBe(false);
 
     // 2. Subject Teacher: can edit Mathematics in JSS 1/JSS 2, blocked from English
     const subjectTeacherSession: ActivePortalSession = {
@@ -363,7 +375,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
         subjectId: math.id,
         session: "2026/2027",
         term: "First Term",
-      }).mode
+      }).mode,
     ).toBe("direct");
     expect(
       evaluateScoreWritePermission(rawDb, subjectTeacherSession, {
@@ -371,7 +383,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
         subjectId: eng.id,
         session: "2026/2027",
         term: "First Term",
-      }).mode
+      }).mode,
     ).toBe("denied");
 
     // 3. Bursar: manages fees & payroll, blocked from manual waivers & score editing
@@ -392,7 +404,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
         subjectId: math.id,
         session: "2026/2027",
         term: "First Term",
-      }).mode
+      }).mode,
     ).toBe("denied");
 
     // 4. Secretary: manages admissions/students & printing, blocked from score edits, fees & payroll
@@ -451,7 +463,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
         subjectId: math.id,
         session: "2026/2027",
         term: "First Term",
-      }).mode
+      }).mode,
     ).toBe("queued_for_approval");
 
     // Locked -> completely denied for teachers
@@ -462,7 +474,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
         subjectId: math.id,
         session: "2026/2027",
         term: "First Term",
-      }).mode
+      }).mode,
     ).toBe("denied");
   });
 
@@ -470,9 +482,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     const db = buildPopulatedTestDatabase();
     const jss1 = db.classes.find((c) => c.name === "JSS 1")!;
     const math = db.subjects.find((s) => s.code === "MTH")!;
-    const jss1Students = db.students.filter(
-      (s) => s.programmeClasses["prog-main"] === jss1.id
-    );
+    const jss1Students = db.students.filter((s) => s.programmeClasses["prog-main"] === jss1.id);
 
     const marksheet = computeSubjectMarksheet({
       students: jss1Students,
@@ -485,7 +495,9 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
       session: "2026/2027",
       term: "First Term",
     });
-    expect(marksheet.rows.some((r) => r.total === 87 && r.grade === "A" && r.position === 1)).toBe(true);
+    expect(marksheet.rows.some((r) => r.total === 87 && r.grade === "A" && r.position === 1)).toBe(
+      true,
+    );
 
     const broadsheet = computeClassBroadsheet({
       students: jss1Students,
@@ -524,8 +536,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
   it("auto-plays the RoleVideoTutorialPlayer MP4 (Welcome -> Sign-Up -> Sign-In -> All Pages), jumps chapters, switches roles, and rolls into the next video", () => {
     const { container } = render(<RoleVideoTutorialPlayer autoPlay />);
 
-    const getVideoSrc = () =>
-      container.querySelector("video")?.getAttribute("src");
+    const getVideoSrc = () => container.querySelector("video")?.getAttribute("src");
 
     expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-admin-v4.mp4");
     expect(screen.getByText(/1\. Welcome/i)).toBeInTheDocument();
@@ -558,15 +569,13 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
 
   it("locks in-portal RoleVideoTutorialPlayer strictly to the active portal's role with zero other role tabs", () => {
     const { container, unmount } = render(
-      <RoleVideoTutorialPlayer lockedRoleId="exam_officer" autoPlay={false} />
+      <RoleVideoTutorialPlayer lockedRoleId="exam_officer" autoPlay={false} />,
     );
 
-    expect(
-      container.querySelector("video")?.getAttribute("src")
-    ).toBe("/videos/ndh-walkthrough-exam-officer-v4.mp4");
-    expect(
-      screen.getByText(/Exam Officer — Portal Video Guide/i)
-    ).toBeInTheDocument();
+    expect(container.querySelector("video")?.getAttribute("src")).toBe(
+      "/videos/ndh-walkthrough-exam-officer-v4.mp4",
+    );
+    expect(screen.getByText(/Exam Officer — Portal Video Guide/i)).toBeInTheDocument();
     // Other roles' tabs are completely absent
     expect(screen.queryByRole("tab", { name: /School Owner/i })).toBeNull();
     expect(screen.queryByRole("tab", { name: /Bursar/i })).toBeNull();
@@ -574,20 +583,16 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
 
     // Ending the video never rolls into another role's portal video
     fireEvent.ended(container.querySelector("video")!);
-    expect(
-      container.querySelector("video")?.getAttribute("src")
-    ).toBe("/videos/ndh-walkthrough-exam-officer-v4.mp4");
+    expect(container.querySelector("video")?.getAttribute("src")).toBe(
+      "/videos/ndh-walkthrough-exam-officer-v4.mp4",
+    );
     unmount();
 
-    const parentRender = render(
-      <RoleVideoTutorialPlayer lockedRoleId="parent" autoPlay={false} />
+    const parentRender = render(<RoleVideoTutorialPlayer lockedRoleId="parent" autoPlay={false} />);
+    expect(parentRender.container.querySelector("video")?.getAttribute("src")).toBe(
+      "/videos/ndh-walkthrough-parent-v4.mp4",
     );
-    expect(
-      parentRender.container.querySelector("video")?.getAttribute("src")
-    ).toBe("/videos/ndh-walkthrough-parent-v4.mp4");
-    expect(
-      screen.getByText(/Parent \/ Guardian — Portal Video Guide/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Parent \/ Guardian — Portal Video Guide/i)).toBeInTheDocument();
   });
 
   it("supports mid-session class transfers with score carry-over, auto-syncs subject teacher entries to class teacher broadsheet, and blocks cross-school login", () => {
@@ -603,7 +608,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     render(
       <SchoolOSProvider>
         <Harness />
-      </SchoolOSProvider>
+      </SchoolOSProvider>,
     );
 
     // 1. Register School A ("Crown Heights School" -> code "CHS")
@@ -623,6 +628,9 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
       });
     });
 
+    act(() => {
+      buildDefaultNigerianSubjects().forEach((subject) => api!.upsertSubject(subject));
+    });
     expect(api!.db.settings.code).toBe("CHS");
     const jss1a = api!.db.classes.find((c) => c.name === "JSS 1A")!;
     const jss1b = api!.db.classes.find((c) => c.name === "JSS 1B")!;
@@ -821,14 +829,10 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     `);
 
     expect(aiParsed.objectives).toHaveLength(2);
-    expect(aiParsed.objectives[0]?.questionText).toBe(
-      "What is the boiling point of pure water?"
-    );
+    expect(aiParsed.objectives[0]?.questionText).toBe("What is the boiling point of pure water?");
     expect(aiParsed.objectives[0]?.optionC).toBe("100 °C");
     expect(aiParsed.objectives[0]?.correctOption).toBe("C");
-    expect(aiParsed.objectives[1]?.questionText).toBe(
-      "Choose the correct unit of force."
-    );
+    expect(aiParsed.objectives[1]?.questionText).toBe("Choose the correct unit of force.");
     expect(aiParsed.objectives[1]?.correctOption).toBe("B");
     expect(aiParsed.theory).toHaveLength(1);
     expect(aiParsed.theory[0]?.questionText).toContain("photosynthesis");
@@ -846,7 +850,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     render(
       <SchoolOSProvider>
         <Harness />
-      </SchoolOSProvider>
+      </SchoolOSProvider>,
     );
 
     act(() => {
@@ -867,6 +871,9 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
 
     const jss1a = api!.db.classes.find((c) => c.name === "JSS 1A")!;
     const jss1b = api!.db.classes.find((c) => c.name === "JSS 1B")!;
+    act(() => {
+      buildDefaultNigerianSubjects().forEach((subject) => api!.upsertSubject(subject));
+    });
     const jss2a = api!.db.classes.find((c) => c.name === "JSS 2A")!;
     const eng = api!.db.subjects.find((s) => s.code === "ENG")!;
 
@@ -1124,16 +1131,12 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     const studentWordHtml = buildExamPaperWordDocumentHtml(
       approvedPaper,
       api!.db,
-      "question_paper"
+      "question_paper",
     );
     expect(studentWordHtml).toContain("What is the boiling point of pure water?");
     expect(studentWordHtml).not.toContain("CONFIDENTIAL MARKING SCHEME");
 
-    const schemeWordHtml = buildExamPaperWordDocumentHtml(
-      approvedPaper,
-      api!.db,
-      "marking_scheme"
-    );
+    const schemeWordHtml = buildExamPaperWordDocumentHtml(approvedPaper, api!.db, "marking_scheme");
     expect(schemeWordHtml).toContain("CONFIDENTIAL MARKING SCHEME");
     expect(schemeWordHtml).toContain("Sunlight + Chlorophyll + CO2");
   });

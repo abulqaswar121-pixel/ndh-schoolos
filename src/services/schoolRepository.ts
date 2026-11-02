@@ -1,5 +1,5 @@
 import { mirrorDatabaseToIndexedDB } from "./backupExportService";
-import { createSeedDatabase } from "@/data/seedMarkazAcademy";
+import { createEmptySchoolDatabase } from "@/data/emptySchoolDatabase";
 import type { SchoolDatabaseSnapshot } from "@/types/school";
 
 const STORAGE_KEY = "ndh_schoolos_live_v3";
@@ -21,22 +21,22 @@ export function normalizeSchoolCodeKey(code: string): string {
 }
 
 function isValidSnapshot(
-  parsed: Partial<SchoolDatabaseSnapshot> | null | undefined
+  parsed: Partial<SchoolDatabaseSnapshot> | null | undefined,
 ): parsed is SchoolDatabaseSnapshot {
   return Boolean(
     parsed &&
-      parsed.version === CURRENT_SCHEMA_VERSION &&
-      parsed.settings &&
-      Array.isArray(parsed.students) &&
-      Array.isArray(parsed.classes) &&
-      Array.isArray(parsed.subjects)
+    parsed.version === CURRENT_SCHEMA_VERSION &&
+    parsed.settings &&
+    Array.isArray(parsed.students) &&
+    Array.isArray(parsed.classes) &&
+    Array.isArray(parsed.subjects),
   );
 }
 
 export interface ISchoolRepository {
   loadSnapshot: () => SchoolDatabaseSnapshot;
   saveSnapshot: (snapshot: SchoolDatabaseSnapshot) => void;
-  resetToSeed: () => SchoolDatabaseSnapshot;
+  resetToEmpty: () => SchoolDatabaseSnapshot;
   loadTenantByCode: (schoolCode: string) => SchoolDatabaseSnapshot | null;
   listRegisteredSchools: () => RegisteredSchoolTenant[];
 }
@@ -44,27 +44,27 @@ export interface ISchoolRepository {
 class LocalStorageSchoolRepository implements ISchoolRepository {
   loadSnapshot(): SchoolDatabaseSnapshot {
     if (typeof window === "undefined") {
-      return createSeedDatabase();
+      return createEmptySchoolDatabase();
     }
 
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) {
-        const fresh = createSeedDatabase();
+        const fresh = createEmptySchoolDatabase();
         this.saveSnapshot(fresh);
         return fresh;
       }
 
       const parsed = JSON.parse(raw) as Partial<SchoolDatabaseSnapshot>;
       if (!isValidSnapshot(parsed)) {
-        const fresh = createSeedDatabase();
+        const fresh = createEmptySchoolDatabase();
         this.saveSnapshot(fresh);
         return fresh;
       }
 
       return parsed;
     } catch {
-      const fallback = createSeedDatabase();
+      const fallback = createEmptySchoolDatabase();
       this.saveSnapshot(fallback);
       return fallback;
     }
@@ -79,12 +79,9 @@ class LocalStorageSchoolRepository implements ISchoolRepository {
       // Isolate each registered school workspace in its own tenant slot by School Code
       const normCode = normalizeSchoolCodeKey(snapshot.settings.code || "");
       if (snapshot.settings.setupCompleted && normCode.length >= 2) {
-        window.localStorage.setItem(
-          `${TENANT_KEY_PREFIX}${normCode}`,
-          serialized
-        );
+        window.localStorage.setItem(`${TENANT_KEY_PREFIX}${normCode}`, serialized);
         const existing = this.listRegisteredSchools().filter(
-          (t) => normalizeSchoolCodeKey(t.code) !== normCode
+          (t) => normalizeSchoolCodeKey(t.code) !== normCode,
         );
         const updated: RegisteredSchoolTenant[] = [
           {
@@ -94,10 +91,7 @@ class LocalStorageSchoolRepository implements ISchoolRepository {
           },
           ...existing,
         ].slice(0, 25);
-        window.localStorage.setItem(
-          TENANT_REGISTRY_KEY,
-          JSON.stringify(updated)
-        );
+        window.localStorage.setItem(TENANT_REGISTRY_KEY, JSON.stringify(updated));
       }
     } catch (error) {
       console.error("[NDH SchoolOS] Failed to save school snapshot:", error);
@@ -111,9 +105,7 @@ class LocalStorageSchoolRepository implements ISchoolRepository {
     if (!normCode) return null;
 
     try {
-      const tenantRaw = window.localStorage.getItem(
-        `${TENANT_KEY_PREFIX}${normCode}`
-      );
+      const tenantRaw = window.localStorage.getItem(`${TENANT_KEY_PREFIX}${normCode}`);
       if (tenantRaw) {
         const parsed = JSON.parse(tenantRaw) as Partial<SchoolDatabaseSnapshot>;
         if (isValidSnapshot(parsed)) {
@@ -125,10 +117,7 @@ class LocalStorageSchoolRepository implements ISchoolRepository {
       const activeRaw = window.localStorage.getItem(STORAGE_KEY);
       if (activeRaw) {
         const parsed = JSON.parse(activeRaw) as Partial<SchoolDatabaseSnapshot>;
-        if (
-          isValidSnapshot(parsed) &&
-          normalizeSchoolCodeKey(parsed.settings.code) === normCode
-        ) {
+        if (isValidSnapshot(parsed) && normalizeSchoolCodeKey(parsed.settings.code) === normCode) {
           return parsed;
         }
       }
@@ -145,25 +134,19 @@ class LocalStorageSchoolRepository implements ISchoolRepository {
       if (!raw) return [];
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return [];
-      return parsed.filter(
-        (item): item is RegisteredSchoolTenant =>
-          Boolean(
-            item &&
-              typeof item.code === "string" &&
-              typeof item.name === "string"
-          )
+      return parsed.filter((item): item is RegisteredSchoolTenant =>
+        Boolean(item && typeof item.code === "string" && typeof item.name === "string"),
       );
     } catch {
       return [];
     }
   }
 
-  resetToSeed(): SchoolDatabaseSnapshot {
-    const fresh = createSeedDatabase();
+  resetToEmpty(): SchoolDatabaseSnapshot {
+    const fresh = createEmptySchoolDatabase();
     this.saveSnapshot(fresh);
     return fresh;
   }
 }
 
-export const schoolRepository: ISchoolRepository =
-  new LocalStorageSchoolRepository();
+export const schoolRepository: ISchoolRepository = new LocalStorageSchoolRepository();

@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { HomePage } from "@/components/schoolos/public/HomePage";
+import { Workspace } from "@/components/schoolos/Workspace";
 
-export const Route = createFileRoute("/")({
-  component: HomePage,
-});
+export const Route = createFileRoute("/")({ component: Workspace });

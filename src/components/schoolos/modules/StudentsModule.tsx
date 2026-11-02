@@ -21,10 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  type PromotionDecision,
-  useSchoolOS,
-} from "@/context/SchoolOSContext";
+import { type PromotionDecision, useSchoolOS } from "@/context/SchoolOSContext";
 import { canManageFeeWaivers, canManageStudents } from "@/services/accessControl";
 import {
   exportRowsToCsv,
@@ -54,21 +51,14 @@ export function StudentsModule() {
   const canDelete = portal.role === "admin";
   const canPrintReport = portal.role !== "bursar";
 
-  const activeProgrammes = useMemo(
-    () => getActiveProgrammes(settings),
-    [settings]
-  );
+  const activeProgrammes = useMemo(() => getActiveProgrammes(settings), [settings]);
 
   // Filters
   const [search, setSearch] = useState("");
-  const [programmeFilter, setProgrammeFilter] = useState<ProgrammeId | "all">(
-    "all"
-  );
+  const [programmeFilter, setProgrammeFilter] = useState<ProgrammeId | "all">("all");
   const [classFilter, setClassFilter] = useState("all");
   const [termFilter, setTermFilter] = useState(settings.currentTerm);
-  const [statusFilter, setStatusFilter] = useState<
-    "Active" | "Graduated" | "all"
-  >("Active");
+  const [statusFilter, setStatusFilter] = useState<"Active" | "Graduated" | "all">("Active");
 
   // Modals
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
@@ -77,22 +67,19 @@ export function StudentsModule() {
   const [promotionOpen, setPromotionOpen] = useState(false);
 
   // Mid-Session Class Transfer Modal
-  const [transferTargetStudent, setTransferTargetStudent] =
-    useState<Student | null>(null);
+  const [transferTargetStudent, setTransferTargetStudent] = useState<Student | null>(null);
   const [transferProgId, setTransferProgId] = useState<ProgrammeId>(
-    activeProgrammes[0]?.id ?? "prog-main"
+    activeProgrammes[0]?.id ?? "prog-main",
   );
   const [transferToClassId, setTransferToClassId] = useState<string>("");
   const [transferReason, setTransferReason] = useState<string>("");
-  const [carryScoresOnTransfer, setCarryScoresOnTransfer] =
-    useState<boolean>(true);
+  const [carryScoresOnTransfer, setCarryScoresOnTransfer] = useState<boolean>(true);
 
   const openTransferDialog = (stu: Student) => {
     const defaultProg = activeProgrammes[0]?.id ?? "prog-main";
     const currentCls = stu.programmeClasses[defaultProg] ?? "";
     const otherCls =
-      classes.find((c) => c.programmeId === defaultProg && c.id !== currentCls)
-        ?.id ?? "";
+      classes.find((c) => c.programmeId === defaultProg && c.id !== currentCls)?.id ?? "";
     setTransferTargetStudent(stu);
     setTransferProgId(defaultProg);
     setTransferToClassId(otherCls);
@@ -104,9 +91,7 @@ export function StudentsModule() {
     e.preventDefault();
     if (!transferTargetStudent) return;
     if (!transferToClassId) {
-      toast.error(
-        `Select a destination ${settings.labels.classSingular.toLowerCase()}.`
-      );
+      toast.error(`Select a destination ${settings.labels.classSingular.toLowerCase()}.`);
       return;
     }
     const res = transferStudentClass({
@@ -120,14 +105,13 @@ export function StudentsModule() {
       toast.error(res.error ?? "Unable to transfer student.");
       return;
     }
-    const destName =
-      classes.find((c) => c.id === transferToClassId)?.name ?? "new class";
+    const destName = classes.find((c) => c.id === transferToClassId)?.name ?? "new class";
     toast.success(
       `Transferred ${transferTargetStudent.fullName} to ${destName}${
         (res.migratedScoresCount ?? 0) > 0
           ? ` (${res.migratedScoresCount} current-term subject scores carried over)`
           : ""
-      }.`
+      }.`,
     );
     setTransferTargetStudent(null);
   };
@@ -165,16 +149,10 @@ export function StudentsModule() {
     const q = search.trim().toLowerCase();
     return students.filter((s) => {
       if (statusFilter !== "all" && s.status !== statusFilter) return false;
-      if (
-        programmeFilter !== "all" &&
-        !isStudentInProgramme(s, programmeFilter)
-      ) {
+      if (programmeFilter !== "all" && !isStudentInProgramme(s, programmeFilter)) {
         return false;
       }
-      if (
-        classFilter !== "all" &&
-        !Object.values(s.programmeClasses).includes(classFilter)
-      ) {
+      if (classFilter !== "all" && !Object.values(s.programmeClasses).includes(classFilter)) {
         return false;
       }
       if (!q) return true;
@@ -187,22 +165,12 @@ export function StudentsModule() {
         clsName.toLowerCase().includes(q)
       );
     });
-  }, [
-    students,
-    statusFilter,
-    programmeFilter,
-    classFilter,
-    search,
-    classes,
-    settings,
-  ]);
+  }, [students, statusFilter, programmeFilter, classFilter, search, classes, settings]);
 
   const handleOpenAdd = () => {
     const year = settings.currentSession.slice(0, 4) || "2026";
     const nextNum = String(students.length + 1).padStart(3, "0");
-    const customPrefix = getResolvedCustomization(
-      settings
-    ).documents.admissionNumberPrefix.trim();
+    const customPrefix = getResolvedCustomization(settings).documents.admissionNumberPrefix.trim();
     const defaultProg = activeProgrammes[0]?.id ?? "prog-main";
     const defaultCls = classes.find((c) => c.programmeId === defaultProg)?.id;
 
@@ -212,17 +180,17 @@ export function StudentsModule() {
         ? `${customPrefix}${nextNum}`
         : `${settings.code}/${year}/${nextNum}`,
       fullName: "",
-      gender: "Female",
-      dateOfBirth: "2015-05-10",
-      bloodGroup: "O+",
-      healthNotes: "None",
+      gender: "",
+      dateOfBirth: "",
+      bloodGroup: "",
+      healthNotes: "",
       homeAddress: "",
       programmeClasses: defaultCls ? { [defaultProg]: defaultCls } : {},
       status: "Active",
-      admissionDate: "2026-10-24",
+      admissionDate: new Date().toISOString().slice(0, 10),
       guardianName: "",
-      guardianRelationship: "Father",
-      parentPhone: "+234 ",
+      guardianRelationship: "",
+      parentPhone: "",
       parentEmail: "",
       manualFeeWaiver: 0,
       manualWaiverReason: "",
@@ -237,13 +205,23 @@ export function StudentsModule() {
       toast.error("Enter the student's full name.");
       return;
     }
+    if (
+      students.some(
+        (s) =>
+          s.id !== editingStudent.id &&
+          s.admissionId.trim().toLowerCase() === editingStudent.admissionId.trim().toLowerCase(),
+      )
+    ) {
+      toast.error("This admission number is already registered.");
+      return;
+    }
     const cleanMap: Record<ProgrammeId, string> = {};
     Object.entries(editingStudent.programmeClasses).forEach(([pid, cid]) => {
       if (cid) cleanMap[pid] = cid;
     });
     if (Object.keys(cleanMap).length === 0) {
       toast.error(
-        `Assign the student to at least one ${settings.labels.classSingular.toLowerCase()}.`
+        `Assign the student to at least one ${settings.labels.classSingular.toLowerCase()}.`,
       );
       return;
     }
@@ -267,12 +245,9 @@ export function StudentsModule() {
         promoteByProgramme,
       };
     });
-    const res = runEndOfSessionPromotion(
-      decisions,
-      nextSessionLabel.trim() || undefined
-    );
+    const res = runEndOfSessionPromotion(decisions, nextSessionLabel.trim() || undefined);
     toast.success(
-      `Promotion complete: ${res.promotedCount} promoted, ${res.graduatedCount} graduated, ${res.heldBackCount} repeated.`
+      `Promotion complete: ${res.promotedCount} promoted, ${res.graduatedCount} graduated, ${res.heldBackCount} repeated.`,
     );
     setPromotionOpen(false);
   };
@@ -297,7 +272,7 @@ export function StudentsModule() {
         s.guardianName,
         s.parentPhone,
         s.status,
-      ])
+      ]),
     );
   };
 
@@ -329,9 +304,7 @@ export function StudentsModule() {
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-[#0F172A] sm:text-2xl">
-            Students
-          </h1>
+          <h1 className="text-xl font-extrabold text-[#0F172A] sm:text-2xl">Students</h1>
           <p className="text-xs text-slate-600 sm:text-sm">
             Student admissions, guardian contacts, sibling links and end-of-year promotion.
           </p>
@@ -384,9 +357,7 @@ export function StudentsModule() {
           <select
             aria-label="Filter by status"
             value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(e.target.value as "Active" | "Graduated" | "all")
-            }
+            onChange={(e) => setStatusFilter(e.target.value as "Active" | "Graduated" | "all")}
             className="h-9 rounded-lg border border-slate-200 bg-[#F8FAFC] px-2.5 text-xs font-medium text-slate-700"
           >
             <option value="Active">Active Only</option>
@@ -415,20 +386,13 @@ export function StudentsModule() {
                 return (
                   <tr key={stu.id} className="hover:bg-slate-50/70">
                     <td className="px-4 py-3">
-                      <div className="font-bold text-[#0F172A]">
-                        {stu.fullName}
-                      </div>
+                      <div className="font-bold text-[#0F172A]">{stu.fullName}</div>
                       <div className="font-mono text-[11px] text-slate-500">
                         {stu.admissionId} • {stu.gender}
                       </div>
                     </td>
                     <td className="px-4 py-3 font-medium text-slate-800">
-                      {getStudentClassName(
-                        stu,
-                        classes,
-                        settings,
-                        programmeFilter
-                      )}
+                      {getStudentClassName(stu, classes, settings, programmeFilter)}
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-slate-800">
@@ -440,9 +404,7 @@ export function StudentsModule() {
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] text-slate-500">
-                        {stu.parentPhone}
-                      </div>
+                      <div className="text-[11px] text-slate-500">{stu.parentPhone}</div>
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -584,11 +546,12 @@ export function StudentsModule() {
                     onChange={(e) =>
                       setEditingStudent({
                         ...editingStudent,
-                        gender: e.target.value as "Male" | "Female",
+                        gender: e.target.value as Student["gender"],
                       })
                     }
                     className="h-9 w-full rounded-lg border border-slate-200 bg-[#F8FAFC] px-3 text-xs font-medium"
                   >
+                    <option value="">Not provided</option>
                     <option value="Female">Female</option>
                     <option value="Male">Male</option>
                   </select>
@@ -608,6 +571,83 @@ export function StudentsModule() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Student Photo</Label>
+                  <Input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 2 * 1024 * 1024) {
+                        toast.error("Choose a photo smaller than 2 MB.");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = () =>
+                        setEditingStudent((prev) =>
+                          prev ? { ...prev, photoUrl: reader.result as string } : null,
+                        );
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  {editingStudent.photoUrl && (
+                    <img
+                      className="mt-2 h-16 w-14 rounded-lg object-cover"
+                      src={editingStudent.photoUrl}
+                      alt="Student photo"
+                    />
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Blood Group</Label>
+                  <select
+                    className="h-9 w-full rounded-lg border px-3 text-xs"
+                    value={editingStudent.bloodGroup}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        bloodGroup: e.target.value as Student["bloodGroup"],
+                      })
+                    }
+                  >
+                    <option value="">Not provided</option>
+                    {["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"].map((g) => (
+                      <option key={g}>{g}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Health Notes</Label>
+                  <Input
+                    value={editingStudent.healthNotes}
+                    onChange={(e) =>
+                      setEditingStudent({ ...editingStudent, healthNotes: e.target.value })
+                    }
+                    placeholder="Optional medical information"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Admission Date</Label>
+                  <Input
+                    type="date"
+                    value={editingStudent.admissionDate}
+                    onChange={(e) =>
+                      setEditingStudent({ ...editingStudent, admissionDate: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">Arm / Group (optional)</Label>
+                <Input
+                  value={editingStudent.arm || ""}
+                  onChange={(e) => setEditingStudent({ ...editingStudent, arm: e.target.value })}
+                  placeholder="Enter arm or group name"
+                />
+              </div>
               {/* Programme & Class Assignment */}
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 space-y-2.5">
                 <div className="font-bold text-[#0F172A]">
@@ -616,18 +656,14 @@ export function StudentsModule() {
                     : `${settings.labels.classSingular} Assignment`}
                 </div>
                 {activeProgrammes.map((prog) => {
-                  const progClasses = classes.filter(
-                    (c) => c.programmeId === prog.id
-                  );
+                  const progClasses = classes.filter((c) => c.programmeId === prog.id);
                   return (
                     <div
                       key={prog.id}
                       className="grid grid-cols-1 items-center gap-2 sm:grid-cols-3"
                     >
                       <Label className="text-xs font-semibold text-slate-700">
-                        {settings.multiProgrammeEnabled
-                          ? prog.name
-                          : settings.labels.classSingular}
+                        {settings.multiProgrammeEnabled ? prog.name : settings.labels.classSingular}
                       </Label>
                       <select
                         value={editingStudent.programmeClasses[prog.id] ?? ""}
@@ -658,17 +694,13 @@ export function StudentsModule() {
               {/* Parent / Sibling Link */}
               <div className="space-y-3 rounded-xl border border-slate-200 p-3.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-bold text-[#0F172A]">
-                    Parent / Guardian Details
-                  </span>
+                  <span className="font-bold text-[#0F172A]">Parent / Guardian Details</span>
                   {existingParents.length > 0 && (
                     <select
                       aria-label="Link to existing sibling family"
                       defaultValue=""
                       onChange={(e) => {
-                        const p = existingParents.find(
-                          (item) => item.phone === e.target.value
-                        );
+                        const p = existingParents.find((item) => item.phone === e.target.value);
                         if (p) {
                           setEditingStudent({
                             ...editingStudent,
@@ -707,9 +739,7 @@ export function StudentsModule() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs font-bold">
-                      Guardian Phone (Parent Login)
-                    </Label>
+                    <Label className="text-xs font-bold">Guardian Phone (Parent Login)</Label>
                     <Input
                       value={editingStudent.parentPhone}
                       onChange={(e) =>
@@ -736,6 +766,16 @@ export function StudentsModule() {
                 </div>
               </div>
 
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">Guardian Relationship (optional)</Label>
+                <Input
+                  value={editingStudent.guardianRelationship}
+                  onChange={(e) =>
+                    setEditingStudent({ ...editingStudent, guardianRelationship: e.target.value })
+                  }
+                  placeholder="Relationship to the student"
+                />
+              </div>
               {/* Admin-Only Fee Waiver (Audit Logged!) */}
               {canWaive && (
                 <div className="grid grid-cols-1 gap-3 rounded-xl border border-amber-200 bg-amber-50/60 p-3.5 sm:grid-cols-2">
@@ -776,11 +816,7 @@ export function StudentsModule() {
               )}
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsFormOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
                   Cancel
                 </Button>
                 <Button
@@ -796,10 +832,7 @@ export function StudentsModule() {
       </Dialog>
 
       {/* Student Profile Dossier Dialog */}
-      <Dialog
-        open={Boolean(viewingStudent)}
-        onOpenChange={(o) => !o && setViewingStudent(null)}
-      >
+      <Dialog open={Boolean(viewingStudent)} onOpenChange={(o) => !o && setViewingStudent(null)}>
         <DialogContent className="max-w-md bg-white">
           <DialogHeader>
             <DialogTitle className="text-base font-extrabold text-[#0F172A]">
@@ -807,9 +840,7 @@ export function StudentsModule() {
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-600">
               {viewingStudent?.admissionId} •{" "}
-              {viewingStudent
-                ? getStudentClassName(viewingStudent, classes, settings)
-                : ""}
+              {viewingStudent ? getStudentClassName(viewingStudent, classes, settings) : ""}
             </DialogDescription>
           </DialogHeader>
           {viewingStudent && (
@@ -834,8 +865,7 @@ export function StudentsModule() {
               </div>
               <div className="rounded-xl border border-slate-200 p-3 space-y-1">
                 <div className="font-bold text-[#0F172A]">
-                  Guardian: {viewingStudent.guardianName} (
-                  {viewingStudent.guardianRelationship})
+                  Guardian: {viewingStudent.guardianName} ({viewingStudent.guardianRelationship})
                 </div>
                 <div>Phone: {viewingStudent.parentPhone}</div>
                 <div>Address: {viewingStudent.homeAddress || "—"}</div>
@@ -843,20 +873,15 @@ export function StudentsModule() {
                 {(viewingStudent.manualFeeWaiver ?? 0) > 0 && (
                   <div className="pt-1 font-semibold text-emerald-800">
                     Fee Waiver:{" "}
-                    {formatCurrency(
-                      viewingStudent.manualFeeWaiver ?? 0,
-                      settings.currencySymbol
-                    )}{" "}
-                    ({viewingStudent.manualWaiverReason || "Approved"})
+                    {formatCurrency(viewingStudent.manualFeeWaiver ?? 0, settings.currencySymbol)} (
+                    {viewingStudent.manualWaiverReason || "Approved"})
                   </div>
                 )}
               </div>
 
               {(viewingStudent.transferHistory?.length ?? 0) > 0 && (
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1.5">
-                  <div className="font-bold text-[#0F172A]">
-                    Class Transfer History
-                  </div>
+                  <div className="font-bold text-[#0F172A]">Class Transfer History</div>
                   <div className="space-y-1.5">
                     {viewingStudent.transferHistory?.map((tr) => (
                       <div
@@ -907,24 +932,17 @@ export function StudentsModule() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base font-extrabold text-[#0F172A]">
               <ArrowRightLeft className="h-4 w-4 text-[#1a4a6e]" />
-              <span>
-                Mid-Session {settings.labels.classSingular} Transfer
-              </span>
+              <span>Mid-Session {settings.labels.classSingular} Transfer</span>
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-600">
-              Move{" "}
-              <strong>{transferTargetStudent?.fullName ?? "student"}</strong> to
-              another {settings.labels.classSingular.toLowerCase()} immediately
-              — even mid-term — while keeping fee records and current-term
-              scores intact.
+              Move <strong>{transferTargetStudent?.fullName ?? "student"}</strong> to another{" "}
+              {settings.labels.classSingular.toLowerCase()} immediately — even mid-term — while
+              keeping fee records and current-term scores intact.
             </DialogDescription>
           </DialogHeader>
 
           {transferTargetStudent && (
-            <form
-              onSubmit={handleConfirmMidSessionTransfer}
-              className="space-y-3.5 text-xs"
-            >
+            <form onSubmit={handleConfirmMidSessionTransfer} className="space-y-3.5 text-xs">
               {settings.multiProgrammeEnabled && (
                 <div className="space-y-1">
                   <Label className="text-xs font-bold">Programme</Label>
@@ -933,12 +951,9 @@ export function StudentsModule() {
                     onChange={(e) => {
                       const pid = e.target.value;
                       setTransferProgId(pid);
-                      const cur =
-                        transferTargetStudent.programmeClasses[pid] ?? "";
+                      const cur = transferTargetStudent.programmeClasses[pid] ?? "";
                       const firstOther =
-                        classes.find(
-                          (c) => c.programmeId === pid && c.id !== cur
-                        )?.id ?? "";
+                        classes.find((c) => c.programmeId === pid && c.id !== cur)?.id ?? "";
                       setTransferToClassId(firstOther);
                     }}
                     className="h-9 w-full rounded-lg border border-slate-200 bg-[#F8FAFC] px-3 text-xs font-semibold"
@@ -958,18 +973,13 @@ export function StudentsModule() {
                 </div>
                 <div className="mt-0.5 text-sm font-extrabold text-[#0F172A]">
                   {classes.find(
-                    (c) =>
-                      c.id ===
-                      transferTargetStudent.programmeClasses[transferProgId]
+                    (c) => c.id === transferTargetStudent.programmeClasses[transferProgId],
                   )?.name ?? "Unassigned"}
                 </div>
               </div>
 
               <div className="space-y-1">
-                <Label
-                  htmlFor="transfer-dest-class"
-                  className="text-xs font-bold"
-                >
+                <Label htmlFor="transfer-dest-class" className="text-xs font-bold">
                   Transfer To {settings.labels.classSingular}
                 </Label>
                 <select
@@ -986,8 +996,7 @@ export function StudentsModule() {
                     .filter(
                       (c) =>
                         c.programmeId === transferProgId &&
-                        c.id !==
-                          transferTargetStudent.programmeClasses[transferProgId]
+                        c.id !== transferTargetStudent.programmeClasses[transferProgId],
                     )
                     .map((cls) => (
                       <option key={cls.id} value={cls.id}>
@@ -1020,8 +1029,7 @@ export function StudentsModule() {
                   <strong className="text-[#0b1220]">
                     Carry over {settings.currentTerm} CA/Exam scores & remarks
                   </strong>{" "}
-                  so the new Class Teacher immediately sees any marks already
-                  entered this term.
+                  so the new Class Teacher immediately sees any marks already entered this term.
                 </span>
               </label>
 
@@ -1055,7 +1063,8 @@ export function StudentsModule() {
               End-of-Session Promotion
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-600">
-              Each programme promotes independently. Uncheck any student who should repeat their current {settings.labels.classSingular.toLowerCase()}.
+              Each programme promotes independently. Uncheck any student who should repeat their
+              current {settings.labels.classSingular.toLowerCase()}.
             </DialogDescription>
           </DialogHeader>
 
@@ -1078,9 +1087,7 @@ export function StudentsModule() {
                     className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5"
                   >
                     <div>
-                      <div className="font-bold text-[#0F172A]">
-                        {stu.fullName}
-                      </div>
+                      <div className="font-bold text-[#0F172A]">{stu.fullName}</div>
                       <div className="text-[11px] text-slate-500">
                         {getStudentClassName(stu, classes, settings)}
                       </div>
@@ -1107,10 +1114,7 @@ export function StudentsModule() {
                                 }
                               />
                               <span>
-                                Promote{" "}
-                                {settings.multiProgrammeEnabled
-                                  ? `(${prog.name})`
-                                  : ""}
+                                Promote {settings.multiProgrammeEnabled ? `(${prog.name})` : ""}
                               </span>
                             </label>
                           );
@@ -1121,11 +1125,7 @@ export function StudentsModule() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setPromotionOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setPromotionOpen(false)}>
                 Cancel
               </Button>
               <Button

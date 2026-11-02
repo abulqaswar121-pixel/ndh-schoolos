@@ -1,16 +1,6 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  DEFAULT_NIGERIAN_CLASS_NAMES,
-  createSeedDatabase,
-} from "@/data/seedMarkazAcademy";
+import { createEmptySchoolDatabase } from "@/data/emptySchoolDatabase";
 import {
   canManageClassesAndSubjects,
   canManageFeeWaivers,
@@ -73,6 +63,7 @@ import type {
   StaffMember,
   Student,
   StudentClassTransferEntry,
+  TimetableEntry,
   Subject,
   SubjectTeachingGroup,
   UserRole,
@@ -137,6 +128,7 @@ export interface OnboardingPayload {
   currentSession: string;
   currentTerm?: string | undefined;
   classNames: string[];
+  schoolType?: "conventional" | "islamic" | "integrated";
   adminName?: string | undefined;
   adminContact?: string | undefined;
   adminPin?: string | undefined;
@@ -165,6 +157,7 @@ interface SchoolOSContextValue {
   }) => { ok: boolean; error?: string };
   loginProductionParent: (params: {
     phone: string;
+    admissionNumber?: string | undefined;
     schoolCode?: string | undefined;
   }) => { ok: boolean; error?: string };
   logoutSession: () => void;
@@ -184,7 +177,7 @@ interface SchoolOSContextValue {
   // Settings & Setup (Admin only)
   updateSettings: (
     updater: (prev: SchoolSettings) => SchoolSettings,
-    auditDescription?: string
+    auditDescription?: string,
   ) => void;
 
   // Classes, Subjects & Combined Cross-Class Teaching Groups
@@ -196,12 +189,8 @@ interface SchoolOSContextValue {
   deleteTeachingGroup: (id: string) => void;
 
   // Exam Questions & Exam Officer Moderation
-  upsertExamPaper: (
-    paper: ExamPaperSubmission
-  ) => { ok: boolean; error?: string };
-  submitExamPaperToOfficer: (
-    paperId: string
-  ) => { ok: boolean; error?: string };
+  upsertExamPaper: (paper: ExamPaperSubmission) => { ok: boolean; error?: string };
+  submitExamPaperToOfficer: (paperId: string) => { ok: boolean; error?: string };
   reviewExamPaper: (params: {
     paperId: string;
     decision: "approved" | "returned" | "draft";
@@ -221,7 +210,7 @@ interface SchoolOSContextValue {
   deleteStudent: (id: string) => void;
   runEndOfSessionPromotion: (
     decisions: PromotionDecision[],
-    advanceToNewSession?: string
+    advanceToNewSession?: string,
   ) => { promotedCount: number; graduatedCount: number; heldBackCount: number };
 
   // Academics, Result Locks, Published Approvals & Optional Qur'an Module
@@ -241,15 +230,12 @@ interface SchoolOSContextValue {
     isPublished?: boolean;
     isLocked?: boolean;
   }) => void;
-  reviewPendingScoreEdit: (
-    requestId: string,
-    decision: "approved" | "rejected"
-  ) => void;
+  reviewPendingScoreEdit: (requestId: string, decision: "approved" | "rejected") => void;
   upsertQuranRecord: (
     record: Omit<QuranProgressRecord, "updatedAt" | "recentLogs"> & {
       appendLog?: boolean;
       recordedBy?: string;
-    }
+    },
   ) => void;
   upsertAffectiveRating: (record: AffectiveRatingRecord) => void;
   applyGradeAutoCommentsToClass: (params: {
@@ -264,8 +250,11 @@ interface SchoolOSContextValue {
   createManualSnapshot: (label: string) => Promise<LocalSnapshotRecord | null>;
   restoreFromBackupSnapshot: (
     snapshot: SchoolDatabaseSnapshot,
-    sourceLabel: string
+    sourceLabel: string,
   ) => Promise<{ ok: boolean; error?: string }>;
+
+  saveTimetableEntry: (entry: TimetableEntry) => void;
+  deleteTimetableEntry: (id: string) => void;
 
   // Attendance
   setAttendanceStatus: (params: {
@@ -330,7 +319,7 @@ interface SchoolOSContextValue {
   markPayrollPaidStatus: (
     payrollId: string,
     status: "Paid" | "Pending",
-    reference?: string
+    reference?: string,
   ) => void;
   markAllMonthPayrollPaid: (monthKey: string) => number;
 }
@@ -367,7 +356,7 @@ export function buildPortalSessionForRole(
     staffId?: string | undefined;
     parentPhone?: string | undefined;
     isAuthenticated?: boolean | undefined;
-  }
+  },
 ): ActivePortalSession {
   const isAuthenticated = options?.isAuthenticated ?? true;
 
@@ -400,8 +389,7 @@ export function buildPortalSessionForRole(
       schoolCode,
       staffId: eo?.id,
       displayName: eo?.fullName ?? "Exam Officer",
-      subtitle:
-        "Exam Officer • All-Classes Results, Report Sheets & Question Bank",
+      subtitle: "Exam Officer • All-Classes Results, Report Sheets & Question Bank",
     };
   }
 
@@ -506,8 +494,7 @@ export function buildPortalSessionForRole(
   const kidsCount =
     matchedPhone.trim().length > 0
       ? rawDb.students.filter(
-          (s) =>
-            normalizePhoneKey(s.parentPhone) === normalizePhoneKey(matchedPhone)
+          (s) => normalizePhoneKey(s.parentPhone) === normalizePhoneKey(matchedPhone),
         ).length
       : 0;
 
@@ -522,23 +509,19 @@ export function buildPortalSessionForRole(
 }
 
 export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
-  const [rawDb, setRawDb] = useState<SchoolDatabaseSnapshot>(() =>
-    createSeedDatabase()
-  );
+  const [rawDb, setRawDb] = useState<SchoolDatabaseSnapshot>(() => createEmptySchoolDatabase());
   const [hydrated, setHydrated] = useState(false);
   const [onboardingWizardOpen, setOnboardingWizardOpen] = useState(false);
   const [portalVideoGuideOpen, setPortalVideoGuideOpen] = useState(false);
-  const [registeredSchools, setRegisteredSchools] = useState<
-    RegisteredSchoolTenant[]
-  >([]);
+  const [registeredSchools, setRegisteredSchools] = useState<RegisteredSchoolTenant[]>([]);
   const [activeNav, setActiveNavState] = useState<NavSectionId>("overview");
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
   const [printJob, setPrintJob] = useState<PrintJob | null>(null);
 
   const [portal, setPortal] = useState<ActivePortalSession>(() =>
-    buildPortalSessionForRole("admin", createSeedDatabase(), {
+    buildPortalSessionForRole("admin", createEmptySchoolDatabase(), {
       isAuthenticated: false,
-    })
+    }),
   );
 
   // Hydrate persisted DB & session on client mount
@@ -556,25 +539,17 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           // Strict cross-school session guard: if session schoolCode mismatches active school, force sign-out
           const sessionCode = normalizeSchoolCodeKey(parsed.schoolCode ?? "");
           const loadedCode = normalizeSchoolCodeKey(loaded.settings.code ?? "");
-          if (
-            parsed.isAuthenticated &&
-            sessionCode &&
-            loadedCode &&
-            sessionCode !== loadedCode
-          ) {
+          if (parsed.isAuthenticated && sessionCode && loadedCode && sessionCode !== loadedCode) {
             setPortal(
               buildPortalSessionForRole("admin", loaded, {
                 isAuthenticated: false,
-              })
+              }),
             );
-          } else if (
-            parsed.role === "muallim" &&
-            !loaded.settings.enableQuranModule
-          ) {
+          } else if (parsed.role === "muallim" && !loaded.settings.enableQuranModule) {
             setPortal(
               buildPortalSessionForRole("class_teacher", loaded, {
                 isAuthenticated: parsed.isAuthenticated,
-              })
+              }),
             );
           } else {
             setPortal({
@@ -611,10 +586,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   }, [printJob]);
 
   // Data-Layer Read Enforcement: every consumer receives ONLY authorized records
-  const scopedDb = useMemo(
-    () => getAuthorizedSnapshot(rawDb, portal),
-    [rawDb, portal]
-  );
+  const scopedDb = useMemo(() => getAuthorizedSnapshot(rawDb, portal), [rawDb, portal]);
 
   const persistPortal = useCallback((next: ActivePortalSession) => {
     setPortal(next);
@@ -638,7 +610,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const allowed = getAllowedNavSections(
         portal.role,
         rawDb.settings.enableQuranModule,
-        hasExamOfficerPrivileges(rawDb, portal)
+        hasExamOfficerPrivileges(rawDb, portal),
       );
       if (!allowed.includes(nav)) {
         setActiveNavState("overview");
@@ -646,16 +618,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       }
       setActiveNavState(nav);
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   // Production Staff Login (Scoped strictly to target School Workspace Code!)
   const loginProductionStaff = useCallback(
-    (params: {
-      identifier: string;
-      pin: string;
-      schoolCode?: string | undefined;
-    }) => {
+    (params: { identifier: string; pin: string; schoolCode?: string | undefined }) => {
       let targetDb = rawDb;
       if (params.schoolCode && params.schoolCode.trim().length > 0) {
         const requestedCode = normalizeSchoolCodeKey(params.schoolCode);
@@ -693,31 +661,31 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
             "Staff record not found in this school workspace. Check your School Code, Staff ID, email or phone.",
         };
       }
-      if (matched.loginPin && matched.loginPin !== cleanPin) {
+      if (!matched.loginPin || matched.loginPin !== cleanPin) {
         return {
           ok: false,
           error: "Incorrect staff PIN. Please try again.",
         };
       }
 
-      const nextPortal = buildPortalSessionForRole(
-        matched.systemRole,
-        targetDb,
-        {
-          staffId: matched.id,
-          isAuthenticated: true,
-        }
-      );
+      const nextPortal = buildPortalSessionForRole(matched.systemRole, targetDb, {
+        staffId: matched.id,
+        isAuthenticated: true,
+      });
       persistPortal(nextPortal);
       setActiveNavState("overview");
       return { ok: true };
     },
-    [rawDb, persistPortal]
+    [rawDb, persistPortal],
   );
 
   // Live Parent Login (Scoped strictly to target School Workspace Code!)
   const loginProductionParent = useCallback(
-    (params: { phone: string; schoolCode?: string | undefined }) => {
+    (params: {
+      phone: string;
+      admissionNumber?: string | undefined;
+      schoolCode?: string | undefined;
+    }) => {
       let targetDb = rawDb;
       if (params.schoolCode && params.schoolCode.trim().length > 0) {
         const requestedCode = normalizeSchoolCodeKey(params.schoolCode);
@@ -743,7 +711,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       }
       const matched = targetDb.students.find(
-        (s) => normalizePhoneKey(s.parentPhone) === norm
+        (s) =>
+          normalizePhoneKey(s.parentPhone) === norm &&
+          (!params.admissionNumber ||
+            s.admissionId.toLowerCase() === params.admissionNumber.trim().toLowerCase()),
       );
       if (!matched) {
         return {
@@ -760,7 +731,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       setActiveNavState("overview");
       return { ok: true };
     },
-    [rawDb, persistPortal]
+    [rawDb, persistPortal],
   );
 
   const logoutSession = useCallback(() => {
@@ -774,12 +745,16 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   // Live School Onboarding -> Creates Proprietor/Admin Account & Signs In Immediately
   const completeSchoolOnboarding = useCallback(
     (payload: OnboardingPayload) => {
-      const adminFullName = payload.adminName?.trim() || "School Proprietor";
+      const adminFullName = payload.adminName?.trim() || "";
       const adminContact = payload.adminContact?.trim() || payload.schoolPhone?.trim() || "";
       const isEmailContact = adminContact.includes("@");
-      const adminPhone = !isEmailContact ? adminContact : (payload.schoolPhone?.trim() || "");
+      const adminPhone = !isEmailContact ? adminContact : payload.schoolPhone?.trim() || "";
       const adminEmail = isEmailContact ? adminContact : "";
-      const adminPin = payload.adminPin?.trim() || "1234";
+      const adminPin = payload.adminPin?.trim() || "";
+      if (!payload.schoolName.trim() || !adminFullName || !adminContact || !adminPin) {
+        toast.error("Enter school name and administrator name, contact, and PIN.");
+        return;
+      }
       const adminStaffId = "stf-admin-1";
 
       const adminStaffMember: StaffMember = {
@@ -816,9 +791,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           .map((w) => (w[0] ?? "").toUpperCase().replace(/[^A-Z0-9]/g, ""))
           .join("") || "SCH";
       const existingCodes = new Set(
-        schoolRepository
-          .listRegisteredSchools()
-          .map((item) => normalizeSchoolCodeKey(item.code))
+        schoolRepository.listRegisteredSchools().map((item) => normalizeSchoolCodeKey(item.code)),
       );
       let resolvedSchoolCode = basePrefix;
       if (existingCodes.has(normalizeSchoolCodeKey(resolvedSchoolCode))) {
@@ -829,39 +802,34 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       setRawDb(() => {
         // Always start a newly registered school from a clean blank tenant snapshot
         // so zero students, staff, scores, or fees ever cross between schools.
-        const freshBase = createSeedDatabase();
-        const names =
-          payload.classNames.length > 0
-            ? payload.classNames
-            : DEFAULT_NIGERIAN_CLASS_NAMES;
+        const freshBase = createEmptySchoolDatabase();
+        const names = payload.classNames.map((name) => name.trim()).filter(Boolean);
 
         const mainClasses: ClassGroup[] = names.map((name, idx) => {
           const id = `cls-main-${idx + 1}`;
-          const nextId =
-            idx < names.length - 1 ? `cls-main-${idx + 2}` : null;
+          const nextId = idx < names.length - 1 ? `cls-main-${idx + 2}` : null;
           return {
             id,
             name,
             programmeId: "prog-main",
             levelOrder: idx + 1,
             nextGroupId: nextId,
-            room: `Room ${idx + 1}`,
+            room: "",
           };
         });
 
         const programmes: SchoolProgramme[] = [
           {
             id: "prog-main",
-            name: "Main School",
-            description: "Primary / Secondary Day School",
+            name: payload.schoolType === "islamic" ? "Islamiyya / Tahfeez" : "Conventional",
+            description: "",
           },
         ];
 
         const extraClasses: ClassGroup[] = [];
         if (payload.multiProgrammeEnabled) {
           const extraNames =
-            payload.additionalProgrammeNames &&
-            payload.additionalProgrammeNames.length > 0
+            payload.additionalProgrammeNames && payload.additionalProgrammeNames.length > 0
               ? payload.additionalProgrammeNames
               : ["Evening Lessons"];
           extraNames.forEach((pName, pIdx) => {
@@ -869,14 +837,6 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
             programmes.push({
               id: pid,
               name: pName.trim() || `Programme ${pIdx + 2}`,
-            });
-            extraClasses.push({
-              id: `cls-${pid}-1`,
-              name: `${pName.trim() || "Programme"} Group 1`,
-              programmeId: pid,
-              levelOrder: 1,
-              nextGroupId: null,
-              room: "Hall A",
             });
           });
         }
@@ -887,17 +847,15 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           country: payload.country || "Nigeria",
           code: resolvedSchoolCode,
           address: payload.schoolAddress?.trim() || freshBase.settings.address,
-          phone:
-            payload.schoolPhone?.trim() ||
-            adminPhone ||
-            freshBase.settings.phone,
+          phone: payload.schoolPhone?.trim() || adminPhone || freshBase.settings.phone,
           email: adminEmail || freshBase.settings.email,
           currencySymbol: payload.currencySymbol || "₦",
           currencyCode: payload.currencyCode || "NGN",
           logoDataUrl: payload.logoDataUrl ?? freshBase.settings.logoDataUrl,
           multiProgrammeEnabled: payload.multiProgrammeEnabled,
           programmes,
-          enableQuranModule: false,
+          enableQuranModule:
+            payload.schoolType === "islamic" || payload.schoolType === "integrated",
           setupCompleted: true,
           sessions: freshBase.settings.sessions.includes(payload.currentSession)
             ? freshBase.settings.sessions
@@ -950,7 +908,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       });
       setActiveNavState("overview");
     },
-    [persistPortal]
+    [persistPortal],
   );
 
   // Data-Layer Print Permission Guard
@@ -971,7 +929,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   ? { type: "exam_paper", examPaperId: job.examPaperId }
                   : job.type === "marking_scheme"
                     ? { type: "marking_scheme", examPaperId: job.examPaperId }
-                    : { type: "table" }
+                    : { type: "table" },
       );
       if (!permitted) {
         toast.error("Access denied: you cannot print records outside your assigned scope.");
@@ -984,7 +942,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         }, 250);
       }
     },
-    [scopedDb, portal]
+    [scopedDb, portal],
   );
 
   const closePrintPreview = useCallback(() => {
@@ -992,10 +950,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateSettings = useCallback(
-    (
-      updater: (prev: SchoolSettings) => SchoolSettings,
-      auditDescription?: string
-    ) => {
+    (updater: (prev: SchoolSettings) => SchoolSettings, auditDescription?: string) => {
       if (!canManageSettings(portal)) {
         toast.error("Only the Proprietor / Admin can change school settings.");
         return;
@@ -1008,12 +963,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         }
         if (prev.settings.multiProgrammeEnabled !== next.multiProgrammeEnabled) {
           changes.push(
-            `Multiple Programmes: ${prev.settings.multiProgrammeEnabled ? "On" : "Off"} -> ${next.multiProgrammeEnabled ? "On" : "Off"}`
+            `Multiple Programmes: ${prev.settings.multiProgrammeEnabled ? "On" : "Off"} -> ${next.multiProgrammeEnabled ? "On" : "Off"}`,
           );
         }
         if (prev.settings.enableQuranModule !== next.enableQuranModule) {
           changes.push(
-            `Optional Qur'an Module: ${prev.settings.enableQuranModule ? "On" : "Off"} -> ${next.enableQuranModule ? "On" : "Off"}`
+            `Optional Qur'an Module: ${prev.settings.enableQuranModule ? "On" : "Off"} -> ${next.enableQuranModule ? "On" : "Off"}`,
           );
         }
         if (prev.settings.billingMode !== next.billingMode) {
@@ -1029,9 +984,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           action: auditDescription ?? "Updated School Settings",
           targetLabel: next.name,
           oldValue: `${prev.settings.currentSession} • ${prev.settings.currentTerm}`,
-          newValue:
-            changes.join("; ") ||
-            `${next.currentSession} • ${next.currentTerm}`,
+          newValue: changes.join("; ") || `${next.currentSession} • ${next.currentTerm}`,
         });
 
         return {
@@ -1041,7 +994,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   const upsertClassGroup = useCallback(
@@ -1060,7 +1013,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   const deleteClassGroup = useCallback(
@@ -1074,7 +1027,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         classes: prev.classes.filter((c) => c.id !== id),
       }));
     },
-    [portal]
+    [portal],
   );
 
   const upsertSubject = useCallback(
@@ -1093,7 +1046,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   const deleteSubject = useCallback(
@@ -1107,7 +1060,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         subjects: prev.subjects.filter((s) => s.id !== id),
       }));
     },
-    [portal]
+    [portal],
   );
 
   // Combined / Cross-Class Teaching Groups (for Multi-Section / Integrated Subject Teachers)
@@ -1137,7 +1090,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const deleteTeachingGroup = useCallback(
@@ -1154,7 +1107,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         teachingGroups: (prev.teachingGroups ?? []).filter((g) => g.id !== id),
       }));
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   // Exam Question Paper Creation, Submission & Exam Officer Review
@@ -1189,8 +1142,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       ) {
         return {
           ok: false,
-          error:
-            "Add at least one Objective or Theory question before submitting.",
+          error: "Add at least one Objective or Theory question before submitting.",
         };
       }
 
@@ -1199,8 +1151,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         ...paper,
         submittedByStaffId:
           paper.submittedByStaffId ?? existing?.submittedByStaffId ?? portal.staffId,
-        submittedByName:
-          paper.submittedByName || existing?.submittedByName || portal.displayName,
+        submittedByName: paper.submittedByName || existing?.submittedByName || portal.displayName,
         ...(paper.status === "submitted" ? { submittedAt: nowIso } : {}),
         updatedAt: nowIso,
       };
@@ -1220,9 +1171,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         return {
           ...prev,
           examPapers: found
-            ? list.map((ep) =>
-                ep.id === normalizedPaper.id ? normalizedPaper : ep
-              )
+            ? list.map((ep) => (ep.id === normalizedPaper.id ? normalizedPaper : ep))
             : [normalizedPaper, ...list],
           auditLogs:
             normalizedPaper.status === "submitted"
@@ -1242,7 +1191,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       });
       return { ok: true };
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const submitExamPaperToOfficer = useCallback(
@@ -1259,9 +1208,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       }
 
       const nowIso = new Date().toISOString();
-      const subName =
-        rawDb.subjects.find((s) => s.id === existing.subjectId)?.name ??
-        "Subject";
+      const subName = rawDb.subjects.find((s) => s.id === existing.subjectId)?.name ?? "Subject";
       const clsNames = existing.classIds
         .map((cid) => rawDb.classes.find((c) => c.id === cid)?.name)
         .filter(Boolean)
@@ -1287,7 +1234,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   submittedAt: nowIso,
                   updatedAt: nowIso,
                 }
-              : ep
+              : ep,
           ),
           auditLogs: [audit, ...prev.auditLogs],
         };
@@ -1295,7 +1242,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return { ok: true };
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const reviewExamPaper = useCallback(
@@ -1311,17 +1258,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
             "Only the Exam Officer or Proprietor/Admin can approve or return submitted exam papers.",
         };
       }
-      const existing = (rawDb.examPapers ?? []).find(
-        (ep) => ep.id === params.paperId
-      );
+      const existing = (rawDb.examPapers ?? []).find((ep) => ep.id === params.paperId);
       if (!existing) {
         return { ok: false, error: "Exam paper not found." };
       }
 
       const nowIso = new Date().toISOString();
-      const subName =
-        rawDb.subjects.find((s) => s.id === existing.subjectId)?.name ??
-        "Subject";
+      const subName = rawDb.subjects.find((s) => s.id === existing.subjectId)?.name ?? "Subject";
       const clsNames = existing.classIds
         .map((cid) => rawDb.classes.find((c) => c.id === cid)?.name)
         .filter(Boolean)
@@ -1354,7 +1297,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   reviewerFeedback: params.feedback?.trim() || ep.reviewerFeedback,
                   updatedAt: nowIso,
                 }
-              : ep
+              : ep,
           ),
           auditLogs: [audit, ...prev.auditLogs],
         };
@@ -1362,7 +1305,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return { ok: true };
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const deleteExamPaper = useCallback(
@@ -1372,8 +1315,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       if (!target) return;
       if (
         !isOfficer &&
-        (target.submittedByStaffId !== portal.staffId ||
-          target.status === "approved")
+        (target.submittedByStaffId !== portal.staffId || target.status === "approved")
       ) {
         toast.error("Only the Exam Officer or Admin can delete approved papers.");
         return;
@@ -1383,7 +1325,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         examPapers: (prev.examPapers ?? []).filter((ep) => ep.id !== paperId),
       }));
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const upsertStudent = useCallback(
@@ -1404,6 +1346,17 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       setRawDb((prev) => {
         const prevStu = prev.students.find((s) => s.id === student.id);
         const logs = [...prev.auditLogs];
+        if (!prevStu)
+          logs.unshift(
+            makeAuditEntry({
+              portal,
+              category: "student",
+              action: "Registered student",
+              targetLabel: `${student.fullName} (${student.admissionId})`,
+              oldValue: "",
+              newValue: student.admissionId,
+            }),
+          );
         if ((prevStu?.manualFeeWaiver ?? 0) !== (student.manualFeeWaiver ?? 0)) {
           logs.unshift(
             makeAuditEntry({
@@ -1411,15 +1364,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
               category: "fee_waiver",
               action: "Updated Student Fee Waiver",
               targetLabel: `${student.fullName} (${student.admissionId})`,
-              oldValue: formatCurrency(
-                prevStu?.manualFeeWaiver ?? 0,
-                prev.settings.currencySymbol
-              ),
+              oldValue: formatCurrency(prevStu?.manualFeeWaiver ?? 0, prev.settings.currencySymbol),
               newValue: `${formatCurrency(
                 student.manualFeeWaiver ?? 0,
-                prev.settings.currencySymbol
+                prev.settings.currencySymbol,
               )}${student.manualWaiverReason ? ` (${student.manualWaiverReason})` : ""}`,
-            })
+            }),
           );
         }
 
@@ -1429,17 +1379,15 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           Object.entries(student.programmeClasses).forEach(([progId, newClsId]) => {
             const oldClsId = prevStu.programmeClasses[progId];
             if (oldClsId && newClsId && oldClsId !== newClsId) {
-              const oldName =
-                prev.classes.find((c) => c.id === oldClsId)?.name ?? oldClsId;
-              const newName =
-                prev.classes.find((c) => c.id === newClsId)?.name ?? newClsId;
+              const oldName = prev.classes.find((c) => c.id === oldClsId)?.name ?? oldClsId;
+              const newName = prev.classes.find((c) => c.id === newClsId)?.name ?? newClsId;
               nextScores = nextScores.map((sc) =>
                 sc.studentId === student.id &&
                 sc.programmeId === progId &&
                 sc.session === prev.settings.currentSession &&
                 sc.term === prev.settings.currentTerm
                   ? { ...sc, classId: newClsId }
-                  : sc
+                  : sc,
               );
               logs.unshift(
                 makeAuditEntry({
@@ -1449,7 +1397,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   targetLabel: `${student.fullName} (${student.admissionId})`,
                   oldValue: oldName,
                   newValue: newName,
-                })
+                }),
               );
             }
           });
@@ -1465,7 +1413,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [rawDb.students, portal]
+    [rawDb.students, portal],
   );
 
   const transferStudentClass = useCallback(
@@ -1479,8 +1427,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       if (!canManageStudents(portal)) {
         return {
           ok: false,
-          error:
-            "Only the Proprietor / Admin or Secretary can transfer students between classes.",
+          error: "Only the Proprietor / Admin or Secretary can transfer students between classes.",
         };
       }
       const student = rawDb.students.find((s) => s.id === params.studentId);
@@ -1499,18 +1446,16 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       }
 
-      const fromClassName =
-        rawDb.classes.find((c) => c.id === fromClassId)?.name ?? "Unassigned";
+      const fromClassName = rawDb.classes.find((c) => c.id === fromClassId)?.name ?? "Unassigned";
       const carryScores = params.carryCurrentTermScores ?? true;
-      const cleanReason =
-        params.reason.trim() || "Mid-session administrative class transfer";
+      const cleanReason = params.reason.trim() || "Mid-session administrative class transfer";
       const migratedScoresCount = carryScores
         ? rawDb.scores.filter(
             (sc) =>
               sc.studentId === student.id &&
               sc.programmeId === params.programmeId &&
               sc.session === rawDb.settings.currentSession &&
-              sc.term === rawDb.settings.currentTerm
+              sc.term === rawDb.settings.currentTerm,
           ).length
         : 0;
 
@@ -1549,7 +1494,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
               sc.session === prev.settings.currentSession &&
               sc.term === prev.settings.currentTerm
                 ? { ...sc, classId: toClass.id }
-                : sc
+                : sc,
             )
           : prev.scores;
 
@@ -1572,7 +1517,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return { ok: true, migratedScoresCount };
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const deleteStudent = useCallback(
@@ -1586,7 +1531,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         students: prev.students.filter((s) => s.id !== id),
       }));
     },
-    [portal]
+    [portal],
   );
 
   const runEndOfSessionPromotion = useCallback(
@@ -1665,7 +1610,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return { promotedCount, graduatedCount, heldBackCount };
     },
-    [portal]
+    [portal],
   );
 
   // Score Write with Data-Layer RBAC + Result Lock + Published Approval Queue + Audit Log
@@ -1703,14 +1648,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const stu = rawDb.students.find((s) => s.id === params.studentId);
       const sub = rawDb.subjects.find((s) => s.id === params.subjectId);
       const cls = rawDb.classes.find((c) => c.id === params.classId);
-      const comps = getGradingComponents(
-        rawDb.settings,
-        params.programmeId,
-        params.classId
-      );
+      const comps = getGradingComponents(rawDb.settings, params.programmeId, params.classId);
       const compLabel =
-        comps.find((c) => c.id === params.componentId)?.label ??
-        params.componentId.toUpperCase();
+        comps.find((c) => c.id === params.componentId)?.label ?? params.componentId.toUpperCase();
       const existingRec = rawDb.scores.find((s) => s.id === recId);
       const oldVal = existingRec?.scores[params.componentId] ?? null;
 
@@ -1757,9 +1697,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
             auditLogs: [audit, ...prev.auditLogs],
           };
         });
-        toast.info(
-          "Published result: score change sent to Proprietor / Admin for approval."
-        );
+        toast.info("Published result: score change sent to Proprietor / Admin for approval.");
         return {
           outcome: "queued_for_approval",
           ...(decision.reason ? { message: decision.reason } : {}),
@@ -1821,17 +1759,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return { outcome: "saved" };
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   // Admin Result Locking & Publishing
   const setTermResultStatus = useCallback(
-    (params: {
-      session: string;
-      term: string;
-      isPublished?: boolean;
-      isLocked?: boolean;
-    }) => {
+    (params: { session: string; term: string; isPublished?: boolean; isLocked?: boolean }) => {
       if (!canManageResultLocks(portal)) {
         toast.error("Only the Proprietor / Admin can lock, unlock or publish term results.");
         return;
@@ -1839,9 +1772,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const lockId = `${params.session}__${params.term}`;
       setRawDb((prev) => {
         const existing = prev.termLocks.find(
-          (t) =>
-            t.id === lockId ||
-            (t.session === params.session && t.term === params.term)
+          (t) => t.id === lockId || (t.session === params.session && t.term === params.term),
         );
         const prevPub = existing?.isPublished ?? false;
         const prevLock = existing?.isLocked ?? false;
@@ -1856,9 +1787,9 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           isPublished: nextPub,
           isLocked: nextLock,
           publishedBy: nextPub ? portal.displayName : undefined,
-          publishedAt: nextPub ? existing?.publishedAt ?? now : undefined,
+          publishedAt: nextPub ? (existing?.publishedAt ?? now) : undefined,
           lockedBy: nextLock ? portal.displayName : undefined,
-          lockedAt: nextLock ? existing?.lockedAt ?? now : undefined,
+          lockedAt: nextLock ? (existing?.lockedAt ?? now) : undefined,
         };
 
         const exists = Boolean(existing);
@@ -1874,15 +1805,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         return {
           ...prev,
           termLocks: exists
-            ? prev.termLocks.map((t) =>
-                t.id === existing!.id ? nextControl : t
-              )
+            ? prev.termLocks.map((t) => (t.id === existing!.id ? nextControl : t))
             : [...prev.termLocks, nextControl],
           auditLogs: [audit, ...prev.auditLogs],
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   // Admin Review of Teacher Edits to Published Results
@@ -1910,7 +1839,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                     scores: { ...s.scores, [req.componentId]: req.newValue },
                     updatedAt: now,
                   }
-                : s
+                : s,
             );
           } else {
             nextScores = [
@@ -1956,13 +1885,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   reviewedBy: portal.displayName,
                   reviewedAt: now,
                 }
-              : r
+              : r,
           ),
           auditLogs: [audit, ...prev.auditLogs],
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   const upsertQuranRecord = useCallback(
@@ -1970,25 +1899,27 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       input: Omit<QuranProgressRecord, "updatedAt" | "recentLogs"> & {
         appendLog?: boolean;
         recordedBy?: string;
-      }
+      },
     ) => {
+      if (!portal.isAuthenticated) {
+        toast.error("Sign in to record Quran progress.");
+        return;
+      }
+      if (!scopedDb.students.some((s) => s.id === input.studentId)) {
+        toast.error("Student is outside your assigned scope.");
+        return;
+      }
       if (!rawDb.settings.enableQuranModule) {
         toast.error("Optional Qur'an module is disabled in Settings.");
         return;
       }
-      if (
-        portal.role !== "admin" &&
-        portal.role !== "class_teacher" &&
-        portal.role !== "muallim"
-      ) {
+      if (portal.role !== "admin" && portal.role !== "class_teacher" && portal.role !== "muallim") {
         toast.error("Permission denied.");
         return;
       }
 
       setRawDb((prev) => {
-        const existing = prev.quranRecords.find(
-          (t) => t.studentId === input.studentId
-        );
+        const existing = prev.quranRecords.find((t) => t.studentId === input.studentId);
         const nowIso = new Date().toISOString();
         const todayDate = nowIso.slice(0, 10);
 
@@ -2026,23 +1957,17 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         return {
           ...prev,
           quranRecords: existing
-            ? prev.quranRecords.map((t) =>
-                t.studentId === input.studentId ? nextRecord : t
-              )
+            ? prev.quranRecords.map((t) => (t.studentId === input.studentId ? nextRecord : t))
             : [...prev.quranRecords, nextRecord],
         };
       });
     },
-    [rawDb.settings.enableQuranModule, portal]
+    [rawDb.settings.enableQuranModule, scopedDb.students, portal],
   );
 
   const upsertAffectiveRating = useCallback(
     (record: AffectiveRatingRecord) => {
-      if (
-        portal.role !== "admin" &&
-        portal.role !== "class_teacher" &&
-        portal.role !== "muallim"
-      ) {
+      if (portal.role !== "admin" && portal.role !== "class_teacher" && portal.role !== "muallim") {
         toast.error("Only the Admin or Class Teacher can update conduct remarks.");
         return;
       }
@@ -2056,7 +1981,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [portal.role]
+    [portal.role],
   );
 
   const setAttendanceStatus = useCallback(
@@ -2097,7 +2022,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const markClassAllPresent = useCallback(
@@ -2144,7 +2069,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [rawDb, portal]
+    [rawDb, portal],
   );
 
   const upsertFeeItem = useCallback(
@@ -2163,7 +2088,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   const deleteFeeItem = useCallback(
@@ -2177,7 +2102,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         feeItems: prev.feeItems.filter((f) => f.id !== id),
       }));
     },
-    [portal]
+    [portal],
   );
 
   const recordFeePayment = useCallback(
@@ -2197,10 +2122,18 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         toast.error("Only the Proprietor / Admin or Bursar can record fee payments.");
         return null;
       }
-      const year = Number(params.session.split("/")[0]) || 2026;
+      if (
+        !Number.isFinite(params.amount) ||
+        params.amount <= 0 ||
+        !scopedDb.students.some((s) => s.id === params.studentId)
+      ) {
+        toast.error("Select a registered student and enter a positive payment amount.");
+        return null;
+      }
+      const year = Number(params.session.split("/")[0]) || new Date().getFullYear();
       const seq = rawDb.settings.nextReceiptSequence || rawDb.payments.length + 1;
       const receiptNumber = generateReceiptNumber(rawDb.settings.code, year, seq);
-      const today = params.date ?? "2026-10-24";
+      const today = params.date ?? new Date().toISOString().slice(0, 10);
       const confirmationStatus = params.confirmationStatus ?? "Confirmed";
 
       const payment: FeePayment = {
@@ -2218,8 +2151,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           `${params.method.toUpperCase().replace(/\s+/g, "").slice(0, 4)}-${seq}-${Date.now().toString().slice(-4)}`,
         date: today,
         recordedBy: portal.displayName,
-        confirmedBy:
-          confirmationStatus === "Confirmed" ? portal.displayName : undefined,
+        confirmedBy: confirmationStatus === "Confirmed" ? portal.displayName : undefined,
         note: params.note,
       };
 
@@ -2247,7 +2179,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return payment;
     },
-    [rawDb, portal]
+    [rawDb, scopedDb.students, portal],
   );
 
   // Parent or Bursar submits Bank Transfer awaiting Bursar confirmation
@@ -2273,7 +2205,15 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
 
-      const year = Number(params.session.split("/")[0]) || 2026;
+      if (
+        !Number.isFinite(params.amount) ||
+        params.amount <= 0 ||
+        !scopedDb.students.some((s) => s.id === params.studentId)
+      ) {
+        toast.error("Select a registered student and enter a positive payment amount.");
+        return null;
+      }
+      const year = Number(params.session.split("/")[0]) || new Date().getFullYear();
       const seq = rawDb.settings.nextReceiptSequence || rawDb.payments.length + 1;
       const receiptNumber = generateReceiptNumber(rawDb.settings.code, year, seq);
 
@@ -2288,7 +2228,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         method: "Bank Transfer",
         confirmationStatus: "Pending Confirmation",
         reference: params.reference.trim() || `TRF-${Date.now().toString().slice(-6)}`,
-        date: "2026-10-24",
+        date: new Date().toISOString().slice(0, 10),
         recordedBy: `${portal.displayName} (${portal.role === "parent" ? "Parent Portal" : "Bursary"})`,
         note: params.note ?? "Bank transfer submitted — awaiting bursar confirmation",
       };
@@ -2317,7 +2257,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return payment;
     },
-    [portal, scopedDb.students, rawDb]
+    [portal, scopedDb.students, rawDb],
   );
 
   // Bursar / Admin 1-click Bank Transfer Confirmation
@@ -2348,13 +2288,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   confirmationStatus: "Confirmed",
                   confirmedBy: portal.displayName,
                 }
-              : p
+              : p,
           ),
           auditLogs: [audit, ...prev.auditLogs],
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   // SMS & WhatsApp Parent Notices Placeholder
@@ -2388,16 +2328,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           ...prev.settings,
           smsCreditsBalance:
             params.channel === "SMS"
-              ? Math.max(
-                  0,
-                  prev.settings.smsCreditsBalance - params.recipientCount
-                )
+              ? Math.max(0, prev.settings.smsCreditsBalance - params.recipientCount)
               : prev.settings.smsCreditsBalance,
         },
       }));
       return entry;
     },
-    [portal]
+    [portal],
   );
 
   const upsertStaffMember = useCallback(
@@ -2416,7 +2353,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [portal]
+    [portal],
   );
 
   const deleteStaffMember = useCallback(
@@ -2430,7 +2367,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         staff: prev.staff.filter((s) => s.id !== id),
       }));
     },
-    [portal]
+    [portal],
   );
 
   const generateMonthlyPayroll = useCallback(
@@ -2448,13 +2385,14 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           .filter(
             (s) =>
               s.status === "Active" &&
-              (prev.settings.enableQuranModule || s.systemRole !== "muallim")
+              (prev.settings.enableQuranModule || s.systemRole !== "muallim"),
           )
           .forEach((stf) => {
             const id = `${monthKey}_${stf.id}`;
             if (existingIds.has(id)) return;
-            const { grossAdditions, totalDeductions, netSalary } =
-              computeStaffCompensation(stf.salary);
+            const { grossAdditions, totalDeductions, netSalary } = computeStaffCompensation(
+              stf.salary,
+            );
             createdCount += 1;
             newEntries.push({
               id,
@@ -2485,7 +2423,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       });
       return createdCount;
     },
-    [portal]
+    [portal],
   );
 
   const updatePayrollRecord = useCallback(
@@ -2494,16 +2432,15 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         toast.error("Only the Proprietor / Admin or Bursar can edit payroll.");
         return;
       }
-      const { grossAdditions, totalDeductions, netSalary } =
-        computeStaffCompensation({
-          baseSalary: record.baseSalary,
-          teachingAllowance: record.teachingAllowance,
-          overtime: record.overtime,
-          transport: record.transport,
-          absenceFines: record.absenceFines,
-          pension: record.pension,
-          salaryAdvanceRepayment: record.salaryAdvanceRepayment,
-        });
+      const { grossAdditions, totalDeductions, netSalary } = computeStaffCompensation({
+        baseSalary: record.baseSalary,
+        teachingAllowance: record.teachingAllowance,
+        overtime: record.overtime,
+        transport: record.transport,
+        absenceFines: record.absenceFines,
+        pension: record.pension,
+        salaryAdvanceRepayment: record.salaryAdvanceRepayment,
+      });
       const recalculated: PayrollRecord = {
         ...record,
         grossAdditions,
@@ -2512,12 +2449,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       };
       setRawDb((prev) => ({
         ...prev,
-        payroll: prev.payroll.map((p) =>
-          p.id === record.id ? recalculated : p
-        ),
+        payroll: prev.payroll.map((p) => (p.id === record.id ? recalculated : p)),
       }));
     },
-    [portal]
+    [portal],
   );
 
   const markPayrollPaidStatus = useCallback(
@@ -2539,12 +2474,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
                   p.paymentReference ||
                   `NIP/${prev.settings.code}/20261024/${p.staffId.toUpperCase()}`
                 : "",
-            paidDate: status === "Paid" ? "2026-10-24" : undefined,
+            paidDate: status === "Paid" ? new Date().toISOString().slice(0, 10) : undefined,
           };
         }),
       }));
     },
-    [portal]
+    [portal],
   );
 
   const markAllMonthPayrollPaid = useCallback(
@@ -2565,13 +2500,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
             paymentReference:
               p.paymentReference ||
               `NIP/${prev.settings.code}/${monthKey.replace("-", "")}/0${idx + 1}`,
-            paidDate: "2026-10-24",
+            paidDate: new Date().toISOString().slice(0, 10),
           };
         }),
       }));
       return count;
     },
-    [portal]
+    [portal],
   );
 
   const applyGradeAutoCommentsToClass = useCallback(
@@ -2612,28 +2547,22 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           const gradeKey = normalizeGradeKey(row.overallGrade);
           if (!gradeKey) continue;
           const rule = customization.autoComments.rules[gradeKey];
-          const formattedTeacher = formatAutoCommentTemplate(
-            rule.teacherComment,
-            {
-              studentName: row.student.fullName,
-              averagePercentage: row.averagePercentage,
-              grade: row.overallGrade,
-            }
-          );
-          const formattedPrincipal = formatAutoCommentTemplate(
-            rule.principalComment,
-            {
-              studentName: row.student.fullName,
-              averagePercentage: row.averagePercentage,
-              grade: row.overallGrade,
-            }
-          );
+          const formattedTeacher = formatAutoCommentTemplate(rule.teacherComment, {
+            studentName: row.student.fullName,
+            averagePercentage: row.averagePercentage,
+            grade: row.overallGrade,
+          });
+          const formattedPrincipal = formatAutoCommentTemplate(rule.principalComment, {
+            studentName: row.student.fullName,
+            averagePercentage: row.averagePercentage,
+            grade: row.overallGrade,
+          });
 
           const existingIdx = nextAffective.findIndex(
             (a) =>
               a.studentId === row.student.id &&
               a.session === params.session &&
-              a.term === params.term
+              a.term === params.term,
           );
 
           if (existingIdx >= 0) {
@@ -2642,9 +2571,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
               ...cur,
               classTeacherRemark: formattedTeacher,
               headTeacherRemark:
-                portal.role === "admin"
-                  ? formattedPrincipal
-                  : cur.headTeacherRemark,
+                portal.role === "admin" ? formattedPrincipal : cur.headTeacherRemark,
             };
           } else {
             nextAffective.push({
@@ -2667,9 +2594,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (updatedCount === 0) return prev;
-        const clsName =
-          prev.classes.find((c) => c.id === params.classId)?.name ??
-          params.classId;
+        const clsName = prev.classes.find((c) => c.id === params.classId)?.name ?? params.classId;
         return {
           ...prev,
           affective: nextAffective,
@@ -2689,7 +2614,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
       return updatedCount;
     },
-    [portal, rawDb]
+    [portal, rawDb],
   );
 
   const downloadCompleteBackup = useCallback((): BackupEnvelope | null => {
@@ -2732,13 +2657,13 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       const snap = await createLocalSnapshot(rawDb, label);
       return snap;
     },
-    [portal, rawDb]
+    [portal, rawDb],
   );
 
   const restoreFromBackupSnapshot = useCallback(
     async (
       incomingSnapshot: SchoolDatabaseSnapshot,
-      sourceLabel: string
+      sourceLabel: string,
     ): Promise<{ ok: boolean; error?: string }> => {
       if (!canManageSettings(portal)) {
         return {
@@ -2749,7 +2674,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       // Save automatic pre-restore safety snapshot first!
       await createLocalSnapshot(
         rawDb,
-        `Auto-Safety Before Restore (${new Date().toLocaleTimeString()})`
+        `Auto-Safety Before Restore (${new Date().toLocaleTimeString()})`,
       );
 
       const auditEntry = makeAuditEntry({
@@ -2774,11 +2699,37 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       persistPortal(nextPortal);
       return { ok: true };
     },
-    [portal, rawDb, persistPortal]
+    [portal, rawDb, persistPortal],
+  );
+
+  const saveTimetableEntry = useCallback(
+    (entry: TimetableEntry) => {
+      if (!canManageSettings(portal)) {
+        toast.error("Only school administrators can edit the timetable.");
+        return;
+      }
+      setRawDb((prev) => ({
+        ...prev,
+        timetable: [...(prev.timetable || []).filter((t) => t.id !== entry.id), entry],
+      }));
+    },
+    [portal],
+  );
+  const deleteTimetableEntry = useCallback(
+    (id: string) => {
+      if (!canManageSettings(portal)) return;
+      setRawDb((prev) => ({
+        ...prev,
+        timetable: (prev.timetable || []).filter((t) => t.id !== id),
+      }));
+    },
+    [portal],
   );
 
   const value = useMemo<SchoolOSContextValue>(
     () => ({
+      saveTimetableEntry,
+      deleteTimetableEntry,
       db: scopedDb,
       hydrated,
       portal,
@@ -2838,6 +2789,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       markAllMonthPayrollPaid,
     }),
     [
+      saveTimetableEntry,
+      deleteTimetableEntry,
       scopedDb,
       hydrated,
       portal,
@@ -2892,12 +2845,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       updatePayrollRecord,
       markPayrollPaidStatus,
       markAllMonthPayrollPaid,
-    ]
+    ],
   );
 
-  return (
-    <SchoolOSContext.Provider value={value}>{children}</SchoolOSContext.Provider>
-  );
+  return <SchoolOSContext.Provider value={value}>{children}</SchoolOSContext.Provider>;
 }
 
 export function useOptionalSchoolOS(): SchoolOSContextValue | null {
