@@ -73,6 +73,44 @@ export type Database = {
         }
         Relationships: []
       }
+      school_invoices: {
+        Row: {
+          id: string
+          payload: Json
+          school_id: string
+          session: string
+          student_id: string
+          term: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          payload: Json
+          school_id: string
+          session: string
+          student_id: string
+          term: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          payload?: Json
+          school_id?: string
+          session?: string
+          student_id?: string
+          term?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_invoices_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_members: {
         Row: {
           created_at: string
@@ -146,6 +184,35 @@ export type Database = {
           },
         ]
       }
+      school_workspaces: {
+        Row: {
+          revision: number
+          school_id: string
+          snapshot: Json
+          updated_at: string
+        }
+        Insert: {
+          revision?: number
+          school_id: string
+          snapshot: Json
+          updated_at?: string
+        }
+        Update: {
+          revision?: number
+          school_id?: string
+          snapshot?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_workspaces_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: true
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schools: {
         Row: {
           created_at: string
@@ -213,6 +280,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_school_workspace: {
+        Args: { initial_invoices?: Json; initial_snapshot: Json }
+        Returns: Json
+      }
       is_platform_owner: { Args: { _user: string }; Returns: boolean }
       is_school_admin: {
         Args: { _school: string; _user: string }
@@ -222,12 +293,47 @@ export type Database = {
         Args: { _school: string; _user: string }
         Returns: boolean
       }
+      list_registered_schools: {
+        Args: never
+        Returns: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          school_type: string
+          subscription_expires_at: string | null
+          subscription_status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "schools"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       manage_subscription: {
         Args: {
           next_status: string
           renew_days?: number
           target_school: string
         }
+        Returns: undefined
+      }
+      project_school_workspace: {
+        Args: { _invoices: Json; _school: string; _snapshot: Json }
+        Returns: undefined
+      }
+      save_school_workspace: {
+        Args: {
+          expected_revision: number
+          invoices: Json
+          next_snapshot: Json
+          target_school: string
+        }
+        Returns: number
+      }
+      validate_school_snapshot: {
+        Args: { _snapshot: Json }
         Returns: undefined
       }
     }

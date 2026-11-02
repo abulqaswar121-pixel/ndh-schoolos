@@ -371,7 +371,7 @@ export const cloudSchoolRepository = {
     return Number(data);
   },
   async listSchools(): Promise<CloudSchool[]> {
-    const { data, error } = await database().rpc("list_registered_schools", {});
+    const { data, error } = await database().rpc("list_registered_schools");
     failure(error);
     return (data || []).map((s) => ({
       ...s,
