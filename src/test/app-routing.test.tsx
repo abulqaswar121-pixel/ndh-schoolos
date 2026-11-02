@@ -5,9 +5,14 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { routeTree } from "../routeTree.gen";
+
+vi.mock("@/services/cloudSchoolRepository", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/services/cloudSchoolRepository")>()),
+  isCloudConfigured: () => false,
+}));
 
 function createTestRouter(initialPath: string) {
   const queryClient = new QueryClient({
