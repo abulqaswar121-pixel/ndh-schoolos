@@ -305,6 +305,25 @@ export function LoginPortalScreen() {
                         className="h-11 border-[#d0d5dd] bg-[#f5f6f8] pl-9 text-sm"
                       />
                     </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const email = staffIdentifier.trim();
+                        if (!email) {
+                          toast.error("Type your email above first.");
+                          return;
+                        }
+                        const { supabase } = await import("@/integrations/supabase/client");
+                        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                          redirectTo: `${window.location.origin}/reset-password`,
+                        });
+                        if (error) toast.error(error.message);
+                        else toast.success("Check your email for a link to set a new password.");
+                      }}
+                      className="text-xs font-semibold text-[#1a4a6e] underline"
+                    >
+                      Forgot password?
+                    </button>
                   </div>
 
                   {(staffError ||
