@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PRICING_CONFIG } from "@/config/pricing";
 import { useSchoolOS } from "@/context/SchoolOSContext";
-import { DEFAULT_NIGERIAN_CLASS_NAMES } from "@/data/emptySchoolDatabase";
+import { DEFAULT_NIGERIAN_CLASS_NAMES } from "@/data/seedMarkazAcademy";
 
 const COUNTRY_CURRENCIES: Array<{
   country: string;

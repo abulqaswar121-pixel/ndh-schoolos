@@ -1,5 +1,5 @@
 /* NDH SchoolOS — Offline-First Minimal-Data Service Worker */
-const CACHE_NAME = "ndh-schoolos-offline-v4";
+const CACHE_NAME = "ndh-schoolos-offline-v3";
 const SHELL_URLS = [
   "/",
   "/app",

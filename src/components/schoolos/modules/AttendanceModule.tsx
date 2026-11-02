@@ -54,7 +54,7 @@ export function AttendanceModule() {
   );
 
   // Daily Register State
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState("2026-10-24");
   const [selectedProgId, setSelectedProgId] = useState<ProgrammeId>(
     classes[0]?.programmeId ?? activeProgrammes[0]?.id ?? "prog-main"
   );

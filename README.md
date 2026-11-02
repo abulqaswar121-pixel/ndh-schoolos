@@ -1,5 +1,3 @@
-> **Current implementation:** The redesigned school workspace is at `/` and `/app`; the live-configurable owner portal is at `/platform`. All school record collections start empty. The school workspace currently persists in this browser, not in a live multi-tenant service. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the exact implemented scope, Supabase setup, security limitations, and remaining production integration. Earlier descriptions below document the original project and should not be read as production security guarantees.
-
 # NDH SchoolOS
 
 Without building I trying to build this
