@@ -106,7 +106,8 @@ export type ReportTemplateId =
   | "classic_grid"
   | "executive_banner"
   | "compact_single_page"
-  | "royal_certificate";
+  | "royal_certificate"
+  | "halqah_excel";
 
 export type ReportRankingMode =
   | "positions_and_grade"
