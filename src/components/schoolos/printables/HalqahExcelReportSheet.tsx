@@ -141,7 +141,7 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
         </thead>
         <tbody>
           {p.subjectRows.map((r) => {
-            const e = EFFORT[r.grade] ?? EFFORT.F!;
+            const e = EFFORT[r.grade] ?? { effort: 1, remark: "Poor" };
             return (
               <tr key={r.id}>
                 <td className={`${cell} text-left font-semibold`}>{r.subjectName}</td>
