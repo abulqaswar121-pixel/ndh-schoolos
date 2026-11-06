@@ -235,9 +235,43 @@ export function RoleVideoTutorialPlayer({
     }
   }
 
+  // Track whether the player is on screen. Video only plays while visible
+  // and pauses automatically once scrolled past.
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [inView, setInView] = useState<boolean>(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.some((e) => e.isIntersecting);
+        setInView(visible);
+        if (!visible) {
+          const vid = videoRef.current;
+          if (vid && typeof vid.pause === "function") {
+            try {
+              vid.pause();
+            } catch {
+              // ignore
+            }
+          }
+        }
+      },
+      { threshold: 0.5 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   useEffect(() => {
     setCurrentTime(0);
-    if (!effectiveAutoPlay) return;
+  }, [roleIndex]);
+
+  useEffect(() => {
+    if (!effectiveAutoPlay || !inView) return;
     const vid = videoRef.current;
     if (!vid || typeof vid.play !== "function") return;
 
@@ -275,7 +309,7 @@ export function RoleVideoTutorialPlayer({
     return () => {
       cancelled = true;
     };
-  }, [roleIndex, effectiveAutoPlay]);
+  }, [roleIndex, effectiveAutoPlay, inView]);
 
   const handleSelectRole = (idx: number) => {
     if (lockedRoleId) return;
@@ -326,6 +360,7 @@ export function RoleVideoTutorialPlayer({
 
   return (
     <div
+      ref={containerRef}
       data-testid="role-video-tutorial-player"
       className="overflow-hidden rounded-3xl border border-[#d0d5dd] bg-[#0a1a30] text-white shadow-lg"
     >
