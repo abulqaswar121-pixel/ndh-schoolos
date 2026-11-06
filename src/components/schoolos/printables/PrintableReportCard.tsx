@@ -1,5 +1,6 @@
 import React from "react";
 import { SchoolCrest } from "../SchoolCrest";
+import { HalqahExcelReportSheet } from "./HalqahExcelReportSheet";
 import { getSurahByNumber } from "@/data/quranSurahs";
 import {
   computeClassBroadsheet,
@@ -990,6 +991,33 @@ export function PrintableReportCard({
     dateOfBirth: student.dateOfBirth,
     photoUrl: student.photoUrl,
   };
+
+  if (
+    getResolvedCustomization(settings).reportSheet.template === "halqah_excel" &&
+    progReports.length > 0
+  ) {
+    const main = progReports[0]!;
+    const other = progReports[1];
+    return (
+      <HalqahExcelReportSheet
+        db={db}
+        session={session}
+        term={term}
+        student={studentInfo}
+        halqahName={main.className}
+        className={other?.className ?? main.className}
+        componentLabels={main.components.map(
+          (c) => `${c.label.toUpperCase()} (${c.maxScore}%)`
+        )}
+        subjectRows={main.subjectRows}
+        learnerAverage={main.averagePercentage}
+        classAverage={main.classAveragePct}
+        overallGrade={main.overallGrade}
+        attendance={main.attendance}
+        traits={affectiveValues}
+      />
+    );
+  }
 
   if (layout === "per_programme" && progReports.length > 1) {
     return (
