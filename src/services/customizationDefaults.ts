@@ -103,6 +103,11 @@ export const REPORT_TEMPLATE_OPTIONS: ReadonlyArray<{
     label: "Royal Double-Border",
     summary: "Ceremonial double-frame border with optional crest watermark.",
   },
+  {
+    id: "halqah_excel",
+    label: "Halqah Excel Sheet",
+    summary: "Matches the Excel result sheet: Effort column, 10 traits and formula comments.",
+  },
 ] as const;
 
 export const DEFAULT_AUTO_COMMENTS_BY_GRADE: Record<
