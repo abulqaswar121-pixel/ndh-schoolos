@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { loadSchoolPortal, saveSchoolPortal } from "@/services/schoolPortal.functions";
 import {
   CloudSaveQueue,
   cloudSchoolRepository,
@@ -164,7 +165,7 @@ interface SchoolOSContextValue {
   cloudError: string;
   cloudSchool: CloudSchool | null;
   isPlatformOwner: boolean;
-  loginSchoolAdmin: (email: string, password: string) => Promise<boolean>;
+  loginSchoolAdmin: (email: string, password: string, schoolId?: string) => Promise<boolean>;
   registerSchoolAdmin: (
     payload: OnboardingPayload,
     password: string
@@ -584,7 +585,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   );
 
   // Cloud sessions are verified by Supabase. Browser portal flags are never credentials.
-  const restoreCloudAccount = useCallback(async (userId: string) => {
+  const restoreCloudAccount = useCallback(async (userId: string, schoolId?: string) => {
     const request = ++cloudRequest.current;
     saveQueue.current = null;
     setRawDb(emptyCloudSnapshot());
@@ -595,7 +596,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     setCloudSchool(null);
     setPrintJob(null);
     try {
-      const account = await cloudSchoolRepository.loadAccount();
+      const account = await cloudSchoolRepository.loadAccount(schoolId);
       if (
         request !== cloudRequest.current ||
         account.user.id !== userId ||
@@ -610,7 +611,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           account.workspace.schoolId,
           account.workspace.revision,
           snapshot,
-          undefined,
+          account.portal ? async (id, revision, next) => saveSchoolPortal({ data: { schoolId: id, revision, snapshot: next } }) : undefined,
           (status, error) => {
             if (saveQueue.current !== queue || signingOut.current) return;
             setCloudStatus(status);
@@ -622,7 +623,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       setRawDb(snapshot);
       // Platform owners without a school can enter only the separate owner screen.
       setPortal(
-        buildPortalSessionForRole("admin", snapshot, {
+        account.portal || buildPortalSessionForRole("admin", snapshot, {
           isAuthenticated: Boolean(account.workspace),
           staffId: snapshot.staff.find(
             (staff) =>
@@ -722,11 +723,11 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loginSchoolAdmin = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, schoolId?: string) => {
       if (signingOut.current || saveQueue.current?.dirty) throw new Error("Finish saving your current school before signing into another account.");
       const user = await cloudSchoolRepository.signIn(email, password);
       activeCloudUser.current = user.id;
-      return restoreCloudAccount(user.id);
+      return restoreCloudAccount(user.id, schoolId);
     },
     [restoreCloudAccount]
   );

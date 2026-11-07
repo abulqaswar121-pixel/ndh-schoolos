@@ -4,7 +4,8 @@ import type { Database, Json } from "@/integrations/supabase/types";
 import { createSeedDatabase } from "@/data/seedMarkazAcademy";
 import { computeStudentInvoices } from "./calculations";
 import type { OnboardingPayload } from "@/context/SchoolOSContext";
-import type { SchoolDatabaseSnapshot } from "@/types/school";
+import type { ActivePortalSession, SchoolDatabaseSnapshot } from "@/types/school";
+import { loadSchoolPortal } from "./schoolPortal.functions";
 
 // The generated client is always wired to Lovable Cloud, so cloud is configured
 // whenever that client exists. Avoid env lookups here: they were not reliably
@@ -76,6 +77,7 @@ export interface CloudWorkspace {
   snapshot: SchoolDatabaseSnapshot;
 }
 export interface CloudAccount {
+  portal?: ActivePortalSession;
   user: User;
   isOwner: boolean;
   school: CloudSchool | null;
@@ -269,7 +271,7 @@ export const cloudSchoolRepository = {
     failure(error);
     return { user: data.user, needsConfirmation: !data.session };
   },
-  async loadAccount(): Promise<CloudAccount> {
+  async loadAccount(requestedSchoolId?: string): Promise<CloudAccount> {
     const db = database();
     const { data: auth, error: authError } = await db.auth.getUser();
     failure(authError);
@@ -290,6 +292,14 @@ export const cloudSchoolRepository = {
     failure(membershipResult.error);
     const isOwner = Boolean(ownerResult.data);
     let schoolId = membershipResult.data?.school_id;
+    if (requestedSchoolId && schoolId && schoolId !== requestedSchoolId) {
+      await db.auth.signOut();
+      throw new Error("This account belongs to another school.");
+    }
+    if (!schoolId && !isOwner && !user.user_metadata["school_name"]) {
+      const result = await loadSchoolPortal({ data: { schoolId: requestedSchoolId } });
+      return { user, isOwner: false, ...result };
+    }
     let workspace: CloudWorkspace | null = null;
     if (schoolId) {
       const { data, error } = await db

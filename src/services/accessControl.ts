@@ -460,8 +460,8 @@ export function getAuthorizedSnapshot(
   const targetPhoneKey = normalizePhoneKey(portal.parentPhone ?? "");
   const myChildren = rawDb.students.filter(
     (s) =>
-      targetPhoneKey.length >= 7 &&
-      normalizePhoneKey(s.parentPhone) === targetPhoneKey
+      portal.parentStudentIds ? portal.parentStudentIds.includes(s.id) :
+      targetPhoneKey.length >= 7 && normalizePhoneKey(s.parentPhone) === targetPhoneKey
   );
   const childIdSet = new Set(myChildren.map((c) => c.id));
   const childClassIdSet = new Set<string>();
@@ -513,7 +513,7 @@ export function canManageResultLocks(
 }
 
 export function canManageStudents(portal: ActivePortalSession): boolean {
-  return portal.role === "admin" || portal.role === "secretary";
+  return portal.role === "admin" || portal.role === "secretary" || portal.role === "bursar";
 }
 
 export function canManageClassesAndSubjects(portal: ActivePortalSession): boolean {

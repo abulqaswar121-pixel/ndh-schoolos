@@ -103,11 +103,6 @@ export const REPORT_TEMPLATE_OPTIONS: ReadonlyArray<{
     label: "Royal Double-Border",
     summary: "Ceremonial double-frame border with optional crest watermark.",
   },
-  {
-    id: "halqah_excel",
-    label: "Halqah Excel Sheet",
-    summary: "Matches the Excel result sheet: Effort column, 10 traits and formula comments.",
-  },
 ] as const;
 
 export const DEFAULT_AUTO_COMMENTS_BY_GRADE: Record<
@@ -172,6 +167,11 @@ export function createDefaultCustomization(): SchoolCustomizationConfig {
     },
     reportSheet: {
       template: "classic_grid",
+      detailsLayout: "standard",
+      showProgrammeClasses: true,
+      showEffortColumn: false,
+      showExpectedMarks: false,
+      extendedTraits: false,
       syncWithWorkspaceTheme: true,
       primaryColor: "#0c2340",
       accentColor: "#1a4a6e",
@@ -247,6 +247,15 @@ export function getResolvedCustomization(
   const reportSheet = {
     ...def.reportSheet,
     ...rawReport,
+    // Compatibility for previously saved Excel sheets; now shared layout options.
+    ...(rawReport?.template === "halqah_excel" ? {
+      template: "classic_grid" as const,
+      detailsLayout: "register_grid" as const,
+      showStudentPhotoBox: false,
+      showEffortColumn: true,
+      showExpectedMarks: true,
+      extendedTraits: true,
+    } : {}),
     primaryColor: syncColor
       ? workspaceTheme.primaryColor
       : rawReport?.primaryColor || workspaceTheme.primaryColor,
@@ -386,12 +395,12 @@ export function resolveReportCardRemarks(params: {
 
   return {
     teacherRemark: hasCustomTeacher
-      ? manualTeacherRemark!
+      ? manualTeacherRemark || ""
       : autoEnabled && formattedAutoTeacher
         ? formattedAutoTeacher
         : manualTeacherRemark?.trim() || defaultManualTeacher,
     principalRemark: hasCustomPrincipal
-      ? manualPrincipalRemark!
+      ? manualPrincipalRemark || ""
       : autoEnabled && formattedAutoPrincipal
         ? formattedAutoPrincipal
         : manualPrincipalRemark?.trim() || defaultManualPrincipal,

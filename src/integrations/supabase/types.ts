@@ -161,6 +161,67 @@ export type Database = {
           },
         ]
       }
+      school_portal_accounts: {
+        Row: {
+          role: string
+          school_id: string
+          staff_id: string | null
+          student_ids: string[]
+          user_id: string
+        }
+        Insert: {
+          role: string
+          school_id: string
+          staff_id?: string | null
+          student_ids?: string[]
+          user_id: string
+        }
+        Update: {
+          role?: string
+          school_id?: string
+          staff_id?: string | null
+          student_ids?: string[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_portal_accounts_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_portal_branding: {
+        Row: {
+          logo_url: string | null
+          motto: string
+          name: string
+          school_id: string
+        }
+        Insert: {
+          logo_url?: string | null
+          motto?: string
+          name: string
+          school_id: string
+        }
+        Update: {
+          logo_url?: string | null
+          motto?: string
+          name?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_portal_branding_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: true
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_records: {
         Row: {
           class_id: string | null
@@ -305,6 +366,10 @@ export type Database = {
         Args: { initial_invoices?: Json; initial_snapshot: Json }
         Returns: Json
       }
+      get_school_portal_branding: {
+        Args: { target_school: string }
+        Returns: Json
+      }
       is_platform_owner: { Args: { _user: string }; Returns: boolean }
       is_school_admin: {
         Args: { _school: string; _user: string }
@@ -343,6 +408,15 @@ export type Database = {
       project_school_workspace: {
         Args: { _invoices: Json; _school: string; _snapshot: Json }
         Returns: undefined
+      }
+      save_portal_workspace: {
+        Args: {
+          expected_revision: number
+          invoices: Json
+          next_snapshot: Json
+          target_school: string
+        }
+        Returns: number
       }
       save_school_workspace: {
         Args: {

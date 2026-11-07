@@ -3,6 +3,7 @@ export type ProgrammeId = string;
 export interface SchoolProgramme {
   id: ProgrammeId;
   name: string;
+  groupLabel?: string;
   description?: string | undefined;
 }
 
@@ -127,6 +128,11 @@ export interface AffectiveSkillLabels {
 
 export interface ReportSheetDesignConfig {
   template: ReportTemplateId;
+  detailsLayout?: "standard" | "register_grid";
+  showProgrammeClasses?: boolean;
+  showEffortColumn?: boolean;
+  showExpectedMarks?: boolean;
+  extendedTraits?: boolean;
   syncWithWorkspaceTheme: boolean;
   primaryColor: string;
   accentColor: string;
@@ -656,6 +662,7 @@ export interface ActivePortalSession {
   schoolCode?: string | undefined;
   staffId?: string | undefined;
   parentPhone?: string | undefined;
+  parentStudentIds?: string[];
   displayName: string;
   subtitle: string;
 }
