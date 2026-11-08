@@ -37,6 +37,7 @@ export const saveSchoolPortal = createServerFn({ method: "POST" })
     const raw = workspace.snapshot as unknown as SchoolDatabaseSnapshot;
     const staff = raw.staff.find((s) => s.id === account.staff_id);
     if (account.role !== "parent" && (!staff || staff.status !== "Active" || staff.systemRole !== account.role)) throw new Error("Staff access is inactive.");
+    if (account.role === "muallim" && !raw.settings.enableQuranModule) throw new Error("Qur’an tools are disabled.");
     const portal: ActivePortalSession = { isAuthenticated: true, role: account.role as ActivePortalSession["role"], staffId: account.staff_id || undefined, parentStudentIds: account.student_ids, displayName: staff?.fullName || "Parent", subtitle: "", isExamOfficer: staff?.isExamOfficer || account.role === "exam_officer" };
     const merged = mergePortalChanges(raw, data.snapshot, portal);
     const { buildInvoiceProjection, sanitizeCloudSnapshot } = await import("./cloudSchoolRepository");

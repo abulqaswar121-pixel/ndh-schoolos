@@ -18,6 +18,7 @@ import {
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { SchoolCrest } from "../SchoolCrest";
+import { A4Preview } from "../A4Preview";
 import {
   PrintableReportCard,
   ReportCardDesignPreviewSample,
@@ -52,7 +53,7 @@ export function CustomizeDesignModule() {
   const { settings, students } = db;
 
   const [previewGrade, setPreviewGrade] = useState<GradeLetterKey>("A");
-  const [selectedStudentId, setSelectedStudentId] = useState<string>("__sample");
+  const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || "__sample");
   const [activeCommentGrade, setActiveCommentGrade] =
     useState<GradeLetterKey>("A");
 
@@ -181,6 +182,11 @@ export function CustomizeDesignModule() {
 
             {/* TAB 1: REPORT SHEET LAYOUT, COLOURS & FONTS */}
             <TabsContent value="report_layout" className="space-y-4">
+              <div className="space-y-3 border-b border-border pb-4">
+                <Label htmlFor="report-details-layout">Student details layout</Label>
+                <select id="report-details-layout" value={reportSheet.detailsLayout} onChange={(e) => updateCustom((prev) => ({ ...prev, reportSheet: { ...prev.reportSheet, detailsLayout: e.target.value as "standard" | "register_grid" } }), "Changed student details layout")} className="h-10 w-full rounded-md border border-input px-3 text-sm"><option value="standard">Standard details</option><option value="register_grid">Boxed register details</option></select>
+                {([['showProgrammeClasses', 'Show programme groups (Class / Halqah)'], ['showStudentPhotoBox', 'Show student photograph'], ['showEffortColumn', 'Show effort column'], ['showExpectedMarks', 'Show expected and learner marks'], ['extendedTraits', 'Show ten conduct traits']] as const).map(([key, label]) => <label key={key} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(reportSheet[key])} onChange={(e) => updateCustom((prev) => ({ ...prev, reportSheet: { ...prev.reportSheet, [key]: e.target.checked } }), `Changed ${label}`)} />{label}</label>)}
+              </div>
               <div className="ndh-card space-y-4 p-4 sm:p-5">
                 <div>
                   <h2 className="text-sm font-extrabold text-[#0F172A]">
@@ -1790,6 +1796,7 @@ export function CustomizeDesignModule() {
 
             {/* Rendered Sheet */}
             <div className="mt-3 max-h-[75dvh] overflow-y-auto rounded-xl bg-slate-100 p-2 sm:p-3">
+              <A4Preview>
               {selectedStudentId !== "__sample" ? (
                 <PrintableReportCard
                   db={db}
@@ -1804,6 +1811,7 @@ export function CustomizeDesignModule() {
                   simulatedGrade={previewGrade}
                 />
               )}
+              </A4Preview>
             </div>
           </div>
         </div>

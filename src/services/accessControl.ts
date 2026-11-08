@@ -239,6 +239,9 @@ export function getAuthorizedSnapshot(
     };
   }
 
+  // Derived invoices must follow the same role boundary as the original payments.
+  rawDb = { ...rawDb, feeInvoices: portal.role === "bursar" ? rawDb.feeInvoices : [] };
+
   // 1B. Dedicated Exam Officer OR Teacher with Exam Officer Duty:
   // Full visibility across ALL classes' students, scores, broadsheets, report cards,
   // and exam question papers for moderation & printing — ZERO access to fees or salaries!
@@ -475,10 +478,11 @@ export function getAuthorizedSnapshot(
 
   return {
     ...rawDb,
+    feeInvoices: (rawDb.feeInvoices || []).filter((invoice) => childIdSet.has(invoice.studentId)),
     classes: progFilteredClasses.filter((c) => childClassIdSet.has(c.id)),
     subjects: progFilteredSubjects,
     students: myChildren,
-    scores: rawDb.scores.filter((sc) => childIdSet.has(sc.studentId)),
+    scores: rawDb.scores.filter((sc) => childIdSet.has(sc.studentId) && getTermControl(rawDb, sc.session, sc.term).isPublished),
     pendingScoreEdits: [],
     auditLogs: [],
     quranRecords: quranEnabled

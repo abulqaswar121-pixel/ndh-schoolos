@@ -377,6 +377,8 @@ export const cloudSchoolRepository = {
       invoices: asJson(buildInvoiceProjection(clean)),
     });
     failure(error);
+    const { error: brandingError } = await database().from("school_portal_branding").upsert({ school_id: schoolId, name: clean.settings.name, motto: clean.settings.motto, logo_url: clean.settings.logoDataUrl || null });
+    if (brandingError) console.warn("School portal branding update failed.");
     return Number(data);
   },
   async listSchools(): Promise<CloudSchool[]> {

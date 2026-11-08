@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- School portal roles live in a protected school-scoped account table; verified server functions filter records before returning them, because browser role flags are not authorization.
+- Report layout options are shared customization settings, with legacy Excel choices resolved into those settings; school-specific renderer dispatch must not be introduced.
+- A4 previews scale fixed paper dimensions, not responsive document content, so phones and printed reports keep the same layout.
+- Public school portals expose only branding; public school links never grant access to student or payroll records.

@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSchoolOS } from "@/context/SchoolOSContext";
+import { SchoolPortalAccess } from "../SchoolPortalAccess";
 
 export function SetupSettingsModule() {
   const { db, portal, setActiveNav, updateSettings, setOnboardingWizardOpen } =
@@ -235,6 +236,7 @@ export function SetupSettingsModule() {
               />
             </div>
           </div>
+          <SchoolPortalAccess />
         </TabsContent>
 
         {/* 2. Programmes & Customizable Labels */}
@@ -311,6 +313,7 @@ export function SetupSettingsModule() {
                         }}
                         className="h-8 max-w-xs bg-white font-bold"
                       />
+                      <Input aria-label={`Group label for ${prog.name}`} placeholder="Group label (Class, Halqah…)" defaultValue={prog.groupLabel || settings.labels.classSingular} onBlur={(e) => updateSettings((prev) => ({ ...prev, programmes: prev.programmes.map((p) => p.id === prog.id ? { ...p, groupLabel: e.target.value.trim() || "Class" } : p) }), "Updated programme group label")} className="h-8 max-w-40" />
                       {idx > 0 && (
                         <Button
                           size="sm"
@@ -550,8 +553,10 @@ export function SetupSettingsModule() {
               </p>
             </div>
 
-            <button
+            <Button
               type="button"
+              variant="outline"
+              aria-pressed={settings.enableQuranModule}
               onClick={() => {
                 const next = !settings.enableQuranModule;
                 updateSettings(
@@ -564,16 +569,12 @@ export function SetupSettingsModule() {
                     : "Optional Qur'an module turned off and hidden."
                 );
               }}
-              className={`rounded-xl px-4 py-2 text-xs font-extrabold transition ${
-                settings.enableQuranModule
-                  ? "bg-emerald-700 text-white"
-                  : "border border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200"
-              }`}
+              className="text-xs font-bold"
             >
               {settings.enableQuranModule
                 ? "Enabled (Click to Turn Off)"
                 : "Off by Default (Click to Enable)"}
-            </button>
+            </Button>
           </div>
 
           <div className="ndh-card space-y-3 p-4 sm:p-6">

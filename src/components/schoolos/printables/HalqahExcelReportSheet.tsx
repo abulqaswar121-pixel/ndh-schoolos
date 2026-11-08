@@ -1,4 +1,5 @@
 import type { SchoolDatabaseSnapshot } from "@/types/school";
+import { getResolvedCustomization, getReportFontStack, resolveReportCardRemarks } from "@/services/customizationDefaults";
 
 /**
  * Report sheet that copies the Markazus-Salaf Excel "Result" sheet layout:
@@ -20,10 +21,14 @@ export interface HalqahExcelReportProps {
   db: SchoolDatabaseSnapshot;
   session: string;
   term: string;
-  student: { fullName: string; admissionId: string; gender: string };
+  student: { fullName: string; admissionId: string; gender: string; photoUrl?: string | undefined };
   halqahName: string;
   className: string;
   componentLabels: string[];
+  maxPerSubject?: number;
+  groupLabels?: Array<{ label: string; name: string }>;
+  teacherRemark?: string | undefined;
+  headRemark?: string | undefined;
   subjectRows: HalqahExcelSubjectRow[];
   learnerAverage: number;
   classAverage: number;
@@ -62,27 +67,29 @@ export function classTeacherCommentFromAverage(avg: number): string {
 
 const cell = "border border-foreground/70 px-2 py-1";
 
-export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
+export function RegisterGridReportDetails(p: HalqahExcelReportProps) {
   const { settings } = p.db;
-  const design = settings.customization?.reportSheet;
+  const customization = getResolvedCustomization(settings);
+  const design = customization.reportSheet;
   const learnerMark = p.subjectRows.reduce((s, r) => s + r.total, 0);
-  const expectedMark = p.subjectRows.length * 100;
+  const expectedMark = p.subjectRows.length * (p.maxPerSubject || 100);
+  const comments = resolveReportCardRemarks({ customization, overallGrade: p.overallGrade, averagePercentage: p.learnerAverage, studentName: p.student.fullName, manualTeacherRemark: p.teacherRemark, manualPrincipalRemark: p.headRemark });
   const traitRows: Array<[string, number, number]> = [
     ["Punctuality", Math.min(p.traits.punctuality, 4), 4],
-    ["Attendance", 5, 5],
-    ["Reliability", 5, 5],
+    ["Attendance", 0, 5],
+    ["Reliability", 0, 5],
     ["Neatness", p.traits.neatness, 5],
     ["Politeness", p.traits.politeness, 5],
     ["Honesty", p.traits.honesty, 5],
-    ["Relationship with pupils", 5, 5],
-    ["Self-control", 5, 5],
-    ["Attentiveness", 5, 5],
-    ["Perseverance", 5, 5],
+    ["Relationship with pupils", 0, 5],
+    ["Self-control", 0, 5],
+    ["Attentiveness", 0, 5],
+    ["Perseverance", 0, 5],
   ];
   const details: Array<[string, string, string, string]> = [
     ["Name of Learner:", p.student.fullName, "Term:", p.term.toUpperCase()],
-    ["Sex:", p.student.gender, "Halqah:", p.halqahName],
-    ["Class:", p.className, "Session:", p.session],
+    ["Sex:", p.student.gender, "Session:", p.session],
+    ...(design.showProgrammeClasses ? (p.groupLabels || []).map((g): [string,string,string,string] => [`${g.label}:`, g.name, "", ""]) : []),
     ["Final Grade:", p.overallGrade, "ATTENDANCE", ""],
     ["Class Average:", `${p.classAverage.toFixed(1)}%`, "Days School Open:", String(p.attendance.daysOpened)],
     ["Learner's Average:", `${p.learnerAverage.toFixed(1)}%`, "Day(s) Present:", String(p.attendance.daysPresent)],
@@ -91,8 +98,8 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
 
   return (
     <div
-      data-testid="halqah-excel-report"
-      className="mx-auto w-full max-w-[210mm] bg-background p-6 text-[12px] text-foreground print:p-4"
+      className="report-register text-[12px] text-foreground"
+      style={{ fontFamily: getReportFontStack(design.fontFamily) }}
     >
       <div className="flex items-center gap-4 border-b-2 border-foreground pb-2">
         {settings.logoDataUrl ? (
@@ -103,13 +110,14 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
           {settings.motto ? <p className="font-semibold italic">Motto: {settings.motto}</p> : null}
           {settings.address ? <p className="uppercase">{settings.address}</p> : null}
         </div>
+        {design.showStudentPhotoBox && <div className="flex h-20 w-16 shrink-0 items-center justify-center border border-border">{p.student.photoUrl ? <img src={p.student.photoUrl} alt={p.student.fullName} className="h-full w-full object-cover" /> : <span className="text-xs">Photo</span>}</div>}
       </div>
       <h2 className="my-2 text-center text-[13px] font-bold uppercase underline">
-        Report Sheet for {p.term} {p.session} Academic Session
+        {design.customReportTitle || "Report Sheet"} for {p.term} {p.session} Academic Session
       </h2>
       <div className="mb-2 flex justify-between font-semibold">
         <span>Admission No: {p.student.admissionId}</span>
-        {design?.nextTermBegins ? <span>Next Term Begins: {design.nextTermBegins}</span> : null}
+        {design.showNextTermDate && design.nextTermBegins ? <span>Next Term Begins: {design.nextTermBegins}</span> : null}
       </div>
 
       <table className="mb-3 w-full border-collapse">
@@ -117,7 +125,7 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
           <tr><th colSpan={4} className={`${cell} bg-muted text-left`}>STUDENT DETAILS</th></tr>
         </thead>
         <tbody>
-          {details.map(([a, b, c, d]) => (
+          {details.filter((r) => design.showAttendanceSummary || !r[2].includes("Day") && r[2] !== "ATTENDANCE").map(([a, b, c, d]) => (
             <tr key={a}>
               <td className={`${cell} w-[22%] font-semibold`}>{a}</td>
               <td className={`${cell} w-[28%]`}>{b}</td>
@@ -133,10 +141,10 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
           <tr>
             <th className={`${cell} text-left`}>SUBJECT</th>
             {p.componentLabels.map((l) => (<th key={l} className={cell}>{l}</th>))}
-            <th className={cell}>TOTAL (100%)</th>
+            <th className={cell}>TOTAL ({p.maxPerSubject || 100})</th>
             <th className={cell}>GRADE</th>
-            <th className={cell}>EFFORT</th>
-            <th className={cell}>REMARK</th>
+            {design.showEffortColumn && <th className={cell}>EFFORT</th>}
+            {design.showSubjectRemarks && <th className={cell}>REMARK</th>}
           </tr>
         </thead>
         <tbody>
@@ -146,10 +154,10 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
               <tr key={r.id}>
                 <td className={`${cell} text-left font-semibold`}>{r.subjectName}</td>
                 {r.compValues.map((v, i) => (<td key={i} className={cell}>{r.hasEntry ? v : ""}</td>))}
-                <td className={`${cell} font-bold`}>{r.total}</td>
-                <td className={cell}>{r.hasEntry ? r.grade : "F"}</td>
-                <td className={cell}>{e.effort}</td>
-                <td className={cell}>{e.remark}</td>
+                <td className={`${cell} font-bold`}>{r.hasEntry ? r.total : ""}</td>
+                <td className={cell}>{r.hasEntry ? r.grade : ""}</td>
+                {design.showEffortColumn && <td className={cell}>{r.hasEntry ? e.effort : ""}</td>}
+                {design.showSubjectRemarks && <td className={cell}>{r.hasEntry ? e.remark : ""}</td>}
               </tr>
             );
           })}
@@ -157,23 +165,23 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
       </table>
 
       <div className="mb-3 flex justify-between gap-4">
-        <p className="font-semibold">
-          GRADE DETAILS: A = 70-100, B = 60-69, C = 50-59, D = 45-49, E = 40-44, F = 0-39
-        </p>
-        <div className="shrink-0 text-right font-semibold">
+        {design.showGradingKey && <p className="font-semibold">
+          GRADE DETAILS: {settings.grading.gradeBands.map((b) => `${b.grade} = ${b.min}–${b.max}`).join(", ")}
+        </p>}
+        {design.showExpectedMarks && <div className="shrink-0 text-right font-semibold">
           <p>Expected Mark: {expectedMark}</p>
           <p>Learner&apos;s Mark: {learnerMark}</p>
-        </div>
+        </div>}
       </div>
 
-      <div className="mb-3 grid grid-cols-2 gap-4">
+      {design.showAffectiveSkills && <div className="mb-3 grid grid-cols-2 gap-4">
         <table className="w-full border-collapse">
           <thead className="bg-muted">
             <tr><th className={`${cell} text-left`}>AFFECTIVE TRAITS</th><th className={cell}>RATING</th></tr>
           </thead>
           <tbody>
-            {traitRows.map(([n, v, m]) => (
-              <tr key={n}><td className={cell}>{n}</td><td className={`${cell} text-center`}>{v} / {m}</td></tr>
+            {traitRows.filter(([n]) => design.extendedTraits || ["Punctuality", "Neatness", "Politeness", "Honesty"].includes(n)).map(([n, v, m]) => (
+              <tr key={n}><td className={cell}>{n}</td><td className={`${cell} text-center`}>{v ? `${v} / ${m}` : "—"}</td></tr>
             ))}
           </tbody>
         </table>
@@ -185,16 +193,17 @@ export function HalqahExcelReportSheet(p: HalqahExcelReportProps) {
             ))}
           </tbody>
         </table>
-      </div>
+      </div>}
 
       <div className="space-y-2">
-        <p><span className="font-bold">Class Teacher&apos;s Comment: </span>{classTeacherCommentFromAverage(p.learnerAverage)}</p>
-        <p><span className="font-bold">Head Teacher&apos;s Comment: </span>{headTeacherCommentFromTotal(learnerMark)}</p>
+        <p><span className="font-bold">Class Teacher&apos;s Comment: </span>{comments.teacherRemark}</p>
+        <p><span className="font-bold">{design.principalTitleLabel}&apos;s Comment: </span>{comments.principalRemark}</p>
         <div className="flex justify-between pt-6">
           <span className="border-t border-foreground px-6 pt-1">Class Teacher&apos;s Signature</span>
-          <span className="border-t border-foreground px-6 pt-1">Head Teacher&apos;s Signature</span>
+          <span className="border-t border-foreground px-6 pt-1">{design.principalSignatureDataUrl && <img src={design.principalSignatureDataUrl} alt="Signature" className="h-8 object-contain" />}{design.principalTitleLabel}&apos;s Signature</span>
         </div>
       </div>
+      {design.footerNote && <p className="mt-3 text-center text-[9px]">{design.footerNote}</p>}
     </div>
   );
 }

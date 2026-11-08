@@ -1,4 +1,4 @@
-import { getAuthorizedSnapshot } from "./accessControl";
+import { getAuthorizedSnapshot, evaluateScoreWritePermission } from "./accessControl";
 import type { ActivePortalSession, SchoolDatabaseSnapshot } from "@/types/school";
 
 export function mergePortalChanges(raw: SchoolDatabaseSnapshot, next: SchoolDatabaseSnapshot, portal: ActivePortalSession): SchoolDatabaseSnapshot {
@@ -10,6 +10,8 @@ export function mergePortalChanges(raw: SchoolDatabaseSnapshot, next: SchoolData
     : ["scores", "attendance", "affective", "quranRecords", "examPapers", "pendingScoreEdits", "termLocks"];
   const merged = { ...raw };
   for (const key of Object.keys(scope) as Array<keyof SchoolDatabaseSnapshot>) {
+    // Client audit text is never trusted; keep the server's existing audit trail.
+    if (key === "auditLogs") continue;
     if (!allowed.includes(key)) {
       if (JSON.stringify(next[key]) !== JSON.stringify(scope[key])) throw new Error("Your account cannot change these records.");
       continue;
@@ -35,9 +37,35 @@ export function mergePortalChanges(raw: SchoolDatabaseSnapshot, next: SchoolData
     if (key === "scores" && !(portal.role === "exam_officer" || portal.isExamOfficer)) {
       for (const r of after as SchoolDatabaseSnapshot["scores"]) {
         const original = raw.scores.find((old) => old.id === r.id);
+        if (JSON.stringify(original) !== JSON.stringify(r)) {
+          const permission = evaluateScoreWritePermission(raw, portal, r);
+          if (!permission.allowed || permission.mode !== "direct") throw new Error("Score change outside your teaching permission.");
+        }
         const lock = raw.termLocks.find((t) => t.session === r.session && t.term === r.term);
         if ((lock?.isLocked || lock?.isPublished) && JSON.stringify(original) !== JSON.stringify(r)) throw new Error("Published or locked scores require approval.");
       }
+      for (const old of raw.scores.filter((r) => visibleIds.has(r.id))) {
+        const lock = raw.termLocks.find((t) => t.session === old.session && t.term === old.term);
+        if ((lock?.isLocked || lock?.isPublished) && !(after as SchoolDatabaseSnapshot["scores"]).some((r) => r.id === old.id)) throw new Error("Locked scores cannot be removed.");
+      }
+    }
+    if (key === "pendingScoreEdits" && !(portal.role === "exam_officer" || portal.isExamOfficer)) {
+      for (const request of after as SchoolDatabaseSnapshot["pendingScoreEdits"]) {
+        const old = raw.pendingScoreEdits.find((r) => r.id === request.id);
+        if (JSON.stringify(old) === JSON.stringify(request)) continue;
+        if (old || request.status !== "pending") throw new Error("Only officers can approve score changes.");
+      }
+    }
+    if (key === "quranRecords" && !raw.settings.enableQuranModule && after.length) throw new Error("Qur’an tools are disabled.");
+    if (key === "examPapers" && !(portal.role === "exam_officer" || portal.isExamOfficer)) {
+      if (portal.role === "secretary" && JSON.stringify(after) !== JSON.stringify(before)) throw new Error("Secretary exam access is read-only.");
+      for (const paper of after as NonNullable<SchoolDatabaseSnapshot["examPapers"]>) {
+        const old = raw.examPapers?.find((r) => r.id === paper.id);
+        if (JSON.stringify(old) === JSON.stringify(paper)) continue;
+        if (old && old.submittedByStaffId !== portal.staffId) throw new Error("Only your own exam papers can be changed.");
+        if (paper.submittedByStaffId !== portal.staffId || !["draft","submitted"].includes(paper.status) || paper.classIds.some((id) => !scope.classes.some((c) => c.id === id)) || !scope.subjects.some((s) => s.id === paper.subjectId)) throw new Error("Exam paper outside your assignment.");
+      }
+      for (const old of raw.examPapers || []) if (visibleIds.has(old.id) && !(after as NonNullable<SchoolDatabaseSnapshot["examPapers"]>).some((p) => p.id === old.id) && old.submittedByStaffId !== portal.staffId) throw new Error("Only your own papers can be removed.");
     }
     if (key === "payments" && portal.role === "parent") {
       for (const payment of after as SchoolDatabaseSnapshot["payments"]) {

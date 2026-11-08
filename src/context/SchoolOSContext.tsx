@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { loadSchoolPortal, saveSchoolPortal } from "@/services/schoolPortal.functions";
+import { saveSchoolPortal } from "@/services/schoolPortal.functions";
 import {
   CloudSaveQueue,
   cloudSchoolRepository,
@@ -1852,8 +1852,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
   const deleteStudent = useCallback(
     (id: string) => {
-      if (!canManageSettings(portal)) {
-        toast.error("Only the Proprietor / Admin can delete student records.");
+      if (!canManageSettings(portal) && portal.role !== "bursar") {
+        toast.error("Only the Proprietor / Admin or Bursar can delete student records.");
         return;
       }
       setRawDb((prev) => ({

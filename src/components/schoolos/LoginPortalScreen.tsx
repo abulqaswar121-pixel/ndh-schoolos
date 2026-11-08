@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import { NDH_PARENT_CONTACT } from "@/data/ndhLinks";
 
-export function LoginPortalScreen() {
+export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoolId: string; name: string; logoUrl?: string; motto: string } } = {}) {
   const navigate = useNavigate();
   const {
     db,
@@ -51,9 +51,11 @@ export function LoginPortalScreen() {
   const [staffError, setStaffError] = useState("");
 
   const [parentPhone, setParentPhone] = useState("");
+  const [parentPassword, setParentPassword] = useState("");
   const [parentError, setParentError] = useState("");
 
-  const isSchoolRegistered = db.settings.setupCompleted;
+  const isSchoolRegistered = Boolean(schoolBranding) || db.settings.setupCompleted;
+  const brandingSettings = schoolBranding ? { ...db.settings, name: schoolBranding.name, logoDataUrl: schoolBranding.logoUrl, motto: schoolBranding.motto } : db.settings;
   const [busy, setBusy] = useState(false);
 
   const handleStaffSubmit = async (e: React.FormEvent) => {
@@ -61,7 +63,7 @@ export function LoginPortalScreen() {
     setStaffError("");
     setBusy(true);
     try {
-      const owner = await loginSchoolAdmin(staffIdentifier, staffPin);
+      const owner = await loginSchoolAdmin(staffIdentifier, staffPin, schoolBranding?.schoolId);
       setStaffPin("");
       toast.success("Signed in to your cloud account.");
       await navigate({ to: owner ? "/platform" : "/app" });
@@ -74,20 +76,13 @@ export function LoginPortalScreen() {
     }
   };
 
-  const handleParentSubmit = (e: React.FormEvent) => {
+  const handleParentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setParentError("");
-    const res = {
-      ok: false,
-      error:
-        "Phone-only sign-in cannot access cloud records. Ask your school for a verified account.",
-    };
-    if (!res.ok) {
-      setParentError(res.error ?? "Phone number not found.");
-      return;
-    }
-    toast.success("Welcome to the Parent Portal.");
-    void navigate({ to: "/app" });
+    setBusy(true);
+    try { await loginSchoolAdmin(parentPhone, parentPassword, schoolBranding?.schoolId); setParentPassword(""); await navigate({ to: "/app" }); }
+    catch (error) { setParentError(error instanceof Error ? error.message : "Unable to sign in."); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -129,13 +124,13 @@ export function LoginPortalScreen() {
         <div className="space-y-4 lg:col-span-5">
           {isSchoolRegistered ? (
             <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#e4e7ec] bg-white px-3.5 py-2 shadow-xs">
-              <SchoolCrest settings={db.settings} size="sm" />
+              <SchoolCrest settings={brandingSettings} size="sm" />
               <div>
                 <div className="text-xs font-extrabold text-[#0b1220]">
-                  {db.settings.name}
+                  {brandingSettings.name}
                 </div>
                 <div className="text-[11px] text-[#667085]">
-                  {db.settings.currentSession} • {db.settings.currentTerm}
+                  {schoolBranding ? schoolBranding.motto : `${db.settings.currentSession} • ${db.settings.currentTerm}`}
                 </div>
               </div>
             </div>
@@ -147,11 +142,10 @@ export function LoginPortalScreen() {
           )}
 
           <h1 className="font-display text-2xl font-bold tracking-tight text-[#0b1220] sm:text-3xl">
-            Sign in to your portal
+            {schoolBranding ? schoolBranding.name : "Sign in to your portal"}
           </h1>
           <p className="text-sm text-[#364152]">
-            School administrators sign in with their verified email and
-            password. Your account is linked securely to your school.
+            {schoolBranding ? "School portal" : "Sign in"}
           </p>
 
           <div className="overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white shadow-xs">
@@ -271,7 +265,7 @@ export function LoginPortalScreen() {
                       htmlFor="login-staff-id"
                       className="text-xs font-bold"
                     >
-                      Administrator Email
+                      Email
                     </Label>
                     <Input
                       id="login-staff-id"
@@ -357,9 +351,7 @@ export function LoginPortalScreen() {
               <TabsContent value="parent">
                 <form onSubmit={handleParentSubmit} className="space-y-4">
                   <p className="text-xs text-[#667085]">
-                    Cloud access currently requires a verified school
-                    administrator account. Phone-only parent sign-in is
-                    disabled; contact your school for access.
+                    Parent / Guardian account
                   </p>
                   <div className="space-y-1.5">
                     <Label
@@ -385,11 +377,13 @@ export function LoginPortalScreen() {
                       htmlFor="login-parent-phone"
                       className="text-xs font-bold"
                     >
-                      Guardian Phone Number
+                      Parent Email
                     </Label>
                     <Input
                       id="login-parent-phone"
-                      placeholder="Phone registered with the school"
+                      type="email"
+                      autoComplete="username"
+                      placeholder="Parent email"
                       value={parentPhone}
                       onChange={(e) => setParentPhone(e.target.value)}
                       required
@@ -397,6 +391,7 @@ export function LoginPortalScreen() {
                     />
                   </div>
 
+                  <div className="space-y-1.5"><Label htmlFor="parent-password">Password</Label><Input id="parent-password" type="password" autoComplete="current-password" required value={parentPassword} onChange={(e) => setParentPassword(e.target.value)} /></div>
                   {parentError && (
                     <div className="rounded-lg border border-red-200 bg-[#fef3f2] px-3 py-2 text-xs font-semibold text-[#b42318]">
                       {parentError}
@@ -405,6 +400,7 @@ export function LoginPortalScreen() {
 
                   <Button
                     type="submit"
+                    disabled={busy}
                     className="h-11 w-full rounded-full bg-[#1a4a6e] text-sm font-bold text-white hover:bg-[#0c2340]"
                   >
                     Open Parent Portal

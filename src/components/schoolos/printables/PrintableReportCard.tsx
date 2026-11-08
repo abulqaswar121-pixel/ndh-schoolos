@@ -1,6 +1,7 @@
 import React from "react";
 import { SchoolCrest } from "../SchoolCrest";
-import { HalqahExcelReportSheet } from "./HalqahExcelReportSheet";
+import { RegisterGridReportDetails } from "./HalqahExcelReportSheet";
+import { getStudentProgrammeLabels } from "@/services/schoolExperience";
 import { getSurahByNumber } from "@/data/quranSurahs";
 import {
   computeClassBroadsheet,
@@ -99,6 +100,7 @@ interface CoreReportSheetRendererProps {
     revisionStatus: string;
   } | null;
   previewBadgeLabel?: string | undefined;
+  groupLabels?: Array<{label: string; name: string}>;
 }
 
 function CoreReportSheetRenderer({
@@ -111,6 +113,7 @@ function CoreReportSheetRenderer({
   affectiveValues,
   quranSummary,
   previewBadgeLabel,
+  groupLabels,
 }: CoreReportSheetRendererProps) {
   const { settings } = db;
   const custom = getResolvedCustomization(settings);
@@ -194,11 +197,13 @@ function CoreReportSheetRenderer({
 
   const effectiveTitle = design.customReportTitle.trim() || subtitle;
 
+  if (design.detailsLayout === "register_grid" && primaryBlock) {
+    return <section className="report-a4-page"><RegisterGridReportDetails db={db} session={session} term={term} student={studentInfo} halqahName="" className={primaryBlock.className} groupLabels={groupLabels || programmeBlocks.map((b) => ({ label: settings.programmes.find((p) => p.id === b.programmeId)?.groupLabel || settings.labels.classSingular, name: b.className }))} componentLabels={primaryBlock.components.map((c) => `${c.label.toUpperCase()} (${c.maxScore})`)} maxPerSubject={primaryBlock.maxPerSubject} subjectRows={programmeBlocks.flatMap((b) => b.subjectRows)} learnerAverage={primaryBlock.averagePercentage} classAverage={primaryBlock.classAveragePct} overallGrade={primaryBlock.overallGrade} attendance={primaryBlock.attendance} traits={affectiveValues} teacherRemark={affectiveValues.classTeacherRemark} headRemark={affectiveValues.headTeacherRemark} /></section>;
+  }
+
   return (
     <section
-      className={`relative mx-auto max-w-[200mm] overflow-hidden rounded-xl text-slate-900 ${
-        isCompact ? "p-4 sm:p-5" : "p-5 sm:p-6"
-      }`}
+      className={`report-a4-page relative text-slate-900 ${isCompact ? "p-4" : "p-6"}`}
       style={outerBorderStyle}
     >
       {/* Optional Preview Ribbon (Only in Customize Studio sample mode) */}
@@ -373,9 +378,9 @@ function CoreReportSheetRenderer({
 
         {/* Student Bio Band */}
         <div
-          className={`mt-2.5 grid grid-cols-2 gap-2 rounded-lg border border-slate-300 bg-slate-50/90 ${
+          className={`mt-2.5 grid grid-cols-4 gap-2 rounded-lg border border-slate-300 bg-slate-50/90 ${
             isCompact ? "p-2 text-[11px]" : "p-2.5 text-xs"
-          } sm:grid-cols-4`}
+          }`}
         >
           <div>
             <span className="block text-[9px] font-bold text-slate-500 uppercase">
@@ -393,12 +398,12 @@ function CoreReportSheetRenderer({
               {studentInfo.admissionId}
             </span>
           </div>
-          <div>
+          <div hidden={!design.showProgrammeClasses}>
             <span className="block text-[9px] font-bold text-slate-500 uppercase">
               {settings.labels.classSingular}
             </span>
             <span className="font-bold text-slate-900">
-              {programmeBlocks.map((r) => r.className).join(" • ") || "—"}
+              {(groupLabels || programmeBlocks.map((r) => ({label: settings.labels.classSingular, name: r.className}))).map((r) => `${r.label}: ${r.name}`).join(" • ") || "—"}
             </span>
           </div>
           <div>
@@ -659,7 +664,7 @@ function CoreReportSheetRenderer({
         {/* Conduct Skills + Auto/Manual Teacher & Principal Remarks */}
         <div
           className={`mt-2.5 grid grid-cols-1 gap-2.5 text-xs ${
-            design.showAffectiveSkills ? "sm:grid-cols-3" : ""
+            design.showAffectiveSkills ? "grid-cols-3" : ""
           }`}
         >
           {design.showAffectiveSkills && (
@@ -693,7 +698,7 @@ function CoreReportSheetRenderer({
 
           <div
             className={`space-y-1.5 rounded-lg border border-slate-300 bg-white/80 p-2.5 ${
-              design.showAffectiveSkills ? "sm:col-span-2" : ""
+              design.showAffectiveSkills ? "col-span-2" : ""
             }`}
           >
             <div>
@@ -992,32 +997,7 @@ export function PrintableReportCard({
     photoUrl: student.photoUrl,
   };
 
-  if (
-    getResolvedCustomization(settings).reportSheet.template === "halqah_excel" &&
-    progReports.length > 0
-  ) {
-    const main = progReports[0]!;
-    const other = progReports[1];
-    return (
-      <HalqahExcelReportSheet
-        db={db}
-        session={session}
-        term={term}
-        student={studentInfo}
-        halqahName={main.className}
-        className={other?.className ?? main.className}
-        componentLabels={main.components.map(
-          (c) => `${c.label.toUpperCase()} (${c.maxScore}%)`
-        )}
-        subjectRows={main.subjectRows}
-        learnerAverage={main.averagePercentage}
-        classAverage={main.classAveragePct}
-        overallGrade={main.overallGrade}
-        attendance={main.attendance}
-        traits={affectiveValues}
-      />
-    );
-  }
+  const groupLabels = getStudentProgrammeLabels(settings, classes, student);
 
   if (layout === "per_programme" && progReports.length > 1) {
     return (
@@ -1033,6 +1013,7 @@ export function PrintableReportCard({
               term={term}
               subtitle={`${rep.programmeName} Report Card`}
               studentInfo={studentInfo}
+              groupLabels={groupLabels}
               programmeBlocks={[rep]}
               affectiveValues={affectiveValues}
               quranSummary={quranSummary}
@@ -1050,6 +1031,7 @@ export function PrintableReportCard({
       term={term}
       subtitle="Student Termly Report Sheet"
       studentInfo={studentInfo}
+      groupLabels={groupLabels}
       programmeBlocks={progReports}
       affectiveValues={affectiveValues}
       quranSummary={quranSummary}

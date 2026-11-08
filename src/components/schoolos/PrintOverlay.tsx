@@ -1,5 +1,6 @@
 import { Columns2, FileDown, FileStack, Printer, X } from "lucide-react";
 import React from "react";
+import { A4Preview } from "./A4Preview";
 import { toast } from "sonner";
 import { PrintableBroadsheet } from "./printables/PrintableBroadsheet";
 import { PrintableDataTable } from "./printables/PrintableDataTable";
@@ -175,6 +176,7 @@ export function PrintOverlay() {
       {/* Printable Document Sheet */}
       <div className="pb-10 print:pb-0">
         {printJob.type === "report_card" && (
+          <A4Preview>
           <PrintableReportCard
             db={db}
             studentId={printJob.studentId}
@@ -183,6 +185,7 @@ export function PrintOverlay() {
             layout={printJob.layout}
             programmeFilter={printJob.programmeId}
           />
+          </A4Preview>
         )}
         {printJob.type === "receipt" && (
           <PrintableReceipt db={db} paymentId={printJob.paymentId} />

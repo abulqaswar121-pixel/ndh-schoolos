@@ -51,7 +51,7 @@ export function StudentsModule() {
 
   const canEdit = canManageStudents(portal);
   const canWaive = canManageFeeWaivers(portal);
-  const canDelete = portal.role === "admin";
+  const canDelete = portal.role === "admin" || portal.role === "bursar";
   const canPrintReport = portal.role !== "bursar";
 
   const activeProgrammes = useMemo(
