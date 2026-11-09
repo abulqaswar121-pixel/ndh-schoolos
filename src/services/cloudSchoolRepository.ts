@@ -240,10 +240,11 @@ function failure(error: { message: string; code?: string | undefined } | null): 
 const draftKey = (email: string) => `ndh_cloud_setup:${email.trim().toLowerCase()}`;
 export const cloudSchoolRepository = {
   async signIn(email: string, password: string) {
-    const { data, error } = await database().auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    const { resolveSignIn } = await import("./phoneLogin");
+    const creds = resolveSignIn(email, password);
+    const { data, error } = await database().auth.signInWithPassword(creds);
+    if (error && /invalid login credentials/i.test(error.message))
+      throw new Error(email.includes("@") ? "Wrong email or password." : "Wrong phone number or PIN. Ask your school to check your login.");
     failure(error);
     if (!data.user) throw new Error("Unable to verify this account.");
     return data.user;

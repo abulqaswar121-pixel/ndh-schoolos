@@ -362,6 +362,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auth_user_id_by_email: { Args: { _email: string }; Returns: string }
       create_school_workspace: {
         Args: { initial_invoices?: Json; initial_snapshot: Json }
         Returns: Json

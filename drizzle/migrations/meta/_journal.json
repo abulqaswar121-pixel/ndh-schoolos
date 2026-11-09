@@ -36,6 +36,13 @@
       "when": 1794030249337,
       "tag": "0004_school_portal_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794233338741,
+      "tag": "0005_migration",
+      "breakpoints": true
     }
   ]
 }
