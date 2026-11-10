@@ -97,9 +97,11 @@ export const createPhoneLogin = createServerFn({ method: "POST" })
       userId = created.user.id;
     }
     let studentIds = data.studentIds;
+    const { data: previous, error: previousError } = await supabaseAdmin.from("school_portal_accounts").select("role,staff_id,student_ids").eq("school_id", data.schoolId).eq("user_id", userId).maybeSingle();
+    if (previousError) throw new Error("Unable to check existing school access.");
+    if (previous && (previous.staff_id !== (staff?.id || null) || previous.role !== (staff?.systemRole || "parent"))) throw new Error("This phone already belongs to another portal account in your school. Use a different phone or remove the old access first.");
     if (!staff) {
-      const { data: prev } = await supabaseAdmin.from("school_portal_accounts").select("student_ids").eq("school_id", data.schoolId).eq("user_id", userId).maybeSingle();
-      studentIds = Array.from(new Set([...(prev?.student_ids || []), ...data.studentIds]));
+      studentIds = Array.from(new Set([...(previous?.student_ids || []), ...data.studentIds]));
     }
     const { error: linkError } = await supabaseAdmin.from("school_portal_accounts").upsert({ school_id: data.schoolId, user_id: userId, role: staff?.systemRole || "parent", staff_id: staff?.id || null, student_ids: staff ? [] : studentIds });
     if (linkError) throw new Error("Login created, but linking to the school failed. Please try again.");
@@ -116,8 +118,10 @@ export const resetPhonePin = createServerFn({ method: "POST" })
     const { data: link } = await supabaseAdmin.from("school_portal_accounts").select("user_id").eq("school_id", data.schoolId).eq("user_id", data.userId).maybeSingle();
     if (!link) throw new Error("This person is not linked to your school.");
     const { data: user } = await supabaseAdmin.auth.admin.getUserById(data.userId);
-    const { isPhoneLoginEmail, pinPassword } = await import("./phoneLogin");
+    const { isPhoneLoginEmail, pinPassword, canSchoolResetPin } = await import("./phoneLogin");
     if (!isPhoneLoginEmail(user.user?.email)) throw new Error("This person signs in with email. Send them a password reset instead.");
+    const { data: links, error: linksError } = await supabaseAdmin.from("school_portal_accounts").select("school_id").eq("user_id", data.userId);
+    if (linksError || !canSchoolResetPin((links || []).map((row) => row.school_id), data.schoolId)) throw new Error("This phone is used in more than one school. A single school cannot change its shared PIN.");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, { password: pinPassword(data.pin) });
     if (error) throw new Error("Could not change the PIN.");
     return { ok: true };

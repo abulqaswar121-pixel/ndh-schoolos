@@ -29,7 +29,7 @@ export function SchoolPortalAccess() {
   const [url, setUrl] = useState("");
   const [accounts, setAccounts] = useState<Account[]>([]);
   const reload = async () => {
-    if (!cloudSchool) return;
+    if (!cloudSchool || portal.role !== "admin") return;
     try { setAccounts(await listLogins({ data: { schoolId: cloudSchool.id } })); }
     catch { toast.error("Unable to load portal accounts."); }
   };
@@ -42,16 +42,18 @@ export function SchoolPortalAccess() {
 
   const pickTarget = (value: string) => {
     setTarget(value);
+    setStudentIds([]);
+    setPin("");
     const s = db.staff.find((x) => x.id === value);
     setEmail(s?.email || "");
     setPhone(s?.phone || "");
   };
   const onPhoneChange = (value: string) => {
     setPhone(value);
-    if (target === "parent" && isValidPhone(value)) {
+    if (target === "parent") {
       const n = normalizePhone(value);
-      const matches = db.students.filter((s) => s.parentPhone && normalizePhone(s.parentPhone) === n).map((s) => s.id);
-      if (matches.length) setStudentIds((prev) => Array.from(new Set([...prev, ...matches])));
+      const matches = isValidPhone(value) ? db.students.filter((s) => s.parentPhone && normalizePhone(s.parentPhone) === n).map((s) => s.id) : [];
+      setStudentIds(matches);
     }
   };
 
@@ -64,7 +66,7 @@ export function SchoolPortalAccess() {
         if (!isValidPhone(phone)) throw new Error("Enter a valid phone number.");
         if (!isValidPin(pin)) throw new Error("PIN must be exactly 4 numbers.");
         const res = await createPhone({ data: { schoolId: cloudSchool.id, phone, pin, staffId, studentIds } });
-        toast.success(res.existing ? "This phone already had a login. It is now linked here — they keep their old PIN." : `Login ready. Tell them: phone ${phone}, PIN ${pin}.`);
+        toast.success(res.existing ? "This phone already had a login. It is now linked here — they keep their old PIN." : "Phone login created. Share the phone number and PIN privately.");
         setPin("");
       } else {
         await invite({ data: { schoolId: cloudSchool.id, email, staffId, studentIds, origin: window.location.origin } });
@@ -105,7 +107,7 @@ export function SchoolPortalAccess() {
         if (a.isPhone) {
           const next = window.prompt("New 4-digit PIN"); if (!next) return;
           if (!isValidPin(next)) { toast.error("PIN must be exactly 4 numbers."); return; }
-          try { await resetPin({ data: { schoolId: cloudSchool.id, userId: a.user_id, pin: next } }); toast.success(`New PIN set: ${next}`); } catch (err) { toast.error(err instanceof Error ? err.message : "Could not change PIN."); }
+          try { await resetPin({ data: { schoolId: cloudSchool.id, userId: a.user_id, pin: next } }); toast.success("New PIN saved. Share it privately."); } catch (err) { toast.error(err instanceof Error ? err.message : "Could not change PIN."); }
           return;
         }
         const { error } = await supabase.auth.resetPasswordForEmail(a.login, { redirectTo: `${window.location.origin}/reset-password` });

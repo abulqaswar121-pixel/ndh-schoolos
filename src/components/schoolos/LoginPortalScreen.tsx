@@ -265,13 +265,13 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
                       htmlFor="login-staff-id"
                       className="text-xs font-bold"
                     >
-                      Email
+                      Email or phone number
                     </Label>
                     <Input
                       id="login-staff-id"
-                      type="email"
+                      type="text"
                       autoComplete="username"
-                      placeholder="admin@school.ng"
+                      placeholder="Email or phone number"
                       value={staffIdentifier}
                       onChange={(e) => setStaffIdentifier(e.target.value)}
                       required
@@ -284,7 +284,7 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
                       htmlFor="login-staff-pin"
                       className="text-xs font-bold"
                     >
-                      Password
+                      Password or 4-digit PIN
                     </Label>
                     <div className="relative">
                       <Lock className="pointer-events-none absolute top-3.5 left-3 h-4 w-4 text-[#667085]" />
@@ -292,19 +292,20 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
                         id="login-staff-pin"
                         type="password"
                         autoComplete="current-password"
-                        placeholder="Enter password"
+                        placeholder="Password or 4-digit PIN"
                         value={staffPin}
                         onChange={(e) => setStaffPin(e.target.value)}
                         required
                         className="h-11 border-[#d0d5dd] bg-[#f5f6f8] pl-9 text-sm"
                       />
                     </div>
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
                       onClick={async () => {
                         const email = staffIdentifier.trim();
-                        if (!email) {
-                          toast.error("Type your email above first.");
+                        if (!email.includes("@")) {
+                          toast.error("For phone logins, ask your school administrator to reset your PIN.");
                           return;
                         }
                         const { supabase } = await import("@/integrations/supabase/client");
@@ -314,10 +315,10 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
                         if (error) toast.error(error.message);
                         else toast.success("Check your email for a link to set a new password.");
                       }}
-                      className="text-xs font-semibold text-[#1a4a6e] underline"
+                      className="h-auto p-0 text-xs font-semibold"
                     >
                       Forgot password?
-                    </button>
+                    </Button>
                   </div>
 
                   {(staffError ||
@@ -362,7 +363,8 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
                     </Label>
                     <Input
                       id="login-parent-school-code"
-                      placeholder="e.g. GHA or MRK-2026"
+                      placeholder="Automatically linked after sign-in"
+                      disabled
                       value={schoolCodeInput}
                       onChange={(e) => {
                         setUserEditedSchoolCode(true);
@@ -377,13 +379,13 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
                       htmlFor="login-parent-phone"
                       className="text-xs font-bold"
                     >
-                      Parent Email
+                      Parent email or phone number
                     </Label>
                     <Input
                       id="login-parent-phone"
-                      type="email"
+                      type="text"
                       autoComplete="username"
-                      placeholder="Parent email"
+                      placeholder="Email or phone number"
                       value={parentPhone}
                       onChange={(e) => setParentPhone(e.target.value)}
                       required
@@ -391,7 +393,7 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
                     />
                   </div>
 
-                  <div className="space-y-1.5"><Label htmlFor="parent-password">Password</Label><Input id="parent-password" type="password" autoComplete="current-password" required value={parentPassword} onChange={(e) => setParentPassword(e.target.value)} /></div>
+                  <div className="space-y-1.5"><Label htmlFor="parent-password">Password or 4-digit PIN</Label><Input id="parent-password" type="password" placeholder="Password or 4-digit PIN" autoComplete="current-password" required value={parentPassword} onChange={(e) => setParentPassword(e.target.value)} /></div>
                   {parentError && (
                     <div className="rounded-lg border border-red-200 bg-[#fef3f2] px-3 py-2 text-xs font-semibold text-[#b42318]">
                       {parentError}
@@ -400,7 +402,7 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
 
                   <Button
                     type="submit"
-                    disabled={busy}
+                    disabled={busy || !hydrated || cloudStatus === "loading" || !cloudConfigured}
                     className="h-11 w-full rounded-full bg-[#1a4a6e] text-sm font-bold text-white hover:bg-[#0c2340]"
                   >
                     Open Parent Portal

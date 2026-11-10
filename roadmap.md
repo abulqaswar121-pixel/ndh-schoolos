@@ -7,3 +7,8 @@
 - [ ] Verify staff/parent invitation email acceptance and sign-in: needs a recipient to accept an invitation and choose their password.
 
 Later work, not in this update: offline syncing, AI paper capture, expanded exam editor, online payments and messaging.
+
+## Phone and PIN school access
+- [x] Accept email/password or phone/PIN on both school sign-in tabs.
+- [x] Validate PINs and prevent a school changing shared multi-school credentials.
+- [x] Check creation, parent/staff sign-in, PIN reset and access removal with real saved records.

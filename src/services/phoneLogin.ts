@@ -34,5 +34,12 @@ export function isPhoneLoginEmail(email: string | null | undefined): boolean {
 export function resolveSignIn(identifier: string, secret: string): { email: string; password: string } {
   const id = identifier.trim();
   if (id.includes("@")) return { email: id, password: secret };
+  if (!isValidPhone(id)) throw new Error("Enter a valid email or phone number.");
+  if (!isValidPin(secret.trim())) throw new Error("PIN must be exactly 4 numbers.");
   return { email: phoneLoginEmail(id), password: pinPassword(secret.trim()) };
+}
+
+// A school must not change credentials that also unlock another school.
+export function canSchoolResetPin(schoolIds: string[], schoolId: string): boolean {
+  return schoolIds.length > 0 && schoolIds.every((id) => id === schoolId);
 }
