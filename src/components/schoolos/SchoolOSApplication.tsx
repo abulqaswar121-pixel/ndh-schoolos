@@ -161,7 +161,7 @@ export function SchoolOSApplication() {
 
   return (
     <div
-      className="flex min-h-screen flex-col bg-[#f5f6f8] text-[#0b1220]"
+      className="schoolos-workspace flex min-h-screen flex-col bg-[#f5f6f8] text-[#0b1220]"
       style={{ fontFamily: workspaceFontFamily }}
     >
       <BrandHeader onOpenMobileMenu={() => setMobileMenuOpen(true)} />

@@ -348,7 +348,7 @@
 .report-register td, .report-register th { padding-block: 3px; }
 .report-register h1 { white-space: normal; }
 .report-a4-page h1, .report-a4-page h2 { letter-spacing: 0; }
-.collection-pages { display: grid; gap: 20px; }
+.collection-pages { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 20px; }
 .collection-pages .report-a4-page { height: 297mm; min-height: 297mm; font-family: Arial, sans-serif; }
 .collection-header { display: grid; grid-template-columns: 17mm minmax(0, 1fr) 22mm; align-items: center; gap: 3mm; text-align: center; }
 .collection-header img { width: 15mm; height: 15mm; object-fit: contain; }
@@ -362,7 +362,7 @@
 .collection-staff-table th, .collection-staff-table td { border: 1px solid var(--ink-soft); padding: 1.5mm; overflow-wrap: anywhere; }
 .collection-staff-table th { font-size: 10px; text-align: left; }
 .collection-staff-table tbody tr { height: 11.5mm; }
-.collection-staff-table td:nth-child(5) { font-size: 9px; line-height: 1.5; }
+.collection-staff-table td:nth-child(5) { font-size: 9px; line-height: 1.2; }
 .collection-number-col { width: 6%; }
 .collection-name-col { width: 28%; }
 .collection-phone-col { width: 18%; }
@@ -384,6 +384,8 @@
 .collection-inline-fields { display: flex; justify-content: space-between; gap: 3mm; margin-top: 4mm; }
 .collection-phone-note { font-size: 9px; margin-top: 1mm; }
 @media print {
+  body.ndh-printing .schoolos-workspace > :not(#ndh-print-portal) { display: none !important; }
+  body.ndh-printing .schoolos-workspace { display: block; }
   .collection-pages { display: block; }
   body.ndh-printing { page: ndh-full-sheet; }
   @page ndh-full-sheet { size: A4 portrait; margin: 0; }

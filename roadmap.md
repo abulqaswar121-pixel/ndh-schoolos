@@ -9,8 +9,8 @@
 Later work, not in this update: offline syncing, AI paper capture, expanded exam editor, online payments and messaging.
 
 ## Printable data collection
-- [ ] Add staff role/phone sheets and three-per-A4 parent slips with both logos and the complete school name.
-- [ ] Verify printed pages using saved Markaz records and provide the two PDFs.
+- [x] Add staff role/phone sheets and three-per-A4 parent slips with both logos and the complete school name.
+- [x] Verify printed pages using saved Markaz records and provide the two PDFs.
 
 ## Phone and PIN school access
 - [x] Accept email/password or phone/PIN on both school sign-in tabs.
