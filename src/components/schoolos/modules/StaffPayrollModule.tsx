@@ -246,6 +246,11 @@ export function StaffPayrollModule() {
           </p>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" onClick={() => openPrintPreview({ type: "staff_collection", staffIds: filteredStaff.map(member => member.id) })}>
+          <Printer className="mr-1.5 h-3.5 w-3.5" />
+          Print Staff Form
+        </Button>
         <Button
           size="sm"
           onClick={openAddStaff}
@@ -254,6 +259,7 @@ export function StaffPayrollModule() {
           <Plus className="mr-1.5 h-3.5 w-3.5" />
           Add Staff Member
         </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="payroll" className="space-y-4">

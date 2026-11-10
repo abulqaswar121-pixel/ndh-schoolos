@@ -14,3 +14,4 @@
 - A4 previews scale fixed paper dimensions, not responsive document content, so phones and printed reports keep the same layout.
 - Public school portals expose only branding; public school links never grant access to student or payroll records.
 - Phone credentials use one normalized identity; school administrators may reset its PIN only when it is linked exclusively to their school, preventing cross-school account takeover.
+- Collection forms use the current school's saved branding and fixed A4 page batches; parent slips remain blank so families confirm official names without exposing another learner's details.

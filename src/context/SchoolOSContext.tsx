@@ -90,6 +90,8 @@ import type {
 } from "@/types/school";
 
 export type PrintJob =
+  | { type: "staff_collection"; staffIds: string[] }
+  | { type: "parent_slips"; count: number }
   | {
       type: "report_card";
       studentId: string;

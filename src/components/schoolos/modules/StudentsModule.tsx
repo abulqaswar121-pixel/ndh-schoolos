@@ -338,6 +338,10 @@ export function StudentsModule() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {canEdit && <Button size="sm" variant="outline" disabled={filteredStudents.length === 0} onClick={() => openPrintPreview({ type: "parent_slips", count: filteredStudents.length })}>
+            <Printer className="mr-1.5 h-3.5 w-3.5" />
+            Print Parent Slips ({filteredStudents.length})
+          </Button>}
           {canEdit && (
             <>
               <Button

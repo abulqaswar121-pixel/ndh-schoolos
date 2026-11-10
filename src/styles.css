@@ -348,7 +348,43 @@
 .report-register td, .report-register th { padding-block: 3px; }
 .report-register h1 { white-space: normal; }
 .report-a4-page h1, .report-a4-page h2 { letter-spacing: 0; }
+.collection-pages { display: grid; gap: 20px; }
+.collection-pages .report-a4-page { height: 297mm; min-height: 297mm; font-family: Arial, sans-serif; }
+.collection-header { display: grid; grid-template-columns: 17mm minmax(0, 1fr) 22mm; align-items: center; gap: 3mm; text-align: center; }
+.collection-header img { width: 15mm; height: 15mm; object-fit: contain; }
+.collection-school-logo { display: flex; justify-content: center; }
+.collection-school-name h1 { font-size: 14px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+.collection-school-name p { font-size: 9px; margin-top: 1mm; }
+.collection-ndh-logo { display: flex; flex-direction: column; align-items: center; gap: 1mm; font-size: 9px; }
+.collection-pages h2 { text-align: center; font-size: 13px; font-weight: 800; margin-block: 4mm 2mm; }
+.collection-note { text-align: center; font-size: 11px; margin-bottom: 4mm; }
+.collection-staff-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11px; }
+.collection-staff-table th, .collection-staff-table td { border: 1px solid var(--ink-soft); padding: 1.5mm; overflow-wrap: anywhere; }
+.collection-staff-table th { font-size: 10px; text-align: left; }
+.collection-staff-table tbody tr { height: 11.5mm; }
+.collection-staff-table td:nth-child(5) { font-size: 9px; line-height: 1.5; }
+.collection-number-col { width: 6%; }
+.collection-name-col { width: 28%; }
+.collection-phone-col { width: 18%; }
+.collection-group-col { width: 17%; }
+.collection-role-col { width: 20%; }
+.collection-sign-col { width: 11%; }
+.collection-page-footer { text-align: right; font-size: 10px; margin-top: 3mm; }
+.collection-pages .collection-parent-page { padding: 8mm 10mm; }
+.collection-parent-slip { height: 93.6mm; padding: 3mm 0; box-sizing: border-box; font-size: 11px; }
+.collection-parent-slip:not(:last-child) { border-bottom: 1px dashed var(--ink-soft); }
+.collection-parent-slip .collection-header { grid-template-columns: 13mm minmax(0, 1fr) 19mm; }
+.collection-parent-slip .collection-header img { height: 11mm; width: 11mm; }
+.collection-parent-slip .collection-school-name h1 { font-size: 12px; }
+.collection-parent-slip h2 { font-size: 11px; margin-block: 2mm; }
+.collection-name-notice { border: 1px solid var(--ink-soft); padding: 1.5mm 2mm; font-size: 10px; line-height: 1.4; }
+.collection-name-notice p { margin-top: 0.5mm; }
+.collection-field { display: flex; align-items: baseline; gap: 2mm; margin-top: 4mm; }
+.collection-field span { flex: 1; border-bottom: 1px solid var(--ink-soft); height: 3mm; }
+.collection-inline-fields { display: flex; justify-content: space-between; gap: 3mm; margin-top: 4mm; }
+.collection-phone-note { font-size: 9px; margin-top: 1mm; }
 @media print {
+  .collection-pages { display: block; }
   body.ndh-printing { page: ndh-full-sheet; }
   @page ndh-full-sheet { size: A4 portrait; margin: 0; }
   .a4-preview { height: auto !important; max-width: none; }

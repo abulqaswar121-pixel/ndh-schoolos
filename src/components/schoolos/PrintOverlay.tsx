@@ -8,6 +8,7 @@ import { PrintableExamPaper } from "./printables/PrintableExamPaper";
 import { PrintablePayslip } from "./printables/PrintablePayslip";
 import { PrintableReceipt } from "./printables/PrintableReceipt";
 import { PrintableReportCard } from "./printables/PrintableReportCard";
+import { PrintableStaffCollection, PrintableParentSlips } from "./printables/PrintableCollectionForms";
 import { Button } from "@/components/ui/button";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import { getActiveProgrammes } from "@/services/calculations";
@@ -175,6 +176,8 @@ export function PrintOverlay() {
 
       {/* Printable Document Sheet */}
       <div className="pb-10 print:pb-0">
+        {printJob.type === "staff_collection" && <PrintableStaffCollection settings={db.settings} staff={db.staff.filter(member => printJob.staffIds.includes(member.id))} />}
+        {printJob.type === "parent_slips" && <PrintableParentSlips settings={db.settings} count={printJob.count} />}
         {printJob.type === "report_card" && (
           <A4Preview>
           <PrintableReportCard
