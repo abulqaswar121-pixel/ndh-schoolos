@@ -6,7 +6,7 @@ function CollectionHeader({ settings }: { settings: SchoolSettings }) {
   return <header className="collection-header">
     <div className="collection-school-logo">{settings.logoDataUrl && <img src={settings.logoDataUrl} alt="School logo" />}</div>
     <div className="collection-school-name"><h1>{settings.name}</h1>{settings.arabicName && <p dir="rtl">{settings.arabicName}</p>}<p>{settings.address}</p></div>
-    <div className="collection-ndh-logo"><img src="/images/ndh-logo-gateway-cropped.png" alt="NDH SchoolOS logo" /><strong>NDH SchoolOS</strong></div>
+    <div className="collection-ndh-logo"><img src="/apple-touch-icon.png" alt="NDH SchoolOS logo" /><strong>NDH SchoolOS</strong></div>
   </header>;
 }
 
