@@ -63,6 +63,7 @@ export const inviteSchoolAccount = createServerFn({ method: "POST" })
     if (data.staffId && (!staff || staff.status !== "Active")) throw new Error("Choose an active staff member.");
     if (!staff && (!data.studentIds.length || data.studentIds.some((id) => !raw.students.some((s) => s.id === id)))) throw new Error("Choose the children linked to this parent.");
     if (staff?.systemRole === "admin") throw new Error("Use school registration for administrator accounts.");
+    if (staff?.staffCategory === "non_teaching") throw new Error("Non-teaching staff are on payroll only and do not get a portal login.");
     const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, { redirectTo: `${data.origin}/reset-password` });
     if (error || !invited.user) throw new Error("Invitation could not be sent. This email may already have an account.");
     const { error: accountError } = await supabaseAdmin.from("school_portal_accounts").upsert({ school_id: data.schoolId, user_id: invited.user.id, role: staff?.systemRole || "parent", staff_id: staff?.id || null, student_ids: staff ? [] : data.studentIds });
@@ -85,6 +86,7 @@ export const createPhoneLogin = createServerFn({ method: "POST" })
     if (data.staffId && (!staff || staff.status !== "Active")) throw new Error("Choose an active staff member.");
     if (!staff && (!data.studentIds.length || data.studentIds.some((id) => !raw.students.some((s) => s.id === id)))) throw new Error("Choose the children linked to this parent.");
     if (staff?.systemRole === "admin") throw new Error("Use school registration for administrator accounts.");
+    if (staff?.staffCategory === "non_teaching") throw new Error("Non-teaching staff are on payroll only and do not get a portal login.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const email = phoneLoginEmail(data.phone);
     let userId: string | null = null;

@@ -498,6 +498,13 @@ export type StaffJobTitle =
   | "Mu'allim"
   | "Support Staff";
 
+export type StaffCategory = "teaching" | "non_teaching";
+
+export const NON_TEACHING_DUTIES = ["Nanny", "Security", "Cleaner", "Driver", "Cook", "Gardener", "Other"] as const;
+
+export const isNonTeaching = (member: { staffCategory?: StaffCategory | undefined }) =>
+  member.staffCategory === "non_teaching";
+
 export interface StaffMember {
   id: string;
   staffCode: string;
@@ -511,6 +518,9 @@ export interface StaffMember {
    * exam question papers and all classes' broadsheets & report sheets).
    */
   isExamOfficer?: boolean | undefined;
+  /** Non-teaching staff (nanny, security, cleaner...) are paid but get no portal access. */
+  staffCategory?: StaffCategory | undefined;
+  supportDuty?: string | undefined;
   loginPin?: string | undefined;
   phone: string;
   email: string;

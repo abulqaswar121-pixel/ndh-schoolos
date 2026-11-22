@@ -29,6 +29,7 @@ import type {
   StaffMember,
   UserRole,
 } from "@/types/school";
+import { NON_TEACHING_DUTIES, isNonTeaching, type StaffCategory } from "@/types/school";
 
 const PAYROLL_MONTHS = [
   { key: "2026-09", label: "September 2026" },
@@ -68,6 +69,21 @@ export function StaffPayrollModule() {
 
   // Staff Directory Tab State
   const [stfSearch, setStfSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | StaffCategory>("all");
+  const matchesCategory = (m: StaffMember) =>
+    categoryFilter === "all" || (isNonTeaching(m) ? "non_teaching" : "teaching") === categoryFilter;
+  const categorySelect = (
+    <select
+      aria-label="Filter by staff type"
+      value={categoryFilter}
+      onChange={(e) => setCategoryFilter(e.target.value as "all" | StaffCategory)}
+      className="h-9 rounded-lg border border-slate-200 bg-[#F8FAFC] px-3 text-xs font-bold text-[#0F172A]"
+    >
+      <option value="all">All staff</option>
+      <option value="teaching">Teaching staff</option>
+      <option value="non_teaching">Non-teaching staff</option>
+    </select>
+  );
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
 
@@ -132,6 +148,7 @@ export function StaffPayrollModule() {
       }))
       .filter((row): row is { rec: PayrollRecord; member: StaffMember } => {
         if (!row.member) return false;
+        if (!matchesCategory(row.member)) return false;
         if (
           payClassFilter !== "all" &&
           !row.member.assignedClassIds.includes(payClassFilter)
@@ -143,7 +160,7 @@ export function StaffPayrollModule() {
           .toLowerCase()
           .includes(q);
       });
-  }, [payroll, selectedMonthKey, staff, payClassFilter, paySearch]);
+  }, [payroll, selectedMonthKey, staff, payClassFilter, paySearch, categoryFilter]);
 
   const payrollTotals = useMemo(() => {
     const netTotal = monthPayrollRows.reduce((s, r) => s + r.rec.netSalary, 0);
@@ -156,12 +173,13 @@ export function StaffPayrollModule() {
   const filteredStaff = useMemo(() => {
     const q = stfSearch.trim().toLowerCase();
     return staff.filter((s) => {
+      if (!matchesCategory(s)) return false;
       if (!q) return true;
-      return `${s.fullName} ${s.staffCode} ${s.role} ${s.phone}`
+      return `${s.fullName} ${s.staffCode} ${s.role} ${s.supportDuty ?? ""} ${s.phone}`
         .toLowerCase()
         .includes(q);
     });
-  }, [staff, stfSearch]);
+  }, [staff, stfSearch, categoryFilter]);
 
   const openAddStaff = () => {
     const nextNum = String(staff.length + 1).padStart(3, "0");
@@ -287,6 +305,7 @@ export function StaffPayrollModule() {
                   </option>
                 ))}
               </select>
+              {categorySelect}
 
               <div className="text-xs text-slate-700">
                 Net Payroll:{" "}
@@ -474,7 +493,8 @@ export function StaffPayrollModule() {
 
         {/* Staff Directory & Access Scope */}
         <TabsContent value="directory" className="space-y-4">
-          <div className="ndh-card p-3.5">
+          <div className="ndh-card flex flex-wrap items-center gap-3 p-3.5">
+            {categorySelect}
             <Input
               value={stfSearch}
               onChange={(e) => setStfSearch(e.target.value)}
@@ -516,10 +536,17 @@ export function StaffPayrollModule() {
                           </div>
                         </td>
                         <td className="px-4 py-3 font-semibold text-[#1E3A8A]">
-                          {member.role}
+                          {isNonTeaching(member) ? (
+                            <span>
+                              {member.supportDuty || "Support Staff"}
+                              <span className="ml-1.5 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-900">Non-teaching</span>
+                            </span>
+                          ) : member.role}
                         </td>
                         <td className="px-4 py-3 text-xs text-slate-700">
-                          {member.systemRole === "admin"
+                          {isNonTeaching(member)
+                            ? "Payroll only • no portal login"
+                            : member.systemRole === "admin"
                             ? "All Classes & Settings"
                             : member.systemRole === "exam_officer"
                               ? "All Classes' Results, Report Sheets & Exam Papers"
@@ -694,6 +721,38 @@ export function StaffPayrollModule() {
             <form onSubmit={handleSaveStaff} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
+                  <Label className="text-xs font-bold">Staff Type</Label>
+                  <select
+                    aria-label="Staff type"
+                    value={isNonTeaching(editingStaff) ? "non_teaching" : "teaching"}
+                    onChange={(e) => {
+                      const nonTeaching = e.target.value === "non_teaching";
+                      setEditingStaff(nonTeaching
+                        ? { ...editingStaff, staffCategory: "non_teaching", supportDuty: editingStaff.supportDuty || "Nanny", role: "Support Staff", systemRole: "secretary", isExamOfficer: false, assignedClassIds: [], assignedSubjectIds: [], salary: { ...editingStaff.salary, teachingAllowance: 0 } }
+                        : { ...editingStaff, staffCategory: "teaching", supportDuty: undefined, role: "Class Teacher", systemRole: "class_teacher" });
+                    }}
+                    className="h-9 w-full rounded-lg border border-slate-200 bg-[#F8FAFC] px-3 font-semibold"
+                  >
+                    <option value="teaching">Teaching staff</option>
+                    <option value="non_teaching">Non-teaching (nanny, security...)</option>
+                  </select>
+                </div>
+                {isNonTeaching(editingStaff) && (
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Duty</Label>
+                    <select
+                      aria-label="Duty"
+                      value={editingStaff.supportDuty || "Nanny"}
+                      onChange={(e) => setEditingStaff({ ...editingStaff, supportDuty: e.target.value })}
+                      className="h-9 w-full rounded-lg border border-slate-200 bg-[#F8FAFC] px-3 font-semibold"
+                    >
+                      {NON_TEACHING_DUTIES.map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
                   <Label className="text-xs font-bold">Full Name</Label>
                   <Input
                     value={editingStaff.fullName}
@@ -706,7 +765,7 @@ export function StaffPayrollModule() {
                     required
                   />
                 </div>
-                <div className="space-y-1">
+                {!isNonTeaching(editingStaff) && <div className="space-y-1">
                   <Label className="text-xs font-bold">System Role</Label>
                   <select
                     value={editingStaff.systemRole}
@@ -729,7 +788,7 @@ export function StaffPayrollModule() {
                       </option>
                     ))}
                   </select>
-                </div>
+                </div>}
                 <div className="space-y-1">
                   <Label className="text-xs font-bold">Phone</Label>
                   <Input
@@ -780,7 +839,7 @@ export function StaffPayrollModule() {
                 </div>
               </div>
 
-              {(editingStaff.systemRole === "class_teacher" ||
+              {!isNonTeaching(editingStaff) && (editingStaff.systemRole === "class_teacher" ||
                 editingStaff.systemRole === "subject_teacher" ||
                 editingStaff.systemRole === "muallim") && (
                 <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-[#9ed9d6] bg-[#edf7f6] p-3">
@@ -806,7 +865,7 @@ export function StaffPayrollModule() {
                 </label>
               )}
 
-              {(editingStaff.systemRole === "class_teacher" ||
+              {!isNonTeaching(editingStaff) && (editingStaff.systemRole === "class_teacher" ||
                 editingStaff.systemRole === "subject_teacher" ||
                 editingStaff.systemRole === "muallim") && (
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
