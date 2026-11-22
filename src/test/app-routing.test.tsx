@@ -52,13 +52,14 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     const videoEl = player.querySelector("video");
     expect(videoEl).not.toBeNull();
     expect(videoEl?.getAttribute("src")).toBe(
-      "/videos/ndh-walkthrough-admin-v4.mp4"
+      "/videos/ndh-walkthrough-admin-v5.mp4"
     );
 
+    expect(screen.getByText(/Keep Tahfeez optional/i)).toBeInTheDocument();
     fireEvent.ended(videoEl!);
     const nextVideoEl = player.querySelector("video");
     expect(nextVideoEl?.getAttribute("src")).toBe(
-      "/videos/ndh-walkthrough-exam-officer-v4.mp4"
+      "/videos/ndh-walkthrough-exam-officer-v5.mp4"
     );
 
     // Official ndh.com.ng contact info in footer
@@ -67,8 +68,6 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
 
     const html = document.body.innerHTML;
     expect(html).not.toMatch(/dual-curriculum/i);
-    expect(html).not.toMatch(/Tahfeez/i);
-    expect(html).not.toMatch(/Halqah/i);
     expect(html).not.toMatch(/Madrasah/i);
     expect(html).not.toMatch(/Operating System/i);
     expect(html).not.toMatch(/Universal Flexibility/i);

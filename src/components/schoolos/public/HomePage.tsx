@@ -166,10 +166,10 @@ export function HomePage() {
           <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <div className="text-xs font-extrabold tracking-[0.14em] text-[#1a4a6e] uppercase">
-                Full Walkthrough Videos (Welcome • Sign-Up • Sign-In • All Pages)
+                Narrated Role Guides • School Links • Offline Sync • A4 Reports
               </div>
               <h2 className="font-display mt-1 text-2xl font-bold text-[#0b1220] sm:text-3xl">
-                Watch how each user signs in and uses every feature
+                Explore the latest workflows for your school role
               </h2>
             </div>
             <Button

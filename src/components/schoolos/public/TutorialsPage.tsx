@@ -22,49 +22,49 @@ const ROLE_CARDS = [
     role: "School Owner",
     scope: "Full Control",
     summary:
-      "School Code setup, staff PINs, class transfers, Exam Officer provisioning, custom report studio & full backups.",
+      "School branding and short links, phone/PIN accounts, school-app installation, optional Tahfeez, support-staff payroll & A4 reports.",
   },
   {
     icon: FileCheck2,
     role: "Exam Officer",
     scope: "Exams & All Reports",
     summary:
-      "Missing-paper tracker, question moderation, PDF & Word (.doc) exam/scheme export, and all-classes broadsheets & report sheets.",
+      "Phone/PIN sign-in, missing-paper tracking, paper review, PDF & Word exports, sync-aware results and A4 reports.",
   },
   {
     icon: BookOpen,
     role: "Class Teacher",
     scope: "Assigned Class",
     summary:
-      "1-tap attendance, auto-synced subject scores on class broadsheet, AI exam question refiner & A4 report cards.",
+      "Assigned class or Halqah, offline attendance and scores, optional Tahfeez, My Class / My Subjects duties and A4 reports.",
   },
   {
     icon: ClipboardCheck,
     role: "Subject Teacher",
     scope: "Subjects & Groups",
     summary:
-      "Single-class or combined cross-class group recording (enter once -> routes to home classes) + AI exam question digitizer.",
+      "Assigned subjects and combined groups, one login for dual-role teaching, offline score drafts, reconnect sync and exam review.",
   },
   {
     icon: Calculator,
     role: "Bursar",
     scope: "Fees & Payroll",
     summary:
-      "Fee schedules, transfer confirmation, numbered receipts, debtors & monthly staff payroll.",
+      "Fees, verified transfers, official receipts, debtors, and separate teaching / non-teaching payroll without unnecessary teacher logins.",
   },
   {
     icon: Users,
     role: "Secretary",
     scope: "Front Office",
     summary:
-      "Admissions, sibling phone linking, mid-session class transfers, notices & read-only report printing.",
+      "Branded school links and app-install guidance, admissions, guardian links, synced attendance, notices and authorised A4 printing.",
   },
   {
     icon: Smartphone,
     role: "Parent",
     scope: "Own Children",
     summary:
-      "School Code + phone login for all siblings — attendance, published report cards, fees & receipts.",
+      "School link, phone + 4-digit PIN, school-branded app, linked children, attendance, published A4 reports, fees & receipts.",
   },
 ];
 
@@ -84,7 +84,7 @@ export function TutorialsPage() {
               Quick video guides for every school role
             </h1>
             <p className="mt-2 text-sm text-[#364152] sm:text-base">
-              Each video welcomes you, walks through Sign-Up and Sign-In, and tours every page and feature for that role — with clickable chapter chips below the player.
+              Seven narrated, illustrated guides explain school-branded access, phone/PIN sign-in, app installation, offline sync and role-specific workflows — with English captions and clickable chapters.
             </p>
           </div>
 
