@@ -9,6 +9,7 @@ import { useSchoolOS } from "@/context/SchoolOSContext";
 import { supabase } from "@/integrations/supabase/client";
 import { createPhoneLogin, inviteSchoolAccount, listPortalLogins, removeSchoolAccount, resetPhonePin } from "@/services/schoolPortal.functions";
 import { isValidPhone, isValidPin, normalizePhone } from "@/services/phoneLogin";
+import { normalizeSchoolSlug, validSchoolSlug } from "@/services/schoolApp";
 
 type Account = { user_id: string; role: string; staff_id: string | null; login: string; isPhone: boolean };
 
@@ -27,6 +28,8 @@ export function SchoolPortalAccess() {
   const [studentIds, setStudentIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [url, setUrl] = useState("");
+  const [slug, setSlug] = useState("");
+  const [savingLink, setSavingLink] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const reload = async () => {
     if (!cloudSchool || portal.role !== "admin") return;
@@ -36,6 +39,10 @@ export function SchoolPortalAccess() {
   useEffect(() => {
     if (!cloudSchool) return;
     setUrl(`${window.location.origin}/s/${cloudSchool.id}`);
+    void supabase.from("school_portal_branding").select("slug").eq("school_id", cloudSchool.id).maybeSingle().then(({ data }) => {
+      setSlug(data?.slug || "");
+      setUrl(`${window.location.origin}/s/${data?.slug || cloudSchool.id}`);
+    });
     void reload();
   }, [cloudSchool?.id]);
   if (portal.role !== "admin" || !cloudSchool) return null;
@@ -81,6 +88,21 @@ export function SchoolPortalAccess() {
 
   return <section className="space-y-4 border-t border-border pt-5">
     <h2 className="text-base font-bold">School portal & accounts</h2>
+    <form className="flex flex-wrap items-end gap-2" onSubmit={async (event) => {
+      event.preventDefault();
+      const next = normalizeSchoolSlug(slug);
+      if (!validSchoolSlug(next)) { toast.error("Use 3–32 small letters, numbers or hyphens. Start and end with a letter or number."); return; }
+      setSavingLink(true);
+      try {
+        const { error } = await supabase.from("school_portal_branding").upsert({ school_id: cloudSchool.id, name: db.settings.name, motto: db.settings.motto, logo_url: db.settings.logoDataUrl || null, slug: next });
+        if (error) throw new Error(error.code === "23505" ? "Another school already uses this short link." : "Could not save school link.");
+        setSlug(next); setUrl(`${window.location.origin}/s/${next}`); toast.success("School link saved. Your original link still works.");
+      } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save school link."); }
+      finally { setSavingLink(false); }
+    }}>
+      <div className="min-w-0 flex-1 space-y-1"><Label htmlFor="school-short-link">Short school link</Label><Input id="school-short-link" placeholder="markaz" maxLength={32} value={slug} onChange={event => setSlug(event.target.value)} /></div>
+      <Button type="submit" disabled={savingLink}>{savingLink ? "Saving…" : "Save short link"}</Button>
+    </form>
     <div className="flex min-w-0 gap-2">
       <Input aria-label="School portal link" readOnly value={url} className="min-w-0" />
       <Button variant="outline" size="icon" title="Copy school portal link" onClick={async () => { await navigator.clipboard.writeText(url); toast.success("School link copied."); }}><Copy className="h-4 w-4" /></Button>

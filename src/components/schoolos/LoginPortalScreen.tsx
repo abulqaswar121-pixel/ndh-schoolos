@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import { NDH_PARENT_CONTACT } from "@/data/ndhLinks";
+import { SchoolAppInstall } from "./SchoolAppInstall";
 
 export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoolId: string; name: string; logoUrl?: string; motto: string } } = {}) {
   const navigate = useNavigate();
@@ -66,7 +67,8 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
       const owner = await loginSchoolAdmin(staffIdentifier, staffPin, schoolBranding?.schoolId);
       setStaffPin("");
       toast.success("Signed in to your cloud account.");
-      await navigate({ to: owner ? "/platform" : "/app" });
+      if (schoolBranding && !owner) await navigate({ to: "/s/$schoolId", params: { schoolId: schoolBranding.schoolId } });
+      else await navigate({ to: owner ? "/platform" : "/app" });
     } catch (error) {
       setStaffError(
         error instanceof Error ? error.message : "Unable to sign in."
@@ -80,7 +82,7 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
     e.preventDefault();
     setParentError("");
     setBusy(true);
-    try { await loginSchoolAdmin(parentPhone, parentPassword, schoolBranding?.schoolId); setParentPassword(""); await navigate({ to: "/app" }); }
+    try { await loginSchoolAdmin(parentPhone, parentPassword, schoolBranding?.schoolId); setParentPassword(""); if (schoolBranding) await navigate({ to: "/s/$schoolId", params: { schoolId: schoolBranding.schoolId } }); else await navigate({ to: "/app" }); }
     catch (error) { setParentError(error instanceof Error ? error.message : "Unable to sign in."); }
     finally { setBusy(false); }
   };
@@ -90,7 +92,7 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0c2340] px-4 py-3 text-white sm:px-6">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <Link to="/">
-            <NDHBrandLockup theme="dark" />
+            {schoolBranding ? <div className="flex items-center gap-2"><SchoolCrest settings={brandingSettings} size="sm" /><span className="max-w-64 text-sm font-bold">{schoolBranding.name}</span></div> : <NDHBrandLockup theme="dark" />}
           </Link>
           <div className="flex items-center gap-2">
             <Button
@@ -164,6 +166,7 @@ export function LoginPortalScreen({ schoolBranding }: { schoolBranding?: { schoo
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
+            {schoolBranding && <SchoolAppInstall school={schoolBranding} />}
             {!isSchoolRegistered && (
               <Button
                 type="button"

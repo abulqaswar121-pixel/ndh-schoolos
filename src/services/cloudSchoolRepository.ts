@@ -418,14 +418,17 @@ export class CloudSaveQueue {
   private running: Promise<void> | null = null;
   private failed = false;
   private acknowledged: string;
+  private baseline: SchoolDatabaseSnapshot;
   constructor(
     readonly schoolId: string,
     private revision: number,
     snapshot: SchoolDatabaseSnapshot,
     private readonly save = cloudSchoolRepository.save,
     private readonly onState: (status: CloudSyncStatus, error?: string) => void = () => {},
+    private readonly checkpoint: (revision: number, baseline: SchoolDatabaseSnapshot, pending: SchoolDatabaseSnapshot | null) => void = () => {},
   ) {
-    this.acknowledged = JSON.stringify(sanitizeCloudSnapshot(snapshot));
+    this.baseline = sanitizeCloudSnapshot(snapshot);
+    this.acknowledged = JSON.stringify(this.baseline);
   }
   get dirty() {
     return Boolean(this.pending || this.running);
@@ -434,6 +437,7 @@ export class CloudSaveQueue {
     const clean = sanitizeCloudSnapshot(snapshot);
     if (!this.running && JSON.stringify(clean) === this.acknowledged) return Promise.resolve();
     this.pending = clean;
+    this.checkpoint(this.revision, this.baseline, clean);
     if (this.failed)
       return Promise.reject(new Error("Cloud save is paused. Retry or reload cloud data."));
     return this.flush();
@@ -456,6 +460,8 @@ export class CloudSaveQueue {
           try {
             this.revision = await this.save(this.schoolId, this.revision, snapshot);
             this.acknowledged = JSON.stringify(snapshot);
+            this.baseline = snapshot;
+            this.checkpoint(this.revision, snapshot, this.pending);
           } catch (error) {
             this.pending ??= snapshot;
             this.failed = true;

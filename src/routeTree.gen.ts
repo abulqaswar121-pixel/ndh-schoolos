@@ -20,6 +20,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TutorialsRouteImport } from './routes/tutorials'
 import { Route as SSchoolIdRouteImport } from './routes/s.$schoolId'
+import { Route as ApiPublicSchoolAppSchoolIdRouteImport } from './routes/api/public/school-app/$schoolId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,12 @@ const SSchoolIdRoute = SSchoolIdRouteImport.update({
   path: '/s/$schoolId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSchoolAppSchoolIdRoute =
+  ApiPublicSchoolAppSchoolIdRouteImport.update({
+    id: '/api/public/school-app/$schoolId',
+    path: '/api/public/school-app/$schoolId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/tutorials': typeof TutorialsRoute
   '/s/$schoolId': typeof SSchoolIdRoute
+  '/api/public/school-app/$schoolId': typeof ApiPublicSchoolAppSchoolIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +110,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/tutorials': typeof TutorialsRoute
   '/s/$schoolId': typeof SSchoolIdRoute
+  '/api/public/school-app/$schoolId': typeof ApiPublicSchoolAppSchoolIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +125,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/tutorials': typeof TutorialsRoute
   '/s/$schoolId': typeof SSchoolIdRoute
+  '/api/public/school-app/$schoolId': typeof ApiPublicSchoolAppSchoolIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tutorials'
     | '/s/$schoolId'
+    | '/api/public/school-app/$schoolId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tutorials'
     | '/s/$schoolId'
+    | '/api/public/school-app/$schoolId'
   id:
     | '__root__'
     | '/'
@@ -157,6 +169,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tutorials'
     | '/s/$schoolId'
+    | '/api/public/school-app/$schoolId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +184,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TutorialsRoute: typeof TutorialsRoute
   SSchoolIdRoute: typeof SSchoolIdRoute
+  ApiPublicSchoolAppSchoolIdRoute: typeof ApiPublicSchoolAppSchoolIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSchoolIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/school-app/$schoolId': {
+      id: '/api/public/school-app/$schoolId'
+      path: '/api/public/school-app/$schoolId'
+      fullPath: '/api/public/school-app/$schoolId'
+      preLoaderRoute: typeof ApiPublicSchoolAppSchoolIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TutorialsRoute: TutorialsRoute,
   SSchoolIdRoute: SSchoolIdRoute,
+  ApiPublicSchoolAppSchoolIdRoute: ApiPublicSchoolAppSchoolIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

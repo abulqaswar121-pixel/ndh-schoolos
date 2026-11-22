@@ -1,8 +1,10 @@
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useOfflineStatus } from "@/services/offlineService";
 
 export function CloudWorkspaceStatus() {
+  const { isOnline } = useOfflineStatus();
   const {
     cloudStatus,
     cloudError,
@@ -17,7 +19,7 @@ export function CloudWorkspaceStatus() {
   );
   const inactive =
     expired || (cloudSchool && !["Active", "Free Trial"].includes(cloudSchool.subscription_status));
-  if (cloudStatus !== "error" && !inactive) return null;
+  if (cloudStatus !== "error" && !inactive && isOnline) return null;
   const run = (action: () => Promise<void>) => {
     void action().catch((error) =>
       toast.error(error instanceof Error ? error.message : "Unable to complete cloud action."),
@@ -31,11 +33,11 @@ export function CloudWorkspaceStatus() {
       <p className="font-bold">
         {inactive
           ? "Your school subscription needs attention. Cloud changes cannot be saved until it is active."
-          : "Cloud changes are not saved yet."}
+          : !isOnline ? "Offline — using this device’s saved school records." : "Cloud changes are not saved yet."}
       </p>
       {cloudError && <p className="mt-1">{cloudError}</p>}
       <p className="mt-1">
-        Keep this tab open. Download a backup before reloading if you have unsaved changes.
+        {!isOnline ? "Changes stay on this device until internet returns. Payments, messages and new sign-ins need internet." : "Download a backup before discarding unsaved changes."}
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Button size="sm" variant="outline" onClick={() => run(retryCloudSave)}>

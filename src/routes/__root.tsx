@@ -105,8 +105,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://ndhschoolos.lovable.app/images/og-share.jpg" },
-      { name: "twitter:image", content: "https://ndhschoolos.lovable.app/images/og-share.jpg" },
       { name: "theme-color", content: "#0c2340" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
@@ -117,7 +115,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "NDH SchoolOS" },
     ],
     links: [
-      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",
@@ -165,7 +162,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
-    registerOfflineServiceWorker();
+    void registerOfflineServiceWorker().catch(() => {});
   }, []);
 
   return (

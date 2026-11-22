@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { refuseOfflineWorker } from "./schoolApp";
 
 export interface OfflineStatusSummary {
   isOnline: boolean;
@@ -11,24 +12,24 @@ export interface OfflineStatusSummary {
 
 const OFFLINE_WARM_TS_KEY = "ndh_schoolos_offline_warmed_at";
 
-export function registerOfflineServiceWorker(): void {
+export async function registerOfflineServiceWorker(): Promise<void> {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
   // Skip inside automated jsdom test environment
   if (navigator.userAgent.toLowerCase().includes("jsdom")) return;
 
-  const register = () => {
-    navigator.serviceWorker
-      .register("/sw.js", { scope: "/" })
-      .catch(() => {
-        // Non-fatal in unsupported contexts
-      });
-  };
-
-  if (document.readyState === "complete") {
-    register();
-  } else {
-    window.addEventListener("load", register, { once: true });
+  const refused = refuseOfflineWorker(window.location.hostname, import.meta.env.PROD, window.self !== window.top, window.location.search);
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  if (refused) {
+    await Promise.all(registrations.filter(registration => [registration.active, registration.waiting, registration.installing].some(worker => worker && new URL(worker.scriptURL).pathname === "/sw.js")).map(registration => registration.unregister()));
+    if ("caches" in window) for (const key of await caches.keys()) if (key.startsWith("ndh-schoolos-") || (key.startsWith("workbox-precache-") && key.endsWith(`${window.location.origin}/`))) await caches.delete(key);
+    return;
   }
+  try {
+    const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+    void registration.update();
+    // Retire only the old hand-written app cache; leave messaging workers and other caches alone.
+    if ("caches" in window) await caches.delete("ndh-schoolos-offline-v6");
+  } catch { /* Unsupported browser or offline first visit. */ }
 }
 
 export async function warmAllPortalModulesAndRoutes(
@@ -43,32 +44,9 @@ export async function warmAllPortalModulesAndRoutes(
       await preloadImports();
     }
 
-    const routesToWarm = [
-      "/",
-      "/app",
-      "/login",
-      "/features",
-      "/for-schools",
-      "/pricing",
-      "/contact",
-      "/manifest.webmanifest",
-      "/images/ndh-logo-gateway-cropped.png",
-      "/images/ndh-ai-assistant.png",
-    ];
-
-    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: "PRECACHE_URLS",
-        urls: routesToWarm,
-      });
-    } else if ("caches" in window) {
-      const cache = await window.caches.open("ndh-schoolos-offline-v6");
-      await Promise.allSettled(
-        routesToWarm.map(async (u) => {
-          const res = await fetch(u, { credentials: "same-origin" });
-          if (res.ok) await cache.put(u, res.clone());
-        })
-      );
+    // The generated worker owns caches. Never manually cache dev HTML or authenticated responses.
+    if (!refuseOfflineWorker(window.location.hostname, import.meta.env.PROD, window.self !== window.top, window.location.search)) {
+      await Promise.allSettled([window.location.pathname, "/app"].map(path => fetch(path, { headers: { Accept: "text/html" } })));
     }
 
     const nowIso = new Date().toISOString();
@@ -120,7 +98,7 @@ export async function inspectOfflineCacheStats(): Promise<{
     if ("caches" in window) {
       const keys = await window.caches.keys();
       for (const k of keys) {
-        if (k.startsWith("ndh-schoolos-")) {
+        if (k.startsWith("ndh-schoolos-") || k.startsWith("workbox-precache-")) {
           const c = await window.caches.open(k);
           const reqs = await c.keys();
           cachedItemCount += reqs.length;
@@ -161,9 +139,7 @@ export async function inspectOfflineCacheStats(): Promise<{
 }
 
 export function useOfflineStatus(): OfflineStatusSummary {
-  const [isOnline, setIsOnline] = useState<boolean>(() =>
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
+  const [isOnline, setIsOnline] = useState(true);
   const [stats, setStats] = useState<{
     swReady: boolean;
     cachedItemCount: number;
@@ -179,6 +155,7 @@ export function useOfflineStatus(): OfflineStatusSummary {
   });
 
   useEffect(() => {
+    setIsOnline(navigator.onLine);
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
     window.addEventListener("online", onOnline);

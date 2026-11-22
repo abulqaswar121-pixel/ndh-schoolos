@@ -199,18 +199,21 @@ export type Database = {
           motto: string
           name: string
           school_id: string
+          slug: string | null
         }
         Insert: {
           logo_url?: string | null
           motto?: string
           name: string
           school_id: string
+          slug?: string | null
         }
         Update: {
           logo_url?: string | null
           motto?: string
           name?: string
           school_id?: string
+          slug?: string | null
         }
         Relationships: [
           {

@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { toast } from "sonner";
 import { saveSchoolPortal } from "@/services/schoolPortal.functions";
+import { readOfflineSchool, saveOfflineSchool, clearOfflineSchools, sameOfflineScope } from "@/services/offlineSchoolStore";
 import {
   CloudSaveQueue,
   cloudSchoolRepository,
@@ -588,6 +589,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
 
   // Cloud sessions are verified by Supabase. Browser portal flags are never credentials.
   const restoreCloudAccount = useCallback(async (userId: string, schoolId?: string) => {
+    const cached = readOfflineSchool(userId, schoolId);
     const request = ++cloudRequest.current;
     saveQueue.current = null;
     setRawDb(emptyCloudSnapshot());
@@ -598,7 +600,11 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     setCloudSchool(null);
     setPrintJob(null);
     try {
-      const account = await cloudSchoolRepository.loadAccount(schoolId);
+      if (!navigator.onLine && !cached) throw new Error("Connect to the internet and sign in once before using this school offline.");
+      const account = !navigator.onLine && cached ? {
+        user: { id: userId, email: "" }, isOwner: false, school: cached.school, portal: cached.portal,
+        workspace: { schoolId: cached.school.id, revision: cached.revision, snapshot: cached.baseline },
+      } : await cloudSchoolRepository.loadAccount(schoolId || cached?.school.id);
       if (
         request !== cloudRequest.current ||
         account.user.id !== userId ||
@@ -608,33 +614,47 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       setIsPlatformOwner(account.isOwner);
       setCloudSchool(account.school);
       const snapshot = account.workspace?.snapshot || emptyCloudSnapshot();
+      const nextPortal = account.portal || buildPortalSessionForRole("admin", snapshot, {
+        isAuthenticated: Boolean(account.workspace),
+        staffId: snapshot.staff.find(staff => staff.email.toLowerCase() === account.user.email?.toLowerCase())?.id,
+      });
+      const pending = cached && cached.school.id === account.school?.id && sameOfflineScope(cached.portal, nextPortal) ? cached.pending : null;
+      const conflict = Boolean(pending && account.workspace && cached && cached.revision !== account.workspace.revision);
       if (account.workspace) {
+        const school = account.school;
         const queue = new CloudSaveQueue(
           account.workspace.schoolId,
-          account.workspace.revision,
-          snapshot,
-          account.portal ? async (id, revision, next) => saveSchoolPortal({ data: { schoolId: id, revision, snapshot: next } }) : undefined,
+          pending && cached ? cached.revision : account.workspace.revision,
+          pending && cached ? cached.baseline : snapshot,
+          async (id, revision, next) => {
+            if (!navigator.onLine) throw new Error("Offline: your changes are saved on this device and will be checked when internet returns.");
+            return account.portal ? saveSchoolPortal({ data: { schoolId: id, revision, snapshot: next } }) : cloudSchoolRepository.save(id, revision, next);
+          },
           (status, error) => {
             if (saveQueue.current !== queue || signingOut.current) return;
             setCloudStatus(status);
             setCloudError(error || "");
-          }
+          },
+          (revision, baseline, draft) => {
+            if (!school || activeCloudUser.current !== userId) return;
+            try { saveOfflineSchool({ userId, school, portal: nextPortal, revision, baseline, pending: draft, savedAt: Date.now() }); }
+            catch { setCloudError("This device is full. Keep this page open and download a backup before closing it."); setCloudStatus("error"); }
+          },
         );
         saveQueue.current = queue;
+        if (school && !pending) {
+          try { saveOfflineSchool({ userId, school, portal: nextPortal, revision: account.workspace.revision, baseline: snapshot, pending: null, savedAt: Date.now() }); }
+          catch { toast.error("Could not save an offline copy. This device may be full."); }
+        }
       }
-      setRawDb(snapshot);
+      setRawDb(pending || snapshot);
       // Platform owners without a school can enter only the separate owner screen.
       setPortal(
-        account.portal || buildPortalSessionForRole("admin", snapshot, {
-          isAuthenticated: Boolean(account.workspace),
-          staffId: snapshot.staff.find(
-            (staff) =>
-              staff.email.toLowerCase() === account.user.email?.toLowerCase()
-          )?.id,
-        })
+        nextPortal
       );
       setActiveNavState("overview");
-      setCloudStatus("saved");
+      setCloudStatus(conflict ? "error" : "saved");
+      if (conflict) setCloudError("School records changed while you were offline. Your draft is kept on this device. Download a backup before choosing to reload; it will not overwrite newer records.");
       return account.isOwner;
     } catch (error) {
       if (request === cloudRequest.current) {
@@ -657,10 +677,12 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     let disposed = false;
     const handleUser = (userId: string | null) => {
       if (disposed || activeCloudUser.current === userId) return;
+      const previousUser = activeCloudUser.current;
       activeCloudUser.current = userId;
       if (userId) {
         void restoreCloudAccount(userId).catch(() => {});
       } else {
+        if (previousUser) clearOfflineSchools(previousUser);
         ++cloudRequest.current;
         saveQueue.current = null;
         setPortal((previous) => ({ ...previous, isAuthenticated: false }));
@@ -701,6 +723,15 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       saveQueue.current = null;
     };
   }, [cloudConfigured, restoreCloudAccount]);
+
+  useEffect(() => {
+    const reconnect = () => {
+      const userId = activeCloudUser.current;
+      if (userId && !signingOut.current) void restoreCloudAccount(userId, cloudSchool?.id).catch(() => {});
+    };
+    window.addEventListener("online", reconnect);
+    return () => window.removeEventListener("online", reconnect);
+  }, [restoreCloudAccount, cloudSchool?.id]);
 
   useEffect(() => {
     if (!hydrated || !portal.isAuthenticated) return;
@@ -755,8 +786,10 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
     const userId = await cloudSchoolRepository.currentUserId();
     if (!userId) throw new Error("Sign in before loading cloud data.");
     activeCloudUser.current = userId;
-    await restoreCloudAccount(userId);
-  }, [restoreCloudAccount]);
+    // This action explicitly discards the retained draft after the caller's confirmation.
+    clearOfflineSchools(userId);
+    await restoreCloudAccount(userId, cloudSchool?.id);
+  }, [restoreCloudAccount, cloudSchool?.id]);
   const retryCloudSave = useCallback(async () => {
     await saveQueue.current?.retry();
   }, []);
@@ -988,6 +1021,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
           await saveQueue.current.enqueue(rawDb);
         await saveQueue.current?.flush();
         await cloudSchoolRepository.signOut();
+        if (activeCloudUser.current) clearOfflineSchools(activeCloudUser.current);
         ++cloudRequest.current;
         activeCloudUser.current = null;
         saveQueue.current = null;

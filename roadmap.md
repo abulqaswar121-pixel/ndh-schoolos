@@ -6,7 +6,13 @@
 - [x] Validate signed-in Markaz reports and preserve all 610 student records.
 - [ ] Verify staff/parent invitation email acceptance and sign-in: needs a recipient to accept an invitation and choose their password.
 
-Later work, not in this update: offline syncing, AI paper capture, expanded exam editor, online payments and messaging.
+Later work, not in this update: AI paper capture, expanded exam editor, online payments and messaging.
+
+## Short links and school apps
+- [ ] Add editable unique short links, retaining original school links.
+- [ ] Add school-name/logo installation that opens directly at the school.
+- [ ] Add safe offline access and saved drafts with checked reconnection.
+- [ ] Verify school links, installation details and signed-in offline work.
 
 ## Printable data collection
 - [x] Add staff role/phone sheets and three-per-A4 parent slips with both logos and the complete school name.

@@ -15,3 +15,6 @@
 - Public school portals expose only branding; public school links never grant access to student or payroll records.
 - Phone credentials use one normalized identity; school administrators may reset its PIN only when it is linked exclusively to their school, preventing cross-school account takeover.
 - Collection forms use the current school's saved branding and fixed A4 page batches; parent slips remain blank so families confirm official names without exposing another learner's details.
+- School aliases are unique public-branding fields; stable school UUIDs identify installed apps so alias edits never change an installed app's start address.
+- Offline app shells use generated Workbox NetworkFirst navigation caching and one preview-guarded registrar; API responses and authentication never become app-shell caches.
+- Offline copies and drafts are scoped to the signed-in user and school, cleared on sign-out, and replayed with the original revision through existing server authorization; conflicts never silently overwrite newer records.
