@@ -9,10 +9,10 @@
 Later work, not in this update: AI paper capture, expanded exam editor, online payments and messaging.
 
 ## Short links and school apps
-- [ ] Add editable unique short links, retaining original school links.
-- [ ] Add school-name/logo installation that opens directly at the school.
-- [ ] Add safe offline access and saved drafts with checked reconnection.
-- [ ] Verify school links, installation details and signed-in offline work.
+- [x] Add editable unique short links, retaining original school links.
+- [x] Add school-name/logo installation that opens directly at the school.
+- [x] Add safe offline access and saved drafts with checked reconnection.
+- [x] Verify school links, installation details and signed-in offline work. Published installation and offline reopening need a published release; service workers stay disabled in the editor preview.
 
 ## Printable data collection
 - [x] Add staff role/phone sheets and three-per-A4 parent slips with both logos and the complete school name.

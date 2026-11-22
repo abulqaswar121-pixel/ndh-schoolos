@@ -31,6 +31,12 @@ export function readOfflineSchool(userId: string, schoolId?: string, storage: St
 export function clearOfflineSchools(userId: string, storage: Storage = window.localStorage): void {
   for (const key of Object.keys(storage)) if (key.startsWith(`${PREFIX}${userId}:`)) storage.removeItem(key);
 }
-export function sameOfflineScope(a: ActivePortalSession, b: ActivePortalSession): boolean {
-  return a.role === b.role && a.staffId === b.staffId && JSON.stringify(a.parentStudentIds || []) === JSON.stringify(b.parentStudentIds || []);
+export function sameOfflineScope(a: ActivePortalSession, b: ActivePortalSession, previous?: SchoolDatabaseSnapshot, current?: SchoolDatabaseSnapshot): boolean {
+  const identity = a.role === b.role && a.staffId === b.staffId && JSON.stringify(a.parentStudentIds || []) === JSON.stringify(b.parentStudentIds || []);
+  if (!identity || !previous || !current || a.role === "admin") return identity;
+  const assignments = (snapshot: SchoolDatabaseSnapshot) => {
+    const staff = snapshot.staff.find(person => person.id === a.staffId);
+    return [staff?.assignedClassIds, staff?.assignedSubjectIds, staff?.status, staff?.isExamOfficer, snapshot.settings.enableQuranModule];
+  };
+  return JSON.stringify(assignments(previous)) === JSON.stringify(assignments(current));
 }

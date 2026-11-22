@@ -37,7 +37,7 @@ export function CloudWorkspaceStatus() {
       </p>
       {cloudError && <p className="mt-1">{cloudError}</p>}
       <p className="mt-1">
-        {!isOnline ? "Changes stay on this device until internet returns. Payments, messages and new sign-ins need internet." : "Download a backup before discarding unsaved changes."}
+        {!isOnline ? "Changes stay on this device until internet returns. Online payments, messages and new sign-ins need internet." : "Download a backup before discarding unsaved changes."}
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Button size="sm" variant="outline" onClick={() => run(retryCloudSave)}>

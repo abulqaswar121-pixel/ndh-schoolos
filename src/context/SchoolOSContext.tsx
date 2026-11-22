@@ -618,7 +618,8 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: Boolean(account.workspace),
         staffId: snapshot.staff.find(staff => staff.email.toLowerCase() === account.user.email?.toLowerCase())?.id,
       });
-      const pending = cached && cached.school.id === account.school?.id && sameOfflineScope(cached.portal, nextPortal) ? cached.pending : null;
+      const pending = cached && cached.school.id === account.school?.id && sameOfflineScope(cached.portal, nextPortal, cached.baseline, snapshot) ? cached.pending : null;
+      if (cached?.pending && !pending) toast.error("Your school access changed. The old offline draft cannot be uploaded with your new access.");
       const conflict = Boolean(pending && account.workspace && cached && cached.revision !== account.workspace.revision);
       if (account.workspace) {
         const school = account.school;
@@ -657,6 +658,7 @@ export function SchoolOSProvider({ children }: { children: React.ReactNode }) {
       if (conflict) setCloudError("School records changed while you were offline. Your draft is kept on this device. Download a backup before choosing to reload; it will not overwrite newer records.");
       return account.isOwner;
     } catch (error) {
+      if (navigator.onLine && error instanceof Error && /No portal account|Staff access is inactive|School access required|No school administrator membership/.test(error.message)) clearOfflineSchools(userId);
       if (request === cloudRequest.current) {
         setRawDb(emptyCloudSnapshot());
         setCloudStatus("error");

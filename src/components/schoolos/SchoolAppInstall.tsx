@@ -17,14 +17,14 @@ export function SchoolAppInstall({ school }: { school: { schoolId: string; name:
   }, [school.schoolId]);
   if (installed) return null;
   return <>
-    <Button variant="outline" onClick={async () => {
+    <Button variant="outline" className="text-foreground" onClick={async () => {
       if (!prompt) { setOpen(true); return; }
       await prompt.prompt(); await prompt.userChoice; setPrompt(null);
     }}><Download className="mr-2 h-4 w-4" />Install school app</Button>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>{school.name}</DialogTitle></DialogHeader>
       <p className="text-sm">On iPhone, open this school link in Safari, tap Share, then Add to Home Screen. On Android, open it in Chrome and choose Install app or Add to Home screen.</p>
-      <p className="text-sm text-muted-foreground">Use your own device. Sign in online first; saved records and drafts stay on this device until you sign out. New sign-ins, payments and messages need internet.</p>
-      {!school.logoUrl?.startsWith("data:image/png;base64,") && <p className="text-sm text-destructive">Ask your school administrator to upload a PNG school logo first.</p>}
+      <p className="text-sm text-muted-foreground">Use your own device. Sign in online first; saved records and drafts stay on this device until you sign out. New sign-ins, online payments and messages need internet. Offline reopening works after publishing, not in this preview.</p>
+      {!/^data:image\/(png|jpeg);base64,/.test(school.logoUrl || "") && <p className="text-sm text-destructive">Ask your school administrator to upload a PNG or JPEG school logo first.</p>}
     </DialogContent></Dialog>
   </>;
 }

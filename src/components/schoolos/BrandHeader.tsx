@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import {
   BookOpen,
   Building2,
@@ -19,6 +19,7 @@ import React from "react";
 import { toast } from "sonner";
 import { NDHBrandLockup } from "./NDHBrandLockup";
 import { SchoolCrest } from "./SchoolCrest";
+import { SchoolAppInstall } from "./SchoolAppInstall";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -64,12 +65,15 @@ const ROLE_META: Record<
 
 export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const schoolMode = location.pathname.startsWith("/s/");
   const {
     db,
     portal,
     updateSettings,
     logoutSession,
     cloudConfigured,
+    cloudSchool,
     cloudStatus,
     isPlatformOwner,
     setOnboardingWizardOpen,
@@ -92,7 +96,8 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
   const handleSignOut = async () => {
     try {
       await logoutSession();
-      await navigate({ to: "/login" });
+      if (schoolMode && cloudSchool) await navigate({ to: "/s/$schoolId", params: { schoolId: cloudSchool.id } });
+      else await navigate({ to: "/login" });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -148,20 +153,20 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
             </Button>
           )}
 
-          <Link to="/" className="shrink-0">
+          {!schoolMode && <Link to="/" className="shrink-0">
             <NDHBrandLockup theme="dark" compact />
-          </Link>
+          </Link>}
 
           <div
             className="hidden h-7 w-px bg-white/15 md:block"
             aria-hidden="true"
           />
 
-          <div className="hidden min-w-0 items-center gap-2.5 md:flex">
+          <div className={schoolMode ? "flex min-w-0 items-center gap-2.5" : "hidden min-w-0 items-center gap-2.5 md:flex"}>
             <SchoolCrest settings={settings} size="sm" />
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="truncate text-sm font-bold text-white">
+                <span className="max-w-md text-sm font-bold break-words">
                   {settings.name}
                 </span>
                 {settings.code && (
@@ -184,7 +189,8 @@ export function BrandHeader({ onOpenMobileMenu }: BrandHeaderProps) {
         </div>
 
         {/* Right: Offline Pill + Session/Term + Video Guide + Account Menu */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex max-w-full flex-wrap items-center gap-1.5 sm:gap-2">
+          {schoolMode && cloudSchool && <SchoolAppInstall school={{ schoolId: cloudSchool.id, name: settings.name, ...(settings.logoDataUrl ? { logoUrl: settings.logoDataUrl } : {}) }} />}
           <button
             type="button"
             onClick={handleOfflinePillClick}

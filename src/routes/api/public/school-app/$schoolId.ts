@@ -12,9 +12,10 @@ export const Route = createFileRoute("/api/public/school-app/$schoolId")({
       const { decode, encode } = await import("fast-png");
       const size = Number(icon);
       const pixels = new Uint8Array(size * size * 4).fill(255);
-      if (school.logoUrl?.startsWith("data:image/png;base64,")) {
+      if (school.logoUrl && /^data:image\/(png|jpeg);base64,/.test(school.logoUrl)) {
         try {
-          const source = decode(Uint8Array.from(atob(school.logoUrl.split(",")[1] || ""), c => c.charCodeAt(0)));
+          const input = Uint8Array.from(atob(school.logoUrl.split(",")[1] || ""), c => c.charCodeAt(0));
+          const source = school.logoUrl.startsWith("data:image/png") ? decode(input) : { ...(await import("jpeg-js")).decode(input, { useTArray: true, maxResolutionInMP: 16 }), channels: 4 };
           const scale = Math.min(size * 0.9 / source.width, size * 0.9 / source.height);
           const width = Math.round(source.width * scale), height = Math.round(source.height * scale);
           for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
@@ -26,10 +27,10 @@ export const Route = createFileRoute("/api/public/school-app/$schoolId")({
             pixels[to + 2] = Number(source.data[from + (gray ? 0 : 2)] ?? 255);
             pixels[to + 3] = source.channels === 4 || source.channels === 2 ? Number(source.data[from + source.channels - 1] ?? 255) : 255;
           }
-        } catch { return new Response("School logo could not be read. Upload a PNG school logo.", { status: 422 }); }
+        } catch { return new Response("School logo could not be read. Upload a PNG or JPEG school logo.", { status: 422 }); }
       } else {
-        // A school without a PNG crest must not silently install the NDH family icon.
-        return new Response("Upload a PNG school logo before installing this school app.", { status: 422 });
+        // A school without a crest must not silently install the NDH family icon.
+        return new Response("Upload a PNG or JPEG school logo before installing this school app.", { status: 422 });
       }
       const bytes = encode({ width: size, height: size, data: pixels, channels: 4 });
       return new Response(new Uint8Array(bytes).buffer, { headers: { ...headers, "Content-Type": "image/png" } });

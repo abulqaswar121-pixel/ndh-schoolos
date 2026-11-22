@@ -85,11 +85,11 @@ export function BackupsOfflineModule({
     setWarmingOffline(false);
     if (res.ok) {
       toast.success(
-        cloudConfigured ? "App modules cached. Loading and saving cloud records still requires internet." : "App modules & pages saved to this device for zero-data offline work."
+        cloudConfigured ? "School modules are ready. Offline reopening works in the published school app after an online visit." : "App modules & pages saved to this device for zero-data offline work."
       );
     } else {
       toast.info(
-        cloudConfigured ? "Cloud records are not automatically saved to this browser. Use a manual backup for offline recovery." : "Local database is already saved offline on this device."
+        cloudConfigured ? "Could not prepare the school app. Connect to the internet and try again." : "Local database is already saved offline on this device."
       );
     }
   };
@@ -222,10 +222,10 @@ export function BackupsOfflineModule({
             </div>
 
             <h2 className="text-base font-extrabold text-[#0F172A]">
-              {cloudConfigured ? "Cloud Storage with Downloadable Backups" : "Works 100% Offline for Daily School Operations"}
+              {cloudConfigured ? "Offline copies & school backups" : "Works 100% Offline for Daily School Operations"}
             </h2>
             <p className="max-w-2xl text-xs leading-relaxed text-slate-600">
-              {cloudConfigured ? "School records are loaded from and saved to your authenticated cloud school. Internet is required to sign in and save changes. During an interruption, keep this tab open and retry; use downloaded backups for offline recovery." : <>Admissions, attendance, CA & exam grading, report sheet printing,
+              {cloudConfigured ? "Sign in online first on your own device. Your allowed school records and drafts are saved here; changes are checked when internet returns. New sign-ins, online payments and messages need internet. Offline reopening is available in the published school app, not the editor preview. Signing out removes this device’s saved school copies." : <>Admissions, attendance, CA & exam grading, report sheet printing,
               fee receipts, payroll, and Excel/CSV exports run directly on your
               device with zero mobile data required. Internet is only needed
               when sending external WhatsApp/SMS links or streaming tutorial
