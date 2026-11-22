@@ -1,0 +1,433 @@
+{
+  "version": 5,
+  "status": "narrated-illustrated-release",
+  "timingBasis": "Scene cuts conformed to measured paragraph pauses in the selected narration; English caption phrases timed within each spoken scene.",
+  "roles": [
+    {
+      "roleId": "admin",
+      "title": "School Owner / Principal",
+      "durationSec": 91.64,
+      "durationLabel": "1:32",
+      "videoSrc": "/videos/ndh-walkthrough-admin-v5.mp4",
+      "posterSrc": "/videos/poster-ndh-walkthrough-admin-v5.jpg",
+      "captionsSrc": "/videos/ndh-walkthrough-admin-v5.en.vtt",
+      "oneLiner": "School branding & short links → Secure role sign-in → Install school app → Dual-role teachers → Support-staff payroll → Optional tracker → Offline sync → A4 reports.",
+      "chapters": [
+        {
+          "id": "welcome",
+          "label": "Your own school, your own link",
+          "startSec": 0,
+          "endSec": 13.112
+        },
+        {
+          "id": "owner-login",
+          "label": "Owner email and password",
+          "startSec": 13.112,
+          "endSec": 20.713
+        },
+        {
+          "id": "branding",
+          "label": "Set and share your school identity",
+          "startSec": 20.713,
+          "endSec": 27.239
+        },
+        {
+          "id": "install",
+          "label": "Install the school’s own app",
+          "startSec": 27.239,
+          "endSec": 36.228
+        },
+        {
+          "id": "accounts",
+          "label": "Teaching roles and one login",
+          "startSec": 36.228,
+          "endSec": 44.705
+        },
+        {
+          "id": "payroll",
+          "label": "Everyone belongs on payroll, not in a teacher portal",
+          "startSec": 44.705,
+          "endSec": 53.622
+        },
+        {
+          "id": "programmes",
+          "label": "Keep Tahfeez optional",
+          "startSec": 53.622,
+          "endSec": 64.421
+        },
+        {
+          "id": "offline",
+          "label": "Offline work, then automatic sync",
+          "startSec": 64.421,
+          "endSec": 74.51
+        },
+        {
+          "id": "reports",
+          "label": "Exact A4 reports on every screen",
+          "startSec": 74.51,
+          "endSec": 82.079
+        },
+        {
+          "id": "finish",
+          "label": "Share the right link and confirm readiness",
+          "startSec": 82.079,
+          "endSec": 91.64
+        }
+      ]
+    },
+    {
+      "roleId": "exam_officer",
+      "title": "Exam Officer",
+      "durationSec": 71.48,
+      "durationLabel": "1:12",
+      "videoSrc": "/videos/ndh-walkthrough-exam-officer-v5.mp4",
+      "posterSrc": "/videos/poster-ndh-walkthrough-exam-officer-v5.jpg",
+      "captionsSrc": "/videos/ndh-walkthrough-exam-officer-v5.en.vtt",
+      "oneLiner": "School phone/PIN login → Install app → Paper review & exports → Teacher drafts and sync → Programme-aware results → Exact A4 reports.",
+      "chapters": [
+        {
+          "id": "welcome",
+          "label": "Your school’s assessment workspace",
+          "startSec": 0,
+          "endSec": 8.996
+        },
+        {
+          "id": "login",
+          "label": "Phone and four-digit PIN",
+          "startSec": 8.996,
+          "endSec": 16.72
+        },
+        {
+          "id": "install",
+          "label": "Install your school app",
+          "startSec": 16.72,
+          "endSec": 25.341
+        },
+        {
+          "id": "papers",
+          "label": "Track and review exam papers",
+          "startSec": 25.341,
+          "endSec": 34.371
+        },
+        {
+          "id": "dual-role",
+          "label": "Understand a dual-role teacher’s submissions",
+          "startSec": 34.371,
+          "endSec": 41.578
+        },
+        {
+          "id": "offline",
+          "label": "Account for offline score drafts",
+          "startSec": 41.578,
+          "endSec": 51.642
+        },
+        {
+          "id": "programmes",
+          "label": "Respect the school’s programme",
+          "startSec": 51.642,
+          "endSec": 61.216
+        },
+        {
+          "id": "a4",
+          "label": "Check full A4 report cards",
+          "startSec": 61.216,
+          "endSec": 71.48
+        }
+      ]
+    },
+    {
+      "roleId": "class_teacher",
+      "title": "Class Teacher / Mu’allim",
+      "durationSec": 78.48,
+      "durationLabel": "1:19",
+      "videoSrc": "/videos/ndh-walkthrough-class-teacher-v5.mp4",
+      "posterSrc": "/videos/poster-ndh-walkthrough-class-teacher-v5.jpg",
+      "captionsSrc": "/videos/ndh-walkthrough-class-teacher-v5.en.vtt",
+      "oneLiner": "School phone/PIN login → Install app → My Class / My Subjects → Offline attendance & scores → Optional Tahfeez → Reconnect sync → A4 reports.",
+      "chapters": [
+        {
+          "id": "welcome",
+          "label": "Your class or Halqah, in your school",
+          "startSec": 0,
+          "endSec": 7.735
+        },
+        {
+          "id": "login",
+          "label": "One simple staff sign-in",
+          "startSec": 7.735,
+          "endSec": 15.707
+        },
+        {
+          "id": "install",
+          "label": "Your school on the home screen",
+          "startSec": 15.707,
+          "endSec": 26.009
+        },
+        {
+          "id": "dual-role",
+          "label": "My Class and My Subjects",
+          "startSec": 26.009,
+          "endSec": 34.318
+        },
+        {
+          "id": "attendance",
+          "label": "Take attendance without data",
+          "startSec": 34.318,
+          "endSec": 42.663
+        },
+        {
+          "id": "scores",
+          "label": "Record CA and exam scores offline",
+          "startSec": 42.663,
+          "endSec": 50.704
+        },
+        {
+          "id": "tahfeez",
+          "label": "Optional daily Tahfeez records",
+          "startSec": 50.704,
+          "endSec": 59.907
+        },
+        {
+          "id": "sync",
+          "label": "Reconnect and confirm automatic sync",
+          "startSec": 59.907,
+          "endSec": 68.273
+        },
+        {
+          "id": "reports",
+          "label": "Preview and print exact A4 reports",
+          "startSec": 68.273,
+          "endSec": 78.48
+        }
+      ]
+    },
+    {
+      "roleId": "subject_teacher",
+      "title": "Subject Teacher",
+      "durationSec": 68.16,
+      "durationLabel": "1:09",
+      "videoSrc": "/videos/ndh-walkthrough-subject-teacher-v5.mp4",
+      "posterSrc": "/videos/poster-ndh-walkthrough-subject-teacher-v5.jpg",
+      "captionsSrc": "/videos/ndh-walkthrough-subject-teacher-v5.en.vtt",
+      "oneLiner": "School phone/PIN login → Install app → Dual-role teaching → Combined groups → Offline scores & sync → Exam review → A4 reports.",
+      "chapters": [
+        {
+          "id": "welcome",
+          "label": "Open your school’s own page",
+          "startSec": 0,
+          "endSec": 8.945
+        },
+        {
+          "id": "login",
+          "label": "Phone and PIN, not email",
+          "startSec": 8.945,
+          "endSec": 17.183
+        },
+        {
+          "id": "install",
+          "label": "Install the school-branded app",
+          "startSec": 17.183,
+          "endSec": 26.656
+        },
+        {
+          "id": "dual-role",
+          "label": "Switch tasks without another login",
+          "startSec": 26.656,
+          "endSec": 33.662
+        },
+        {
+          "id": "groups",
+          "label": "Teach a subject across assigned groups",
+          "startSec": 33.662,
+          "endSec": 41.286
+        },
+        {
+          "id": "offline",
+          "label": "Keep scoring when the internet stops",
+          "startSec": 41.286,
+          "endSec": 50.097
+        },
+        {
+          "id": "tahfeez",
+          "label": "Only the programmes you handle",
+          "startSec": 50.097,
+          "endSec": 59.521
+        },
+        {
+          "id": "finish",
+          "label": "Prepare exams and check A4 output",
+          "startSec": 59.521,
+          "endSec": 68.16
+        }
+      ]
+    },
+    {
+      "roleId": "bursar",
+      "title": "Bursar / Accountant",
+      "durationSec": 73.76,
+      "durationLabel": "1:14",
+      "videoSrc": "/videos/ndh-walkthrough-bursar-v5.mp4",
+      "posterSrc": "/videos/poster-ndh-walkthrough-bursar-v5.jpg",
+      "captionsSrc": "/videos/ndh-walkthrough-bursar-v5.en.vtt",
+      "oneLiner": "School phone/PIN login → Install app → Fees & verified receipts → Teaching / non-teaching payroll → Reconciliation & exports.",
+      "chapters": [
+        {
+          "id": "welcome",
+          "label": "Finance in your own school workspace",
+          "startSec": 0,
+          "endSec": 9.036
+        },
+        {
+          "id": "login",
+          "label": "Simple staff phone login",
+          "startSec": 9.036,
+          "endSec": 16.892
+        },
+        {
+          "id": "install",
+          "label": "Install the school app",
+          "startSec": 16.892,
+          "endSec": 26.268
+        },
+        {
+          "id": "fees",
+          "label": "Set and review school fees",
+          "startSec": 26.268,
+          "endSec": 34.942
+        },
+        {
+          "id": "receipts",
+          "label": "Verify before issuing receipts",
+          "startSec": 34.942,
+          "endSec": 44.031
+        },
+        {
+          "id": "payroll",
+          "label": "Teaching and non-teaching salary sheets",
+          "startSec": 44.031,
+          "endSec": 53.574
+        },
+        {
+          "id": "reconcile",
+          "label": "Wait for school drafts to sync",
+          "startSec": 53.574,
+          "endSec": 63.154
+        },
+        {
+          "id": "finish",
+          "label": "Review and export the correct payroll",
+          "startSec": 63.154,
+          "endSec": 73.76
+        }
+      ]
+    },
+    {
+      "roleId": "secretary",
+      "title": "School Secretary",
+      "durationSec": 70.32,
+      "durationLabel": "1:11",
+      "videoSrc": "/videos/ndh-walkthrough-secretary-v5.mp4",
+      "posterSrc": "/videos/poster-ndh-walkthrough-secretary-v5.jpg",
+      "captionsSrc": "/videos/ndh-walkthrough-secretary-v5.en.vtt",
+      "oneLiner": "School phone/PIN login → Help families install → Admissions & guardian links → Programme-aware records → Synced attendance → A4 printing.",
+      "chapters": [
+        {
+          "id": "welcome",
+          "label": "Your school’s front office",
+          "startSec": 0,
+          "endSec": 9.28
+        },
+        {
+          "id": "login",
+          "label": "Phone and PIN for staff and parents",
+          "startSec": 9.28,
+          "endSec": 19.302
+        },
+        {
+          "id": "install",
+          "label": "Help families install their school app",
+          "startSec": 19.302,
+          "endSec": 28.719
+        },
+        {
+          "id": "admissions",
+          "label": "Keep learners and guardian links accurate",
+          "startSec": 28.719,
+          "endSec": 37.216
+        },
+        {
+          "id": "programmes",
+          "label": "Use the school’s chosen terms",
+          "startSec": 37.216,
+          "endSec": 48.87
+        },
+        {
+          "id": "offline",
+          "label": "Coordinate after offline lessons",
+          "startSec": 48.87,
+          "endSec": 60.721
+        },
+        {
+          "id": "reports",
+          "label": "Print complete A4 report cards",
+          "startSec": 60.721,
+          "endSec": 70.32
+        }
+      ]
+    },
+    {
+      "roleId": "parent",
+      "title": "Parent / Guardian",
+      "durationSec": 65.28,
+      "durationLabel": "1:06",
+      "videoSrc": "/videos/ndh-walkthrough-parent-v5.mp4",
+      "posterSrc": "/videos/poster-ndh-walkthrough-parent-v5.jpg",
+      "captionsSrc": "/videos/ndh-walkthrough-parent-v5.en.vtt",
+      "oneLiner": "Your school link → Phone + 4-digit PIN → Install school app → Linked children → Published A4 reports → Fees & official receipts.",
+      "chapters": [
+        {
+          "id": "welcome",
+          "label": "Your child’s school, straight from its link",
+          "startSec": 0,
+          "endSec": 12.558
+        },
+        {
+          "id": "login",
+          "label": "Your phone number and four-digit PIN",
+          "startSec": 12.558,
+          "endSec": 21.258
+        },
+        {
+          "id": "install",
+          "label": "Keep your school app on your phone",
+          "startSec": 21.258,
+          "endSec": 30.208
+        },
+        {
+          "id": "children",
+          "label": "Only your linked children",
+          "startSec": 30.208,
+          "endSec": 37.952
+        },
+        {
+          "id": "reports",
+          "label": "Published results and exact A4 reports",
+          "startSec": 37.952,
+          "endSec": 46.687
+        },
+        {
+          "id": "school-work",
+          "label": "Understand updates from lessons",
+          "startSec": 46.687,
+          "endSec": 56.442
+        },
+        {
+          "id": "fees",
+          "label": "Fees, verified receipts and safe use",
+          "startSec": 56.442,
+          "endSec": 65.28
+        }
+      ]
+    }
+  ]
+}

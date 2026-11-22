@@ -526,39 +526,45 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     expect(comp.netSalary).toBe(113000);
   });
 
-  it("auto-plays the RoleVideoTutorialPlayer MP4 (Welcome -> Sign-Up -> Sign-In -> All Pages), jumps chapters, switches roles, and rolls into the next video", () => {
+  it("plays the updated role MP4s with captions, measured chapter seeks, role switching and next-video playback", () => {
     const { container } = render(<RoleVideoTutorialPlayer autoPlay />);
 
     const getVideoSrc = () =>
       container.querySelector("video")?.getAttribute("src");
 
-    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-admin-v4.mp4");
-    expect(screen.getByText(/1\. Welcome/i)).toBeInTheDocument();
-    expect(screen.getByText(/3\. Sign-Up & School Code/i)).toBeInTheDocument();
-    expect(screen.getByText(/4\. Sign-In & Video Guide/i)).toBeInTheDocument();
-    expect(screen.getByText(/7\. Fees, Backups & Offline/i)).toBeInTheDocument();
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-admin-v5.mp4");
+    expect(screen.getByText(/1\. Your own school, your own link/i)).toBeInTheDocument();
+    expect(screen.getByText(/3\. Set and share your school identity/i)).toBeInTheDocument();
+    expect(screen.getByText(/4\. Install the school/i)).toBeInTheDocument();
+    expect(screen.getByText(/7\. Keep Tahfeez optional/i)).toBeInTheDocument();
+
+    expect(container.querySelector('track[kind="captions"]')?.getAttribute("src")).toBe("/videos/ndh-walkthrough-admin-v5.en.vtt");
+    const brandingChapter = screen.getByRole("button", { name: /3\. Set and share your school identity/i });
+    fireEvent.click(brandingChapter);
+    expect(container.querySelector("video")!.currentTime).toBe(20.713);
 
     // When video finishes, automatically rolls into Exam Officer MP4!
     fireEvent.ended(container.querySelector("video")!);
-    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-exam-officer-v4.mp4");
-    expect(screen.getByText(/5\. Export PDF & Word \(\.doc\)/i)).toBeInTheDocument();
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-exam-officer-v5.mp4");
+    expect(screen.getByText(/4\. Track and review exam papers/i)).toBeInTheDocument();
 
-    // Manual role tab switch to Subject Teacher (Combined Groups + AI Digitizer)
+    expect(container.querySelector('track[kind="captions"]')?.getAttribute("src")).toBe("/videos/ndh-walkthrough-exam-officer-v5.en.vtt");
+    // Manual role tab switch keeps updated combined-group and offline scoring chapters.
     const subjectTab = screen.getByRole("tab", { name: /Subject Teacher/i });
     fireEvent.click(subjectTab);
-    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-subject-teacher-v4.mp4");
-    expect(screen.getByText(/3\. Combined Multi-Class Groups/i)).toBeInTheDocument();
-    expect(screen.getByText(/5\. AI Exam Question Digitizer/i)).toBeInTheDocument();
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-subject-teacher-v5.mp4");
+    expect(screen.getByText(/5\. Teach a subject across assigned groups/i)).toBeInTheDocument();
+    expect(screen.getByText(/6\. Keep scoring when the internet stops/i)).toBeInTheDocument();
 
     // Manual role tab switch to Parent
     const parentTab = screen.getByRole("tab", { name: /Parent/i });
     fireEvent.click(parentTab);
-    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-parent-v4.mp4");
-    expect(screen.getByText(/2\. School Code \+ Phone Sign-In/i)).toBeInTheDocument();
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-parent-v5.mp4");
+    expect(screen.getByText(/2\. Your phone number and four-digit PIN/i)).toBeInTheDocument();
 
     // Loops back to School Owner when Parent video ends
     fireEvent.ended(container.querySelector("video")!);
-    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-admin-v4.mp4");
+    expect(getVideoSrc()).toBe("/videos/ndh-walkthrough-admin-v5.mp4");
   });
 
   it("locks in-portal RoleVideoTutorialPlayer strictly to the active portal's role with zero other role tabs", () => {
@@ -568,7 +574,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
 
     expect(
       container.querySelector("video")?.getAttribute("src")
-    ).toBe("/videos/ndh-walkthrough-exam-officer-v4.mp4");
+    ).toBe("/videos/ndh-walkthrough-exam-officer-v5.mp4");
     expect(
       screen.getByText(/Exam Officer — Portal Video Guide/i)
     ).toBeInTheDocument();
@@ -581,7 +587,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     fireEvent.ended(container.querySelector("video")!);
     expect(
       container.querySelector("video")?.getAttribute("src")
-    ).toBe("/videos/ndh-walkthrough-exam-officer-v4.mp4");
+    ).toBe("/videos/ndh-walkthrough-exam-officer-v5.mp4");
     unmount();
 
     const parentRender = render(
@@ -589,7 +595,7 @@ describe("NDH SchoolOS Production-Ready Blank Seed, RBAC & Video Tutorial Engine
     );
     expect(
       parentRender.container.querySelector("video")?.getAttribute("src")
-    ).toBe("/videos/ndh-walkthrough-parent-v4.mp4");
+    ).toBe("/videos/ndh-walkthrough-parent-v5.mp4");
     expect(
       screen.getByText(/Parent \/ Guardian — Portal Video Guide/i)
     ).toBeInTheDocument();

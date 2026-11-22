@@ -1,0 +1,231 @@
+{
+  "version": 5,
+  "visualFormat": "Illustrated workflow guides, not recordings of a live school account.",
+  "voiceDescription": "User-selected English female educational narrator; not a verified Nigerian-English accent.",
+  "roles": [
+    {
+      "roleId": "admin",
+      "durationSec": 91.64,
+      "width": 1280,
+      "height": 720,
+      "fps": 24,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fullDecodeVerified": true,
+      "files": {
+        "/videos/ndh-walkthrough-admin-v5.mp4": {
+          "bytes": 1262282,
+          "sha256": "677d6a3aa534ecb1b09a14486662e50d810b3e6852ff4478cdb7580a7a7cb198"
+        },
+        "/videos/poster-ndh-walkthrough-admin-v5.jpg": {
+          "bytes": 74178,
+          "sha256": "dab376e3541a5cdb28b3c2488cc342376d66c4da223328a092f2cd18a02b50b5"
+        },
+        "/videos/narration-v5/admin.mp3": {
+          "bytes": 364653,
+          "sha256": "027e52e51a8aef37eeeb5112cec9a7ec9bfaef26fdf9d9baf55b11b62f6a0032"
+        },
+        "/videos/ndh-walkthrough-admin-v5.en.vtt": {
+          "bytes": 2208,
+          "sha256": "a3c93abc6d9e8867072d6ec2b21dce22586d54ada625c6717e1ff05642b00777"
+        },
+        "/videos/ndh-walkthrough-admin-v5.en.srt": {
+          "bytes": 2044,
+          "sha256": "e053e2375d6dee743683baa2b697a90b00d70c067fdd0a37603e72570bd68848"
+        }
+      }
+    },
+    {
+      "roleId": "exam_officer",
+      "durationSec": 71.48,
+      "width": 1280,
+      "height": 720,
+      "fps": 24,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fullDecodeVerified": true,
+      "files": {
+        "/videos/ndh-walkthrough-exam-officer-v5.mp4": {
+          "bytes": 960092,
+          "sha256": "82a9b1a57b0cb606c22dd84acf7d50e101e68e4f96a116f56fab31d182579cf7"
+        },
+        "/videos/poster-ndh-walkthrough-exam-officer-v5.jpg": {
+          "bytes": 77108,
+          "sha256": "aba46b0a5aca87d1c94e7f8b9d9b54209289c952da91b62e636f576273aeafd8"
+        },
+        "/videos/narration-v5/exam_officer.mp3": {
+          "bytes": 284013,
+          "sha256": "48dfde0d174cf8f92635779e78e77c8d9a2f427652d087468c7a24b3b03b302d"
+        },
+        "/videos/ndh-walkthrough-exam-officer-v5.en.vtt": {
+          "bytes": 1848,
+          "sha256": "142a747ba7025f9b6e7ddf527fc1df690bf4317f453aaeb633af7091c109185d"
+        },
+        "/videos/ndh-walkthrough-exam-officer-v5.en.srt": {
+          "bytes": 1607,
+          "sha256": "4b3ba1404a693e5b7c455cfa82f6cb14f5acb12dbb0e8e64c713afe4ac50ad17"
+        }
+      }
+    },
+    {
+      "roleId": "class_teacher",
+      "durationSec": 78.48,
+      "width": 1280,
+      "height": 720,
+      "fps": 24,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fullDecodeVerified": true,
+      "files": {
+        "/videos/ndh-walkthrough-class-teacher-v5.mp4": {
+          "bytes": 1075483,
+          "sha256": "6a18e4c930e6c7633ef36a287748a93bed52bbde9a46d49a72f59b56eb6adbea"
+        },
+        "/videos/poster-ndh-walkthrough-class-teacher-v5.jpg": {
+          "bytes": 77014,
+          "sha256": "c14b2c9b8b98a8dfc328c6b03301b21b77a52fc7a8f3f74d2d287058a2959cc9"
+        },
+        "/videos/narration-v5/class_teacher.mp3": {
+          "bytes": 311949,
+          "sha256": "a08ac9355d949dc968559e82c9c779f7a3dfc3f74a4c5dbc203c19050c9a0e23"
+        },
+        "/videos/ndh-walkthrough-class-teacher-v5.en.vtt": {
+          "bytes": 2056,
+          "sha256": "5050001ac1b50601755f2d79d33b163cab20c6174e8c4d06d7f9f01289c4d70a"
+        },
+        "/videos/ndh-walkthrough-class-teacher-v5.en.srt": {
+          "bytes": 1769,
+          "sha256": "cfe00dfae82c4ce9f92eee07d5df983c9cd21cc7abc8bf680dc97bd92b2482cf"
+        }
+      }
+    },
+    {
+      "roleId": "subject_teacher",
+      "durationSec": 68.16,
+      "width": 1280,
+      "height": 720,
+      "fps": 24,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fullDecodeVerified": true,
+      "files": {
+        "/videos/ndh-walkthrough-subject-teacher-v5.mp4": {
+          "bytes": 931907,
+          "sha256": "25418093bac7377e7a9be88ffa6d512ac4c09f150e25ce49fc1fe4b7f4c3aebb"
+        },
+        "/videos/poster-ndh-walkthrough-subject-teacher-v5.jpg": {
+          "bytes": 73923,
+          "sha256": "88f0e0d6ca7b514ae530ed21c1beac0f2b3127458b9cda66c9bf66a7cec24fff"
+        },
+        "/videos/narration-v5/subject_teacher.mp3": {
+          "bytes": 270669,
+          "sha256": "21e33e69a82a542ce8580d897291a1a10c806aa391f5177e3a2f8f841f058e33"
+        },
+        "/videos/ndh-walkthrough-subject-teacher-v5.en.vtt": {
+          "bytes": 1908,
+          "sha256": "8b13259c1e8709093a144da33eab84b884ec975238b97e2eb0844318af362b8e"
+        },
+        "/videos/ndh-walkthrough-subject-teacher-v5.en.srt": {
+          "bytes": 1619,
+          "sha256": "ecbc91b440a5f6279522ff8e77b61f2cdc08ed4d2538f97680fd4f4521b35d09"
+        }
+      }
+    },
+    {
+      "roleId": "bursar",
+      "durationSec": 73.76,
+      "width": 1280,
+      "height": 720,
+      "fps": 24,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fullDecodeVerified": true,
+      "files": {
+        "/videos/ndh-walkthrough-bursar-v5.mp4": {
+          "bytes": 1021059,
+          "sha256": "24584cee9ed4d38277e14a26ef24868de6176ce69daa8b62c3bdee8228f912ac"
+        },
+        "/videos/poster-ndh-walkthrough-bursar-v5.jpg": {
+          "bytes": 77408,
+          "sha256": "f14dd7376ceca36a34f0e8ba6e5fdac0e730264ac72c49ddb16de327438adb3a"
+        },
+        "/videos/narration-v5/bursar.mp3": {
+          "bytes": 293133,
+          "sha256": "147cf4574f5e0567d8c8d947442bfc506c50dbf00b68f4024994f56e405da213"
+        },
+        "/videos/ndh-walkthrough-bursar-v5.en.vtt": {
+          "bytes": 1853,
+          "sha256": "096399a489ae4182cb4c116b06879634fec5f7bcf9953d288c016d13db5bea28"
+        },
+        "/videos/ndh-walkthrough-bursar-v5.en.srt": {
+          "bytes": 1700,
+          "sha256": "53bf8904fb355d761b0784b1aeaa357c482aa44f97752d67a0058c8cf5b07449"
+        }
+      }
+    },
+    {
+      "roleId": "secretary",
+      "durationSec": 70.32,
+      "width": 1280,
+      "height": 720,
+      "fps": 24,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fullDecodeVerified": true,
+      "files": {
+        "/videos/ndh-walkthrough-secretary-v5.mp4": {
+          "bytes": 947034,
+          "sha256": "e40d434d2f1e90799d482f36562e85cea139e9660f0a1fc897e4e7e0617f4eb4"
+        },
+        "/videos/poster-ndh-walkthrough-secretary-v5.jpg": {
+          "bytes": 74292,
+          "sha256": "314e4a46cdbe823f32725a8d45854665b89cbc07df47f92073ef400dee81c357"
+        },
+        "/videos/narration-v5/secretary.mp3": {
+          "bytes": 279309,
+          "sha256": "5070c77e6ac81d609bcbb39f9a2a16efddff3ace00bd369703e114059c2eab8a"
+        },
+        "/videos/ndh-walkthrough-secretary-v5.en.vtt": {
+          "bytes": 1796,
+          "sha256": "3212cf35f64eb9f9eb16e3e804eb354672197b4c37fbf3b57fa96b1e107096e5"
+        },
+        "/videos/ndh-walkthrough-secretary-v5.en.srt": {
+          "bytes": 1603,
+          "sha256": "445ed1e23343d19a0af2d6364b1697543fdd34ac7f70a02ea8f2f322f1cda4d3"
+        }
+      }
+    },
+    {
+      "roleId": "parent",
+      "durationSec": 65.28,
+      "width": 1280,
+      "height": 720,
+      "fps": 24,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "fullDecodeVerified": true,
+      "files": {
+        "/videos/ndh-walkthrough-parent-v5.mp4": {
+          "bytes": 899198,
+          "sha256": "4d9ec1f4cf8ff7df10cdcd4e5a67d4493361323cda68ba2f74ffe687ac77a8a4"
+        },
+        "/videos/poster-ndh-walkthrough-parent-v5.jpg": {
+          "bytes": 79168,
+          "sha256": "2c3eed3b517d08c780865d9ff9e632088713dccd47278240e6720935cfdcd1d6"
+        },
+        "/videos/narration-v5/parent.mp3": {
+          "bytes": 259149,
+          "sha256": "5e13181c524dca6ca5b0ecf8576f9fdb6be57a3aed3662b4de5f53f7b0635e4b"
+        },
+        "/videos/ndh-walkthrough-parent-v5.en.vtt": {
+          "bytes": 1701,
+          "sha256": "7510e0e3d6a6f525fb0684b68ea6c47a2a0d5c657f23858c811ceb56ead25314"
+        },
+        "/videos/ndh-walkthrough-parent-v5.en.srt": {
+          "bytes": 1556,
+          "sha256": "a90c8b63a3222a329718b607e0d329e0aa7f795436107ca44f52929e149581cf"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1052 @@
+{
+  "version": 5,
+  "language": "en",
+  "status": "narrated-illustrated-release",
+  "timingBasis": "Scene cuts conformed to measured paragraph pauses in the selected narration; English caption phrases timed within each spoken scene.",
+  "exampleSchoolUrl": "https://ndhschoolos.app/s/markaz",
+  "features": {
+    "school_branding": "Own short school link, logo, motto and colours",
+    "phone_pin": "Staff and parent phone + four-digit PIN; owner email/password",
+    "school_app": "School-branded home-screen installation on supported devices",
+    "offline_sync": "Prepared teacher/Mu’allim offline attendance, scores and memorization; automatic reconnect sync",
+    "payroll_categories": "Teaching/non-teaching salary sheets without unnecessary teacher accounts",
+    "quran_tracker": "Optional Tahfeez, Surah/Ayah, Mumtaz/Jayyid and Halqah management",
+    "dual_role": "One assigned teacher login for My Class and My Subjects",
+    "a4_reports": "Fixed standard A4 reports scaled across devices and printed with intact margins"
+  },
+  "roles": [
+    {
+      "roleId": "admin",
+      "title": "School Owner / Principal",
+      "audience": "The school owner configuring branding, school accounts, programmes, payroll and reporting.",
+      "scenes": [
+        {
+          "id": "welcome",
+          "title": "Your own school, your own link",
+          "durationSec": 13.112,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Your school. Your crest. Your own link.",
+          "narration": "Welcome to NDH SchoolOS, where your school’s short link opens its own crest, motto and colours, for example, ndhschoolos dot app, slash s, slash markaz.",
+          "actions": [
+            "Open the approved school’s short link in a fresh browser tab. Show the example address ndhschoolos.app/s/markaz in an editorial callout, labelled example.",
+            "Hold on the school crest, name, motto and saved colours. Do not expose student records before login."
+          ],
+          "verification": "The copied link opens the intended school; its public page shows branding only. The example alias is not presented as a verified live school.",
+          "speechStartSec": 0.307,
+          "speechEndSec": 12.592
+        },
+        {
+          "id": "owner-login",
+          "title": "Owner email and password",
+          "durationSec": 7.601,
+          "features": [
+            "school_branding",
+            "phone_pin"
+          ],
+          "onScreen": "Owner: email + password | Staff and parents: phone + 4-digit PIN",
+          "narration": "Owners use email and password, while staff and parents use a registered phone number and four-digit PIN, shared privately.",
+          "actions": [
+            "Select the owner email/password route and sign in using an approved recording account. Mask all credentials.",
+            "Cut to School portal & accounts to show a provisioned staff account and a parent linked only to their children; never reveal the PIN."
+          ],
+          "verification": "No school code, email address or email inbox is required in the staff/parent phone-login sequence; school link alone grants no private access.",
+          "speechStartSec": 13.632,
+          "speechEndSec": 20.256
+        },
+        {
+          "id": "branding",
+          "title": "Set and share your school identity",
+          "durationSec": 6.526,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Save branding → Copy school link → Share privately",
+          "narration": "Save your school branding and short link, then copy the link for staff and families to open the right school page.",
+          "actions": [
+            "Show the existing branding settings and School portal & accounts → Short school link. Use the approved school alias, not a live third party’s name.",
+            "Copy the saved school portal link; open it in a second tab to verify the brand."
+          ],
+          "verification": "Use actual saved school colours and crest; do not restyle the website or fabricate a branded screenshot.",
+          "speechStartSec": 21.171,
+          "speechEndSec": 26.769
+        },
+        {
+          "id": "install",
+          "title": "Install the school’s own app",
+          "durationSec": 8.989,
+          "features": [
+            "school_app",
+            "school_branding"
+          ],
+          "onScreen": "Install school app • School name and crest",
+          "narration": "Tap Install school app for your school’s crest and name on the home screen, or use Safari, Share, Add to Home Screen on iPhone.",
+          "actions": [
+            "Record the published school page on Android Chrome and its actual Install school app action. Show the confirmed home-screen icon and launch it.",
+            "Include a short iPhone Safari Share → Add to Home Screen inset. Use a saved PNG or JPEG school crest."
+          ],
+          "verification": "Capture a real supported browser/device installation, not an editor preview or an app-store download. Verify both the icon/name and the school opened on launch.",
+          "speechStartSec": 27.71,
+          "speechEndSec": 35.7
+        },
+        {
+          "id": "accounts",
+          "title": "Teaching roles and one login",
+          "durationSec": 8.477,
+          "features": [
+            "phone_pin",
+            "dual_role"
+          ],
+          "onScreen": "One login • My Class / My Subjects",
+          "narration": "Give dual-role teachers one login for My Class and My Subjects, with only their assigned home class, Halqah and subjects.",
+          "actions": [
+            "Show the owner assigning both a home class and subjects to one approved teacher.",
+            "Insert a labelled teacher-perspective shot showing the two task views under the same signed-in identity."
+          ],
+          "verification": "Confirm both assignments are authorised for this teacher. Match the deployed navigation wording; do not invent clickable controls or expose another school’s records.",
+          "speechStartSec": 36.755,
+          "speechEndSec": 44.186
+        },
+        {
+          "id": "payroll",
+          "title": "Everyone belongs on payroll, not in a teacher portal",
+          "durationSec": 8.917,
+          "features": [
+            "payroll_categories"
+          ],
+          "onScreen": "Teaching staff | Non-teaching staff",
+          "narration": "Payroll separates teaching staff from nannies, security guards, cleaners, drivers and cooks, without unnecessary teacher logins.",
+          "actions": [
+            "Open Staff & Payroll. Show Teaching staff and Non-teaching staff filters.",
+            "Use approved support-staff fixtures for the five duties; display a salary sheet and the absence of teaching assignments/login provisioning for these people."
+          ],
+          "verification": "Non-teaching staff appear in payroll totals and salary sheets without being granted teacher access. Mask bank details and salaries unless the fixtures are explicitly approved.",
+          "speechStartSec": 45.224,
+          "speechEndSec": 53.073
+        },
+        {
+          "id": "programmes",
+          "title": "Keep Tahfeez optional",
+          "durationSec": 10.799,
+          "features": [
+            "quran_tracker"
+          ],
+          "onScreen": "Conventional: academics only | Islamic / dual-stream: optional Tahfeez",
+          "narration": "Conventional schools keep academic terms, while Islamic or dual-stream schools can enable Tahfeez, Halqahs, Surah and Ayah logs, with Mumtaz or Jayyid ratings.",
+          "actions": [
+            "Show the conventional configuration with the Qur’an module disabled and no Tahfeez-only terms in its navigation.",
+            "Cut to an authorised Islamic or dual-stream configuration, enable the existing tracker and show group management plus a dated Surah/Ayah entry and rating."
+          ],
+          "verification": "The two configurations are explicit alternatives, not a forced conversion of every school. Verify deployed rating labels; use the real equivalents if translations differ.",
+          "speechStartSec": 54.172,
+          "speechEndSec": 63.891
+        },
+        {
+          "id": "offline",
+          "title": "Offline work, then automatic sync",
+          "durationSec": 10.089,
+          "features": [
+            "offline_sync"
+          ],
+          "onScreen": "Online setup → Offline drafts → Reconnect → Confirm sync",
+          "narration": "After online sign-in, teachers and Mu’allims can draft attendance, CA and exam scores, and memorization offline, then sync automatically when reconnected.",
+          "actions": [
+            "Use the published, previously opened school app with an approved teaching/Mu’allim account. Turn off network connectivity and show the offline indicator.",
+            "Record attendance, an assessment score and a dated memorization entry; keep local-save indicators visible. Reconnect with the app open and show successful synchronization."
+          ],
+          "verification": "Confirm the records persist after an online reload, preferably on a second authorised device. A deliberate stale-edit conflict must show review, not a silent overwrite; new sign-ins, payments and messages still require internet.",
+          "speechStartSec": 64.951,
+          "speechEndSec": 73.981
+        },
+        {
+          "id": "reports",
+          "title": "Exact A4 reports on every screen",
+          "durationSec": 7.569,
+          "features": [
+            "a4_reports",
+            "school_branding"
+          ],
+          "onScreen": "Fixed A4 report • Phone / tablet / computer",
+          "narration": "Report cards stay fixed A4 on phone, tablet and computer, so check the complete page and margins before printing.",
+          "actions": [
+            "Open the same approved report on phone, tablet and desktop. Show the crest and identical content arrangement.",
+            "Open print preview, select A4 portrait, turn browser headers/footers off if present, and inspect every page edge before producing a PDF or physical print."
+          ],
+          "verification": "Use the configured school report template. Do not change the template or crop page edges to conceal clipping; confirm no extra blank page.",
+          "speechStartSec": 75.04,
+          "speechEndSec": 81.534
+        },
+        {
+          "id": "finish",
+          "title": "Share the right link and confirm readiness",
+          "durationSec": 9.561,
+          "features": [
+            "school_branding",
+            "school_app",
+            "offline_sync"
+          ],
+          "onScreen": "School link ✓ Accounts ✓ Install ✓ Offline sync ✓ A4 ✓",
+          "narration": "Before sharing access, test each role, school-app installation, offline sync and A4 printing, keeping PINs and school records private.",
+          "actions": [
+            "End on the approved school’s branded page and a concise readiness checklist.",
+            "Use the existing NDH branding and Navy #0a192f for editorial title cards only; leave the product UI unchanged."
+          ],
+          "verification": "No platform-wide owner, other-school data or secret credentials appear in the closing frame.",
+          "speechStartSec": 82.625,
+          "speechEndSec": 90.96
+        }
+      ],
+      "audioSource": "/videos/narration-v5/admin.mp3",
+      "narrationSha256": "dfbb94f6e4a4a50df1e2ab6718c25d464f155a42e708d6344f09b4eef2025b42",
+      "audioSha256": "027e52e51a8aef37eeeb5112cec9a7ec9bfaef26fdf9d9baf55b11b62f6a0032",
+      "summary": "School branding & short links → Secure role sign-in → Install school app → Dual-role teachers → Support-staff payroll → Optional tracker → Offline sync → A4 reports."
+    },
+    {
+      "roleId": "exam_officer",
+      "title": "Exam Officer",
+      "audience": "The assigned exam officer reviewing papers and coordinating permitted school-wide results.",
+      "scenes": [
+        {
+          "id": "welcome",
+          "title": "Your school’s assessment workspace",
+          "durationSec": 8.996,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Exam Officer • Your school’s branded page",
+          "narration": "Welcome, Exam Officer, open your school’s short link and check its crest, motto and colours before entering your assessment workspace.",
+          "actions": [
+            "Open the authorised school page from its shared short link and hold on the school identity.",
+            "Keep private records hidden until authentication."
+          ],
+          "verification": "School branding matches the recording tenant; the public page is not used as proof of authorisation.",
+          "speechStartSec": 0.277,
+          "speechEndSec": 8.675
+        },
+        {
+          "id": "login",
+          "title": "Phone and four-digit PIN",
+          "durationSec": 7.724,
+          "features": [
+            "phone_pin"
+          ],
+          "onScreen": "Phone number + 4-digit PIN • No email needed",
+          "narration": "Staff use a registered phone number and four-digit PIN, with no email needed, while the owner uses email and password.",
+          "actions": [
+            "Select staff phone login on the branded school page. Mask the registered number and all PIN digits.",
+            "Show the exam officer’s name and permitted workspace after successful sign-in."
+          ],
+          "verification": "Use an owner-provisioned exam officer account, not a browser role switch.",
+          "speechStartSec": 9.317,
+          "speechEndSec": 16.311
+        },
+        {
+          "id": "install",
+          "title": "Install your school app",
+          "durationSec": 8.621,
+          "features": [
+            "school_app"
+          ],
+          "onScreen": "Install school app → Launch from school crest",
+          "narration": "Install school app adds the school crest and name to your home screen, or use Safari, Share, Add to Home Screen on iPhone.",
+          "actions": [
+            "Record installation in a supported published browser and launch the school-branded icon.",
+            "Use a brief iPhone instruction inset if the main capture is Android."
+          ],
+          "verification": "The installed app reopens the same school; no generic NDH-only icon is substituted for the configured crest.",
+          "speechStartSec": 17.128,
+          "speechEndSec": 24.895
+        },
+        {
+          "id": "papers",
+          "title": "Track and review exam papers",
+          "durationSec": 9.03,
+          "features": [],
+          "onScreen": "Missing papers → Review → Return or approve",
+          "narration": "Track missing exam papers, review submissions, return corrections or approve them, then use the existing PDF and Word exports.",
+          "actions": [
+            "Show the missing-paper tracker, an approved fixture submission, its review actions and available exports.",
+            "Avoid exposing answer keys alongside parent-facing footage."
+          ],
+          "verification": "Only authorised exam-officer actions are shown; publication and approval are not presented as the same step.",
+          "speechStartSec": 25.786,
+          "speechEndSec": 33.919
+        },
+        {
+          "id": "dual-role",
+          "title": "Understand a dual-role teacher’s submissions",
+          "durationSec": 7.207,
+          "features": [
+            "dual_role"
+          ],
+          "onScreen": "One teacher login • Home class + assigned subjects",
+          "narration": "A dual-role teacher keeps one login for My Class and My Subjects, with marks attached to their assigned learners.",
+          "actions": [
+            "Insert a labelled teacher-perspective shot of both authorised task views, then return to the exam officer’s review workspace.",
+            "Keep the same teacher identity visible across the two task views."
+          ],
+          "verification": "Do not imply that switching views grants new subjects or lets an exam officer edit unrelated classes as that teacher.",
+          "speechStartSec": 34.822,
+          "speechEndSec": 41.12
+        },
+        {
+          "id": "offline",
+          "title": "Account for offline score drafts",
+          "durationSec": 10.064,
+          "features": [
+            "offline_sync"
+          ],
+          "onScreen": "Offline teacher drafts → Reconnect → Synced scores",
+          "narration": "Teachers can draft CA and exam scores offline after online sign-in, then sync automatically on reconnect, so confirm the latest marks before publishing.",
+          "actions": [
+            "Use a labelled teacher cutaway to save a fixture score while disconnected; reconnect and show confirmed sync.",
+            "Return to the exam officer session and reload or refresh the relevant result view after that confirmation."
+          ],
+          "verification": "Do not imply the exam officer can see a still-offline teacher’s unsynced drafts. Show conflicts as requiring review.",
+          "speechStartSec": 42.037,
+          "speechEndSec": 51.118
+        },
+        {
+          "id": "programmes",
+          "title": "Respect the school’s programme",
+          "durationSec": 9.574,
+          "features": [
+            "quran_tracker"
+          ],
+          "onScreen": "Academic terms by default • Tahfeez only when enabled",
+          "narration": "Conventional schools keep academic terms, while enabled Islamic or dual-stream schools add optional Tahfeez, Halqahs, Surah and Ayah progress.",
+          "actions": [
+            "Show separate conventional and enabled Islamic/dual-stream views, clearly labelled.",
+            "Use a short contextual insert for Surah, Ayah and the school’s memorization-rating labels; do not perform unassigned Mu’allim edits."
+          ],
+          "verification": "Optional Qur’an terminology is not placed into the conventional-school navigation.",
+          "speechStartSec": 52.166,
+          "speechEndSec": 60.721
+        },
+        {
+          "id": "a4",
+          "title": "Check full A4 report cards",
+          "durationSec": 10.264,
+          "features": [
+            "a4_reports"
+          ],
+          "onScreen": "Standard A4 • Same paper layout on every screen",
+          "narration": "Check the same fixed A4 report on phone, tablet and computer, inspect every print margin, and release results only through the approved publication process.",
+          "actions": [
+            "Show an authorised report and broadsheet workflow; switch screen widths without changing the report’s content or template.",
+            "Show full A4 print preview and the approved result-publication step, if assigned."
+          ],
+          "verification": "No clipped margins, extra blank pages or unpublished parent results are represented as ready to distribute.",
+          "speechStartSec": 61.71,
+          "speechEndSec": 70.8
+        }
+      ],
+      "audioSource": "/videos/narration-v5/exam_officer.mp3",
+      "narrationSha256": "d2479d62ae90e32571cee9391cba7303910f4a5f68fe55e737ff5b122c123fa3",
+      "audioSha256": "48dfde0d174cf8f92635779e78e77c8d9a2f427652d087468c7a24b3b03b302d",
+      "summary": "School phone/PIN login → Install app → Paper review & exports → Teacher drafts and sync → Programme-aware results → Exact A4 reports."
+    },
+    {
+      "roleId": "class_teacher",
+      "title": "Class Teacher / Mu’allim",
+      "audience": "An assigned class teacher, with an optional Mu’allim/Halqah recording variant for enabled schools.",
+      "scenes": [
+        {
+          "id": "welcome",
+          "title": "Your class or Halqah, in your school",
+          "durationSec": 7.735,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Class Teacher / Mu’allim • Your school identity",
+          "narration": "Welcome, Class Teacher or Mu’allim, open your school’s short link and check its own crest, motto and colours.",
+          "actions": [
+            "Open the approved school’s branded link. Introduce the academic class-teacher cut and label the optional Mu’allim variant."
+          ],
+          "verification": "Never suggest that a branded link alone reveals class lists or attendance.",
+          "speechStartSec": 0.312,
+          "speechEndSec": 7.425
+        },
+        {
+          "id": "login",
+          "title": "One simple staff sign-in",
+          "durationSec": 7.972,
+          "features": [
+            "phone_pin"
+          ],
+          "onScreen": "Registered phone number + 4-digit PIN",
+          "narration": "Sign in with your registered phone number and four-digit PIN, without email or a password, to see only your assigned learners.",
+          "actions": [
+            "Mask phone/PIN entry; show successful authentication and the assigned roster.",
+            "Do not use an owner account to simulate a teacher’s access."
+          ],
+          "verification": "The signed-in role and roster match the approved fixture account.",
+          "speechStartSec": 8.044,
+          "speechEndSec": 15.315
+        },
+        {
+          "id": "install",
+          "title": "Your school on the home screen",
+          "durationSec": 10.302,
+          "features": [
+            "school_app"
+          ],
+          "onScreen": "Install school app • Your school’s crest and name",
+          "narration": "Install school app gives your phone the school crest and name, or use Safari, Share, Add to Home Screen on iPhone, then sign in online first.",
+          "actions": [
+            "Show real supported-browser installation and launch from the configured school icon.",
+            "Leave the published app open long enough to save its permitted records before disconnecting."
+          ],
+          "verification": "Offline reopening is demonstrated in the published app, not the editor preview.",
+          "speechStartSec": 16.099,
+          "speechEndSec": 25.535
+        },
+        {
+          "id": "dual-role",
+          "title": "My Class and My Subjects",
+          "durationSec": 8.309,
+          "features": [
+            "dual_role"
+          ],
+          "onScreen": "One login → My Class ↔ My Subjects",
+          "narration": "Dual-role teachers switch between My Class and My Subjects under one login, including assigned Halqah and subject duties.",
+          "actions": [
+            "Use a fixture teacher with both assignments. Show the two deployed task views and unchanged signed-in identity.",
+            "Select the home class, then an assigned subject; return without signing out."
+          ],
+          "verification": "Verify the actual deployed labels and role permissions; no duplicate account or school-wide access is implied.",
+          "speechStartSec": 26.482,
+          "speechEndSec": 33.798
+        },
+        {
+          "id": "attendance",
+          "title": "Take attendance without data",
+          "durationSec": 8.345,
+          "features": [
+            "offline_sync"
+          ],
+          "onScreen": "Offline • Daily attendance saved as a draft",
+          "narration": "Without data or Wi-Fi, take daily attendance in the saved app and check the local draft indicator for your class or Halqah.",
+          "actions": [
+            "After an online sign-in, disable mobile data and Wi-Fi. Open the saved roster and mark a dated fixture attendance record.",
+            "Show the offline/local-draft state and do not replace it with a cloud-saved badge."
+          ],
+          "verification": "The edited roster stays within the teacher’s class or Halqah and remains available offline.",
+          "speechStartSec": 34.838,
+          "speechEndSec": 42.055
+        },
+        {
+          "id": "scores",
+          "title": "Record CA and exam scores offline",
+          "durationSec": 8.041,
+          "features": [
+            "offline_sync",
+            "dual_role"
+          ],
+          "onScreen": "Offline • CA and exam score drafts",
+          "narration": "Record CA and exam scores offline for your assigned subjects, keeping drafts on this device until your connection returns.",
+          "actions": [
+            "Keep the network disabled; enter one CA score and one exam score within allowed ranges.",
+            "Switch between the authorised subject and class task views and show the saved draft indicator."
+          ],
+          "verification": "Do not describe local-only changes as already visible to the exam officer or another device.",
+          "speechStartSec": 43.27,
+          "speechEndSec": 50.056
+        },
+        {
+          "id": "tahfeez",
+          "title": "Optional daily Tahfeez records",
+          "durationSec": 9.203,
+          "features": [
+            "quran_tracker",
+            "offline_sync"
+          ],
+          "onScreen": "Optional Tahfeez • Surah • Ayah • Mumtaz / Jayyid",
+          "narration": "Where enabled, the Tahfeez Tracker records daily Surah and Ayah ranges for your Halqah, with Mumtaz or Jayyid ratings and offline drafts.",
+          "actions": [
+            "Use the separately labelled Mu’allim variant in an authorised enabled school; show the date, assigned Halqah and Surah/Ayah fields.",
+            "Record a permitted rating with no network. In the conventional cut, replace this scene with academic attendance/remarks and a brief optional-feature card."
+          ],
+          "verification": "Keep Qur’an-only fields out of the conventional workflow. Match the real rating options; do not invent controls if translated labels differ.",
+          "speechStartSec": 51.352,
+          "speechEndSec": 59.28
+        },
+        {
+          "id": "sync",
+          "title": "Reconnect and confirm automatic sync",
+          "durationSec": 8.366,
+          "features": [
+            "offline_sync"
+          ],
+          "onScreen": "Reconnect → Automatic sync → Check saved records",
+          "narration": "Reconnect to upload and sync drafts automatically, wait for confirmation, and review conflicts instead of overwriting newer work.",
+          "actions": [
+            "Restore connectivity. Show the real sync progress and acknowledgement for attendance, scores and, in the Mu’allim variant, memorization.",
+            "Reload online or inspect from a second authorised session to confirm persistence."
+          ],
+          "verification": "Successful acknowledgement is required before the scene says synced; sign-out clears device copies, so do not sign out with pending drafts.",
+          "speechStartSec": 60.534,
+          "speechEndSec": 67.64
+        },
+        {
+          "id": "reports",
+          "title": "Preview and print exact A4 reports",
+          "durationSec": 10.207,
+          "features": [
+            "a4_reports"
+          ],
+          "onScreen": "Phone / tablet / desktop • One fixed A4 layout",
+          "narration": "Report cards keep the same fixed A4 layout on phone, tablet and computer, so inspect full margins and remember parents see published results only.",
+          "actions": [
+            "Open an allowed learner report at phone, tablet and desktop widths. Show the same template and complete page border.",
+            "Select A4 portrait in print preview and check for clipped edges or unwanted extra pages."
+          ],
+          "verification": "A teacher’s draft or review preview is not described as automatically published to parents.",
+          "speechStartSec": 68.905,
+          "speechEndSec": 77.8
+        }
+      ],
+      "audioSource": "/videos/narration-v5/class_teacher.mp3",
+      "narrationSha256": "14e31e985ffcea419b537218af54717bcbce8467330d9d53bfbb3ecbc5722af0",
+      "audioSha256": "a08ac9355d949dc968559e82c9c779f7a3dfc3f74a4c5dbc203c19050c9a0e23",
+      "summary": "School phone/PIN login → Install app → My Class / My Subjects → Offline attendance & scores → Optional Tahfeez → Reconnect sync → A4 reports."
+    },
+    {
+      "roleId": "subject_teacher",
+      "title": "Subject Teacher",
+      "audience": "A subject teacher, including staff who also hold a home-class or Halqah assignment.",
+      "scenes": [
+        {
+          "id": "welcome",
+          "title": "Open your school’s own page",
+          "durationSec": 8.945,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Subject Teacher • Your school’s short link",
+          "narration": "Welcome, Subject Teacher, use your school’s own short link and check its crest, motto and colours before entering your subject workspace.",
+          "actions": [
+            "Show the school’s branded short link and the correct identity before login."
+          ],
+          "verification": "No school code is entered as an authentication credential.",
+          "speechStartSec": 0.274,
+          "speechEndSec": 8.621
+        },
+        {
+          "id": "login",
+          "title": "Phone and PIN, not email",
+          "durationSec": 8.238,
+          "features": [
+            "phone_pin"
+          ],
+          "onScreen": "Phone number + 4-digit PIN • One staff account",
+          "narration": "Sign in with your registered phone number and four-digit PIN, without email or a password, for your assigned subjects and learners only.",
+          "actions": [
+            "Mask all credentials; sign in as the approved subject teacher and show the allowed subject list."
+          ],
+          "verification": "Do not expose a real PIN or claim access to unassigned classes.",
+          "speechStartSec": 9.269,
+          "speechEndSec": 16.738
+        },
+        {
+          "id": "install",
+          "title": "Install the school-branded app",
+          "durationSec": 9.473,
+          "features": [
+            "school_app"
+          ],
+          "onScreen": "Install school app → School crest on home screen",
+          "narration": "Install school app adds your school’s crest and name, or use Safari, Share, Add to Home Screen on iPhone, and sign in online first.",
+          "actions": [
+            "Record the actual installation action in a supported browser and launch the school-branded icon."
+          ],
+          "verification": "Do not present app installation as a new account or an app-store download.",
+          "speechStartSec": 17.627,
+          "speechEndSec": 26.277
+        },
+        {
+          "id": "dual-role",
+          "title": "Switch tasks without another login",
+          "durationSec": 7.006,
+          "features": [
+            "dual_role"
+          ],
+          "onScreen": "My Subjects ↔ My Class • Same login",
+          "narration": "If you also handle a home class or Halqah, switch between My Subjects and My Class without another login.",
+          "actions": [
+            "Capture one teacher with both home-class/Halqah and subject assignments. Show the two real task views with unchanged identity."
+          ],
+          "verification": "Confirm deployed wording before recording; view switching does not grant additional responsibilities.",
+          "speechStartSec": 27.035,
+          "speechEndSec": 33.285
+        },
+        {
+          "id": "groups",
+          "title": "Teach a subject across assigned groups",
+          "durationSec": 7.624,
+          "features": [
+            "dual_role"
+          ],
+          "onScreen": "Assigned subjects • Combined groups • Correct home classes",
+          "narration": "Use configured combined teaching groups to enter each learner’s marks once and keep their correct home-class records connected.",
+          "actions": [
+            "Show a configured combined group, its member classes and a permitted fixture score.",
+            "Return to each relevant home-class result view without re-entering the score."
+          ],
+          "verification": "Do not imply that one score should be copied to unrelated subjects or unassigned learners.",
+          "speechStartSec": 34.04,
+          "speechEndSec": 40.882
+        },
+        {
+          "id": "offline",
+          "title": "Keep scoring when the internet stops",
+          "durationSec": 8.811,
+          "features": [
+            "offline_sync"
+          ],
+          "onScreen": "Offline • CA and exam drafts • Automatic sync on reconnect",
+          "narration": "Record CA and exam scores offline, then reconnect for automatic draft sync, waiting for confirmation before expecting others to see updates.",
+          "actions": [
+            "Disconnect, enter CA/exam fixture scores and show local draft status.",
+            "Reconnect with the app open, show the real success acknowledgement and verify the persisted scores online."
+          ],
+          "verification": "Show conflict review if a newer score exists; do not simulate silent overwrite or promise first-time offline authentication.",
+          "speechStartSec": 41.69,
+          "speechEndSec": 49.674
+        },
+        {
+          "id": "tahfeez",
+          "title": "Only the programmes you handle",
+          "durationSec": 9.424,
+          "features": [
+            "quran_tracker",
+            "offline_sync"
+          ],
+          "onScreen": "Optional Tahfeez • Assigned Mu’allim duties only",
+          "narration": "Conventional schools keep academic terms, while assigned Mu’allims in enabled schools can record Tahfeez, Surah, Ayah and memorization ratings offline.",
+          "actions": [
+            "Use a clearly labelled optional Mu’allim-assigned cutaway, not an unrelated subject teacher’s account.",
+            "Show one dated assigned Halqah entry and its local-save status; otherwise use an optional-feature explanatory card only."
+          ],
+          "verification": "Do not imply every subject teacher can open or edit all Qur’an records. Use real deployed rating labels.",
+          "speechStartSec": 50.519,
+          "speechEndSec": 59.103
+        },
+        {
+          "id": "finish",
+          "title": "Prepare exams and check A4 output",
+          "durationSec": 8.639,
+          "features": [
+            "a4_reports"
+          ],
+          "onScreen": "Exam workflow • Correct scores • Fixed A4 reports",
+          "narration": "Submit exam questions for review, request score changes through the approved workflow, and check the complete fixed A4 report before printing.",
+          "actions": [
+            "Show the existing question preparation/submission workflow, retaining paper review and score-edit request permissions.",
+            "Use an authorised report preview at phone and desktop sizes, then full A4 print preview."
+          ],
+          "verification": "Do not imply the teacher can approve their own paper, unlock results, or publish parent reports without permission.",
+          "speechStartSec": 59.94,
+          "speechEndSec": 67.48
+        }
+      ],
+      "audioSource": "/videos/narration-v5/subject_teacher.mp3",
+      "narrationSha256": "c676e769f02f44944e52a47e54001f4e6c8a965b7d19961f681e6b4bc4af57bd",
+      "audioSha256": "21e33e69a82a542ce8580d897291a1a10c806aa391f5177e3a2f8f841f058e33",
+      "summary": "School phone/PIN login → Install app → Dual-role teaching → Combined groups → Offline scores & sync → Exam review → A4 reports."
+    },
+    {
+      "roleId": "bursar",
+      "title": "Bursar / Accountant",
+      "audience": "The authorised bursar handling fees, verified receipts, debts and staff payroll.",
+      "scenes": [
+        {
+          "id": "welcome",
+          "title": "Finance in your own school workspace",
+          "durationSec": 9.036,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Bursar • Your school’s link and branding",
+          "narration": "Welcome, Bursar, your school’s short link opens its own crest, motto and colours, with private finance records hidden until sign-in.",
+          "actions": [
+            "Show the approved school-branded page, then the authorised finance workspace after login."
+          ],
+          "verification": "Mask all real financial and bank information; use authorised recording fixtures.",
+          "speechStartSec": 0.286,
+          "speechEndSec": 8.704
+        },
+        {
+          "id": "login",
+          "title": "Simple staff phone login",
+          "durationSec": 7.856,
+          "features": [
+            "phone_pin"
+          ],
+          "onScreen": "Phone number + 4-digit PIN",
+          "narration": "Use your registered phone number and four-digit PIN, without email or a password, to enter your authorised bursar workspace.",
+          "actions": [
+            "Show the staff phone login and the bursar identity; mask phone/PIN entry."
+          ],
+          "verification": "No owner credentials or teacher identity are used to stand in for the bursar.",
+          "speechStartSec": 9.368,
+          "speechEndSec": 16.473
+        },
+        {
+          "id": "install",
+          "title": "Install the school app",
+          "durationSec": 9.376,
+          "features": [
+            "school_app"
+          ],
+          "onScreen": "School crest + school name on your phone",
+          "narration": "Install school app adds your school’s crest and name, or use Safari, Share, Add to Home Screen on iPhone, and sign in online first.",
+          "actions": [
+            "Demonstrate a real supported installation and the school opened from the installed icon."
+          ],
+          "verification": "Use the published school page and approved crest, not a generic mocked icon.",
+          "speechStartSec": 17.31,
+          "speechEndSec": 25.849
+        },
+        {
+          "id": "fees",
+          "title": "Set and review school fees",
+          "durationSec": 8.674,
+          "features": [],
+          "onScreen": "Fees • Discounts • Waivers • Correct balances",
+          "narration": "Check the correct session, term, fee schedule, sibling discounts and approved waivers before confirming each learner’s invoice balance.",
+          "actions": [
+            "Show approved fee fixtures, the correct term and a permitted sibling discount or waiver.",
+            "Open a matching invoice and balance without exposing another learner’s family details."
+          ],
+          "verification": "Do not imply a discount or waiver is automatically approved by any staff member.",
+          "speechStartSec": 26.687,
+          "speechEndSec": 34.495
+        },
+        {
+          "id": "receipts",
+          "title": "Verify before issuing receipts",
+          "durationSec": 9.089,
+          "features": [],
+          "onScreen": "Verify transfers → Confirm payment → Official receipt",
+          "narration": "Verify bank transfers before confirming payments and issuing receipts, then review debtors, remembering online payments and messages need internet.",
+          "actions": [
+            "Show a fixture pending transfer, its review and confirmed receipt.",
+            "Use the permitted debtor/reminder workflow; do not send a real reminder during recording."
+          ],
+          "verification": "An offline entry or screenshot is not presented as independent bank verification or a completed online payment.",
+          "speechStartSec": 35.39,
+          "speechEndSec": 43.581
+        },
+        {
+          "id": "payroll",
+          "title": "Teaching and non-teaching salary sheets",
+          "durationSec": 9.543,
+          "features": [
+            "payroll_categories"
+          ],
+          "onScreen": "Teaching staff | Nannies • Security • Cleaners • Drivers • Cooks",
+          "narration": "Payroll separates teaching staff from nannies, security guards, cleaners, drivers and cooks on salary sheets, without unnecessary teacher logins.",
+          "actions": [
+            "Open the teaching/non-teaching filters in Staff & Payroll. Show approved fixtures for the five support duties.",
+            "Show matching payroll rows and salary sheets; no teaching assignments or automatic login creation should appear for support staff."
+          ],
+          "verification": "Verify category totals and payout sheets include both groups correctly; mask account numbers and any non-fixture salary amounts.",
+          "speechStartSec": 44.481,
+          "speechEndSec": 53.119
+        },
+        {
+          "id": "reconcile",
+          "title": "Wait for school drafts to sync",
+          "durationSec": 9.58,
+          "features": [
+            "offline_sync"
+          ],
+          "onScreen": "Teacher offline drafts ≠ verified online payments",
+          "narration": "Teachers and Mu’allims can draft attendance, scores and memorization offline and sync automatically on reconnect, but bank checks still require connectivity.",
+          "actions": [
+            "Use a labelled staff offline-to-sync insert, followed by the connected bursar’s reconciliation view.",
+            "Keep online-only payment and messaging requirements visible in a lower-third."
+          ],
+          "verification": "Do not promise offline banking, automatic bank validation, or instant access to another device’s unsynced drafts.",
+          "speechStartSec": 54.029,
+          "speechEndSec": 62.639
+        },
+        {
+          "id": "finish",
+          "title": "Review and export the correct payroll",
+          "durationSec": 10.606,
+          "features": [],
+          "onScreen": "Correct school • Correct period • Reviewed payroll export",
+          "narration": "Before exporting payroll or receipts, check the school, period, staff category and saved status, keeping salaries, bank details and PINs private.",
+          "actions": [
+            "Review the school name and payroll month, then use the existing export/print actions.",
+            "End with the school’s branded page and installed icon."
+          ],
+          "verification": "No parent or teaching-only account is shown opening private salary sheets.",
+          "speechStartSec": 63.668,
+          "speechEndSec": 73.08
+        }
+      ],
+      "audioSource": "/videos/narration-v5/bursar.mp3",
+      "narrationSha256": "76ae1a85cf0b21b70cbe859b06c541b4bb8a90a56ea6683a8175a7b72cb0d84b",
+      "audioSha256": "147cf4574f5e0567d8c8d947442bfc506c50dbf00b68f4024994f56e405da213",
+      "summary": "School phone/PIN login → Install app → Fees & verified receipts → Teaching / non-teaching payroll → Reconciliation & exports."
+    },
+    {
+      "roleId": "secretary",
+      "title": "School Secretary",
+      "audience": "The authorised secretary handling admissions, guardian records, notices and permitted printing.",
+      "scenes": [
+        {
+          "id": "welcome",
+          "title": "Your school’s front office",
+          "durationSec": 9.28,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Secretary • Share the correct branded school link",
+          "narration": "Welcome, School Secretary, share your school’s own short link, with its crest, motto and colours, rather than a generic school-code login.",
+          "actions": [
+            "Open the approved short link and show the branded public page; prepare a share action without sending a real message."
+          ],
+          "verification": "The displayed example link is clearly identified as an example if not the approved recording school.",
+          "speechStartSec": 0.279,
+          "speechEndSec": 8.96
+        },
+        {
+          "id": "login",
+          "title": "Phone and PIN for staff and parents",
+          "durationSec": 10.022,
+          "features": [
+            "phone_pin"
+          ],
+          "onScreen": "Staff and parents: phone + 4-digit PIN | Owner: email + password",
+          "narration": "Staff and parents use a registered phone number and four-digit PIN, while only the owner uses email and password, and guardians see linked children only.",
+          "actions": [
+            "Sign in as the approved secretary with masked credentials.",
+            "Show guardian phone data in an approved fixture record; use an owner-perspective insert if provisioning a login is demonstrated."
+          ],
+          "verification": "Do not show the secretary creating accounts unless that deployed role is authorised. Never expose PINs on a printed/public admissions list.",
+          "speechStartSec": 9.6,
+          "speechEndSec": 18.89
+        },
+        {
+          "id": "install",
+          "title": "Help families install their school app",
+          "durationSec": 9.417,
+          "features": [
+            "school_app"
+          ],
+          "onScreen": "Install school app • iPhone: Share → Add to Home Screen",
+          "narration": "Help families tap Install school app for the school’s own crest and name, or use Safari, Share, Add to Home Screen on iPhone.",
+          "actions": [
+            "Record Android installation and a short iPhone instruction insert. Launch the actual school icon."
+          ],
+          "verification": "Do not imply installation links a guardian to children or bypasses their phone/PIN login.",
+          "speechStartSec": 19.715,
+          "speechEndSec": 28.3
+        },
+        {
+          "id": "admissions",
+          "title": "Keep learners and guardian links accurate",
+          "durationSec": 8.497,
+          "features": [],
+          "onScreen": "Admissions • Guardian checks • Correct class transfers",
+          "narration": "Check admissions, guardian details, sibling links and class transfers carefully, keeping learners with the correct authorised roster.",
+          "actions": [
+            "Use approved learner/guardian fixtures for admissions, sibling details and an allowed class transfer.",
+            "If collection slips are shown, keep parent confirmation fields blank for the family to complete."
+          ],
+          "verification": "No real learner records are used without explicit approval; a matching phone is not a reason to reveal unrelated children.",
+          "speechStartSec": 29.138,
+          "speechEndSec": 36.706
+        },
+        {
+          "id": "programmes",
+          "title": "Use the school’s chosen terms",
+          "durationSec": 11.654,
+          "features": [
+            "quran_tracker",
+            "dual_role"
+          ],
+          "onScreen": "Class or Halqah • Optional Tahfeez • One teacher identity",
+          "narration": "Conventional schools keep academic terms, while Islamic or dual-stream schools can enable Tahfeez and Halqahs, with dual-role teachers using My Class and My Subjects under one login.",
+          "actions": [
+            "Show clearly labelled conventional and enabled Islamic/dual-stream roster views.",
+            "Use a labelled authorised teacher cutaway for the two task views, not the secretary performing teacher-only edits."
+          ],
+          "verification": "No Qur’an-only terminology is forced into the conventional school; match deployed labels in the capture.",
+          "speechStartSec": 37.727,
+          "speechEndSec": 48.32
+        },
+        {
+          "id": "offline",
+          "title": "Coordinate after offline lessons",
+          "durationSec": 11.851,
+          "features": [
+            "offline_sync"
+          ],
+          "onScreen": "Offline teaching work → Automatic sync on reconnect",
+          "narration": "Teachers and Mu’allims draft attendance, scores and memorization offline after online setup, then sync automatically on reconnect, so wait for confirmation before front-office follow-up.",
+          "actions": [
+            "Show a labelled teacher attendance draft while disconnected and its successful sync after reconnecting.",
+            "Return to the secretary’s permitted view and check the updated attendance; keep notices online."
+          ],
+          "verification": "The secretary is not shown seeing another person’s unsynced offline work or sending messages without connectivity.",
+          "speechStartSec": 49.421,
+          "speechEndSec": 60.235
+        },
+        {
+          "id": "reports",
+          "title": "Print complete A4 report cards",
+          "durationSec": 9.599,
+          "features": [
+            "a4_reports"
+          ],
+          "onScreen": "Fixed A4 • Full margins • Authorised reports only",
+          "narration": "Print only authorised reports, checking that the same fixed A4 page scales across phone, tablet and computer with no clipped print margins.",
+          "actions": [
+            "Open an allowed report in read-only printing mode. Show the same page at phone, tablet and desktop widths.",
+            "Select A4 portrait; inspect all page edges and the page count before printing."
+          ],
+          "verification": "No score editing, unapproved publication or margin-cropping workaround is shown.",
+          "speechStartSec": 61.207,
+          "speechEndSec": 69.64
+        }
+      ],
+      "audioSource": "/videos/narration-v5/secretary.mp3",
+      "narrationSha256": "5b83d75c39580d9b02944b819f341c632e77decb46793c36da875cb75bf3b6a2",
+      "audioSha256": "5070c77e6ac81d609bcbb39f9a2a16efddff3ace00bd369703e114059c2eab8a",
+      "summary": "School phone/PIN login → Help families install → Admissions & guardian links → Programme-aware records → Synced attendance → A4 printing."
+    },
+    {
+      "roleId": "parent",
+      "title": "Parent / Guardian",
+      "audience": "A parent or guardian using only their school account and linked children’s information.",
+      "scenes": [
+        {
+          "id": "welcome",
+          "title": "Your child’s school, straight from its link",
+          "durationSec": 12.558,
+          "features": [
+            "school_branding"
+          ],
+          "onScreen": "Your school’s link • Its crest, motto and colours",
+          "narration": "Welcome, Parent or Guardian, open your school’s short link, for example, ndhschoolos dot app, slash s, slash markaz, and check its crest, motto and colours.",
+          "actions": [
+            "Open the approved school link from a prepared message without exposing real contacts.",
+            "Hold on the public branding. Label the example address as an example, not a verified account destination."
+          ],
+          "verification": "No generic school-code step or private learner information appears before authentication.",
+          "speechStartSec": 0.295,
+          "speechEndSec": 12.202
+        },
+        {
+          "id": "login",
+          "title": "Your phone number and four-digit PIN",
+          "durationSec": 8.7,
+          "features": [
+            "phone_pin"
+          ],
+          "onScreen": "No email needed • Phone number + 4-digit PIN",
+          "narration": "Use your registered phone number and privately supplied four-digit PIN, with no email or password needed, and contact your school if you need help.",
+          "actions": [
+            "Select parent phone login; mask all digits. Show a successful approved parent account with only linked children."
+          ],
+          "verification": "Do not display a reusable example PIN or imply any phone number can open a child’s record.",
+          "speechStartSec": 12.915,
+          "speechEndSec": 20.797
+        },
+        {
+          "id": "install",
+          "title": "Keep your school app on your phone",
+          "durationSec": 8.95,
+          "features": [
+            "school_app"
+          ],
+          "onScreen": "Install school app • Your school’s crest and name",
+          "narration": "Tap Install school app for the school crest and name on your home screen, or use Safari, Share, Add to Home Screen on iPhone.",
+          "actions": [
+            "Record a real installation from the published school page and launch the configured school icon.",
+            "Include the iPhone sequence as a brief labelled insert."
+          ],
+          "verification": "Use the supported browser’s actual confirmation; do not claim an app-store download or password-free access after installation.",
+          "speechStartSec": 21.718,
+          "speechEndSec": 29.723
+        },
+        {
+          "id": "children",
+          "title": "Only your linked children",
+          "durationSec": 7.744,
+          "features": [],
+          "onScreen": "Switch linked children • Check attendance",
+          "narration": "Choose from your linked children to check attendance and school updates, asking the school to correct any missing or incorrect child link.",
+          "actions": [
+            "Use approved parent fixtures with two linked children. Switch children and open the permitted attendance view."
+          ],
+          "verification": "No unrelated learner appears in the selector, exported report or cutaway.",
+          "speechStartSec": 30.693,
+          "speechEndSec": 37.439
+        },
+        {
+          "id": "reports",
+          "title": "Published results and exact A4 reports",
+          "durationSec": 8.735,
+          "features": [
+            "a4_reports"
+          ],
+          "onScreen": "Published results • Full A4 report card",
+          "narration": "Open published results and the same fixed A4 report on phone, tablet or computer, then check the full page and margins before printing.",
+          "actions": [
+            "Show a published fixture result, not an unpublished teacher draft. Compare the identical report at three screen widths.",
+            "Open print preview, select A4 portrait and inspect the full page without clipped edges."
+          ],
+          "verification": "The parent sees only their linked child’s published report; the page is not cropped or reformatted to fit the phone.",
+          "speechStartSec": 38.466,
+          "speechEndSec": 46.12
+        },
+        {
+          "id": "school-work",
+          "title": "Understand updates from lessons",
+          "durationSec": 9.755,
+          "features": [
+            "offline_sync",
+            "quran_tracker"
+          ],
+          "onScreen": "School updates after sync • Tahfeez only if your school enables it",
+          "narration": "Teachers save lesson records offline and sync automatically on reconnect, so updates follow sync and school release rules, with Tahfeez optional for enabled schools.",
+          "actions": [
+            "Use a labelled teacher-perspective offline-to-sync insert; return to the parent view only after acknowledgement.",
+            "Use an explanatory optional-feature card for Tahfeez unless the deployed parent account is explicitly permitted to view those records."
+          ],
+          "verification": "Do not promise instant access to unsynced drafts, unpublished results, or a parent memorization-editing screen. State that first-time sign-in needs internet.",
+          "speechStartSec": 47.254,
+          "speechEndSec": 55.953
+        },
+        {
+          "id": "fees",
+          "title": "Fees, verified receipts and safe use",
+          "durationSec": 8.838,
+          "features": [],
+          "onScreen": "Check fees • Confirm receipts • Keep your PIN private",
+          "narration": "Check your child’s fees and official receipts, remember that new sign-ins, online payments and messages need internet, and keep your PIN private.",
+          "actions": [
+            "Show approved linked-child fee and confirmed receipt fixtures. Do not initiate a real payment or message.",
+            "End on the school-branded home-screen icon with a contact-your-school callout."
+          ],
+          "verification": "A pending transfer is not described as paid. Do not promise offline online-payments or access to other families’ balances.",
+          "speechStartSec": 56.93,
+          "speechEndSec": 64.6
+        }
+      ],
+      "audioSource": "/videos/narration-v5/parent.mp3",
+      "narrationSha256": "db89936b3a7104c03b55866ebc480b727c18d04748c5e2c2e97ead0c0f5acca8",
+      "audioSha256": "5e13181c524dca6ca5b0ecf8576f9fdb6be57a3aed3662b4de5f53f7b0635e4b",
+      "summary": "Your school link → Phone + 4-digit PIN → Install school app → Linked children → Published A4 reports → Fees & official receipts."
+    }
+  ],
+  "voiceDescription": "User-selected English female educational narrator; not a verified Nigerian-English accent.",
+  "visualFormat": "Illustrated workflow guides, not recordings of a live school account."
+}

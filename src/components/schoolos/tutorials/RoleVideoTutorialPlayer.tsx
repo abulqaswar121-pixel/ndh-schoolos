@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useOptionalSchoolOS } from "@/context/SchoolOSContext";
+import { WALKTHROUGH_V5 } from "@/data/walkthroughVideosV5";
 import { getResolvedCustomization } from "@/services/customizationDefaults";
 
 export interface VideoChapter {
@@ -34,144 +35,35 @@ export interface RoleVideoItem {
   oneLiner: string;
   videoSrc: string;
   posterSrc: string;
+  captionsSrc: string;
   icon: React.ComponentType<{ className?: string }>;
   chapters: VideoChapter[];
 }
 
-export const ROLE_VIDEO_PLAYLIST: RoleVideoItem[] = [
-  {
-    roleId: "admin",
-    tabLabel: "School Owner",
-    fullTitle: "School Owner / Principal",
-    durationLabel: "1:24",
-    oneLiner:
-      "Welcome -> Plans -> School Code Sign-Up -> Sign-In -> Class Transfers -> Exam Officer (PDF & .doc) & Report Studio -> Backups & Offline.",
-    videoSrc: "/videos/ndh-walkthrough-admin-v4.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-admin-v4.jpg",
-    icon: ShieldCheck,
-    chapters: [
-      { label: "1. Welcome", startSec: 0 },
-      { label: "2. Website & Plans", startSec: 11.8 },
-      { label: "3. Sign-Up & School Code", startSec: 20.9 },
-      { label: "4. Sign-In & Video Guide", startSec: 36.8 },
-      { label: "5. Students & Class Transfers", startSec: 47.6 },
-      { label: "6. Staff, Exams & Design Studio", startSec: 58.9 },
-      { label: "7. Fees, Backups & Offline", startSec: 72.8 },
-    ],
-  },
-  {
-    roleId: "exam_officer",
-    tabLabel: "Exam Officer",
-    fullTitle: "Exam Officer",
-    durationLabel: "1:15",
-    oneLiner:
-      "Welcome -> School-Code Sign-In -> Missing-Paper Tracker -> Question Review & Approval -> PDF & Word (.doc) Export -> All-Classes Broadsheets & Reports.",
-    videoSrc: "/videos/ndh-walkthrough-exam-officer-v4.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-exam-officer-v4.jpg",
-    icon: FileCheck2,
-    chapters: [
-      { label: "1. Welcome & Role Scope", startSec: 0 },
-      { label: "2. Secure Sign-In", startSec: 15.5 },
-      { label: "3. Missing-Paper Tracker", startSec: 23.4 },
-      { label: "4. Review, Return & Approve", startSec: 34.6 },
-      { label: "5. Export PDF & Word (.doc)", startSec: 48.4 },
-      { label: "6. All-Classes Reports", startSec: 64.0 },
-    ],
-  },
-  {
-    roleId: "class_teacher",
-    tabLabel: "Class Teacher",
-    fullTitle: "Class Teacher",
-    durationLabel: "1:08",
-    oneLiner:
-      "Welcome -> Sign-In & Role Guide -> Roster & Transfers -> Daily Attendance -> Auto-Synced Broadsheet -> AI Exams & A4 Report Sheets.",
-    videoSrc: "/videos/ndh-walkthrough-class-teacher-v4.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-class-teacher-v4.jpg",
-    icon: BookOpen,
-    chapters: [
-      { label: "1. Welcome & Class Scope", startSec: 0 },
-      { label: "2. Sign-In & Role Guide", startSec: 12.9 },
-      { label: "3. Roster & Transfers", startSec: 23.3 },
-      { label: "4. Daily Attendance", startSec: 33.7 },
-      { label: "5. Auto-Synced Broadsheet", startSec: 43.3 },
-      { label: "6. AI Exams & Report Sheets", startSec: 55.2 },
-    ],
-  },
-  {
-    roleId: "subject_teacher",
-    tabLabel: "Subject Teacher",
-    fullTitle: "Subject Teacher",
-    durationLabel: "1:26",
-    oneLiner:
-      "Welcome -> Sign-In -> Combined Multi-Class Groups (Enter Once -> Home-Class Sync) -> AI Exam Question Digitizer & Refiner -> Score Edit Request.",
-    videoSrc: "/videos/ndh-walkthrough-subject-teacher-v4.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-subject-teacher-v4.jpg",
-    icon: ClipboardCheck,
-    chapters: [
-      { label: "1. Welcome & Subject Setup", startSec: 0 },
-      { label: "2. Secure Sign-In", startSec: 12.2 },
-      { label: "3. Combined Multi-Class Groups", startSec: 22.5 },
-      { label: "4. Instant Grading & Sync", startSec: 43.0 },
-      { label: "5. AI Exam Question Digitizer", startSec: 52.6 },
-      { label: "6. Score Edit Request", startSec: 76.6 },
-    ],
-  },
-  {
-    roleId: "bursar",
-    tabLabel: "Bursar",
-    fullTitle: "Bursar / Accountant",
-    durationLabel: "1:04",
-    oneLiner:
-      "Welcome -> School-Code Sign-In -> Revenue & Sibling Discounts -> Transfer Verification & Receipts -> Debtors -> Payroll & Excel.",
-    videoSrc: "/videos/ndh-walkthrough-bursar-v4.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-bursar-v4.jpg",
-    icon: Calculator,
-    chapters: [
-      { label: "1. Welcome & Bursar Scope", startSec: 0 },
-      { label: "2. School-Code Sign-In", startSec: 13.3 },
-      { label: "3. Revenue & Fee Schedules", startSec: 24.3 },
-      { label: "4. Transfers & Receipts", startSec: 33.8 },
-      { label: "5. Debtors & Reminders", startSec: 44.8 },
-      { label: "6. Staff Payroll & Excel", startSec: 52.1 },
-    ],
-  },
-  {
-    roleId: "secretary",
-    tabLabel: "Secretary",
-    fullTitle: "School Secretary",
-    durationLabel: "0:53",
-    oneLiner:
-      "Welcome -> Sign-In -> Admissions, Sibling Link & Class Transfers -> Attendance & Notices -> Read-Only Printing & Excel.",
-    videoSrc: "/videos/ndh-walkthrough-secretary-v4.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-secretary-v4.jpg",
-    icon: Users,
-    chapters: [
-      { label: "1. Welcome & Front-Office", startSec: 0 },
-      { label: "2. Secure Sign-In", startSec: 14.0 },
-      { label: "3. Admissions & Transfers", startSec: 23.3 },
-      { label: "4. Attendance & Notices", startSec: 34.2 },
-      { label: "5. Printing & Exports", startSec: 43.3 },
-    ],
-  },
-  {
-    roleId: "parent",
-    tabLabel: "Parent",
-    fullTitle: "Parent / Guardian",
-    durationLabel: "0:51",
-    oneLiner:
-      "Welcome -> School Code + Phone Sign-In -> Sibling Switcher & Attendance -> Published Results & A4 Reports -> Fees & Receipts.",
-    videoSrc: "/videos/ndh-walkthrough-parent-v4.mp4",
-    posterSrc: "/videos/poster-ndh-walkthrough-parent-v4.jpg",
-    icon: Smartphone,
-    chapters: [
-      { label: "1. Welcome & Phone Link", startSec: 0 },
-      { label: "2. School Code + Phone Sign-In", startSec: 12.8 },
-      { label: "3. Siblings & Attendance", startSec: 22.7 },
-      { label: "4. Results & Report Sheets", startSec: 31.6 },
-      { label: "5. Fees & Official Receipts", startSec: 42.2 },
-    ],
-  },
-];
+const ROLE_PRESENTATION = {
+  admin: { tabLabel: "School Owner", icon: ShieldCheck },
+  exam_officer: { tabLabel: "Exam Officer", icon: FileCheck2 },
+  class_teacher: { tabLabel: "Class Teacher", icon: BookOpen },
+  subject_teacher: { tabLabel: "Subject Teacher", icon: ClipboardCheck },
+  bursar: { tabLabel: "Bursar", icon: Calculator },
+  secretary: { tabLabel: "Secretary", icon: Users },
+  parent: { tabLabel: "Parent", icon: Smartphone },
+} satisfies Record<RoleVideoItem["roleId"], { tabLabel: string; icon: RoleVideoItem["icon"] }>;
+
+export const ROLE_VIDEO_PLAYLIST: RoleVideoItem[] = WALKTHROUGH_V5.map((video) => ({
+  ...ROLE_PRESENTATION[video.roleId],
+  roleId: video.roleId,
+  fullTitle: video.title,
+  durationLabel: video.durationLabel,
+  oneLiner: video.oneLiner,
+  videoSrc: video.videoSrc,
+  posterSrc: video.posterSrc,
+  captionsSrc: video.captionsSrc,
+  chapters: video.chapters.map((chapter, index) => ({
+    label: `${index + 1}. ${chapter.label}`,
+    startSec: chapter.startSec,
+  })),
+}));
 
 interface RoleVideoTutorialPlayerProps {
   initialRoleId?: RoleVideoItem["roleId"] | undefined;
@@ -441,7 +333,15 @@ export function RoleVideoTutorialPlayer({
           }}
           aria-label={`${currentVideo.fullTitle} full video walkthrough`}
           className="h-full w-full object-contain"
-        />
+        >
+          <track
+            kind="captions"
+            src={currentVideo.captionsSrc}
+            srcLang="en"
+            label="English"
+            default
+          />
+        </video>
 
         {mutedByBrowserPolicy && (
           <button
