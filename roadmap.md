@@ -22,3 +22,8 @@ Later work, not in this update: AI paper capture, expanded exam editor, online p
 - [x] Accept email/password or phone/PIN on both school sign-in tabs.
 - [x] Validate PINs and prevent a school changing shared multi-school credentials.
 - [x] Check creation, parent/staff sign-in, PIN reset and access removal with real saved records.
+## Next batch (in order)
+- [ ] AI Paper Scanner (photo of score sheet → marks)
+- [ ] Word-style Exam Maker upgrades (Arabic, math, two columns)
+- [ ] One-click promotion
+- [ ] Thermal cash receipts (58mm/80mm)

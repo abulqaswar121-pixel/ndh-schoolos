@@ -477,3 +477,18 @@
   align-items: center;
   will-change: transform;
 }
+.thermal-receipt { margin: 0 auto; background: var(--background); color: var(--foreground); font-family: "Courier New", monospace; font-size: 11px; line-height: 1.35; padding: 3mm; }
+.thermal-58mm { width: 58mm; font-size: 9.5px; }
+.thermal-80mm { width: 80mm; }
+.thermal-center { text-align: center; }
+.thermal-title { font-weight: 700; text-transform: uppercase; }
+.thermal-row { display: flex; justify-content: space-between; gap: 2mm; }
+.thermal-row strong { text-align: right; word-break: break-word; }
+.thermal-total { font-size: 1.25em; margin: 1mm 0; }
+.thermal-rule { border-top: 1px dashed currentColor; margin: 1.5mm 0; }
+@media print {
+  @page ndh-thermal-58 { size: 58mm auto; margin: 0; }
+  @page ndh-thermal-80 { size: 80mm auto; margin: 0; }
+  .thermal-58mm { page: ndh-thermal-58; }
+  .thermal-80mm { page: ndh-thermal-80; }
+}

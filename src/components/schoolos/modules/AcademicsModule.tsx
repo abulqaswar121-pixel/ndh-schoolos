@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PaperScoreScanner } from "@/components/schoolos/scanner/PaperScoreScanner";
 import { useSchoolOS } from "@/context/SchoolOSContext";
 import { getTermControl } from "@/services/accessControl";
 import {
@@ -699,6 +700,27 @@ export function AcademicsModule() {
                 <Download className="mr-1.5 h-3.5 w-3.5 text-[#1E3A8A]" />
                 Export CSV
               </Button>
+              <PaperScoreScanner
+                disabled={marksheet.rows.length === 0}
+                students={marksheet.rows.map((r) => ({ id: r.student.id, name: r.student.fullName }))}
+                columns={components.map((c) => ({ id: c.id, label: c.label, max: c.maxScore }))}
+                onApprove={(cells) => {
+                  for (const cell of cells) {
+                    const st = marksheet.rows.find((r) => r.student.id === cell.studentId)?.student;
+                    if (!st) continue;
+                    updateScoreCell({
+                      studentId: st.id,
+                      subjectId: activeSubjectId,
+                      classId: st.programmeClasses[selectedProgId] ?? activeClassId,
+                      programmeId: selectedProgId,
+                      session: selectedSession,
+                      term: selectedTerm,
+                      componentId: cell.columnId,
+                      value: cell.value,
+                    });
+                  }
+                }}
+              />
               <Button
                 size="sm"
                 onClick={() =>

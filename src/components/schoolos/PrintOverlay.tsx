@@ -7,6 +7,7 @@ import { PrintableDataTable } from "./printables/PrintableDataTable";
 import { PrintableExamPaper } from "./printables/PrintableExamPaper";
 import { PrintablePayslip } from "./printables/PrintablePayslip";
 import { PrintableReceipt } from "./printables/PrintableReceipt";
+import { PrintableThermalReceipt, type ReceiptPaper } from "./printables/PrintableThermalReceipt";
 import { PrintableReportCard } from "./printables/PrintableReportCard";
 import { PrintableStaffCollection, PrintableParentSlips } from "./printables/PrintableCollectionForms";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { exportExamPaperToWordDoc } from "@/services/examPaperExportService";
 
 export function PrintOverlay() {
   const { db, printJob, openPrintPreview, closePrintPreview } = useSchoolOS();
+  const [receiptPaper, setReceiptPaper] = React.useState<ReceiptPaper>("a4");
 
   if (!printJob) return null;
 
@@ -191,7 +193,20 @@ export function PrintOverlay() {
           </A4Preview>
         )}
         {printJob.type === "receipt" && (
-          <PrintableReceipt db={db} paymentId={printJob.paymentId} />
+          <>
+            <div className="mb-3 flex justify-center gap-2 print:hidden" role="group" aria-label="Receipt paper size">
+              {(["a4", "80mm", "58mm"] as const).map((p) => (
+                <Button key={p} size="sm" variant={receiptPaper === p ? "default" : "outline"} onClick={() => setReceiptPaper(p)}>
+                  {p === "a4" ? "A4 receipt" : `${p} cash slip`}
+                </Button>
+              ))}
+            </div>
+            {receiptPaper === "a4" ? (
+              <PrintableReceipt db={db} paymentId={printJob.paymentId} />
+            ) : (
+              <PrintableThermalReceipt db={db} paymentId={printJob.paymentId} paper={receiptPaper} />
+            )}
+          </>
         )}
         {printJob.type === "broadsheet" && (
           <PrintableBroadsheet
