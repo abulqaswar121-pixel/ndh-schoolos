@@ -1,0 +1,91 @@
+{
+  "status": "screen-tutorial-release",
+  "roleId": "secretary",
+  "title": "School Secretary",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "voice": "User-selected English voice-02; not a verified Nigerian-English accent",
+  "scenes": [
+    {
+      "id": "01",
+      "label": "School link & sign-in",
+      "instruction": "School link & sign-in",
+      "narration": "Open your school's branded link. Staff and parents use their registered phone and four-digit PIN. This recording uses fictional demo records and a local session, not live authentication.",
+      "action": "signin",
+      "audioDurationSec": 11.520125,
+      "durationSec": 13.520125,
+      "audioStartSec": 0,
+      "audioEndSec": 11.520125,
+      "narrationSha256": "7a7863fd54ca68500d95975ccfa53f567317aa47da90356ffd7852cdd80ddcf7",
+      "wavSha256": "dad8820f58b2e5b87f5424bbd7b13be8a1968959a8bb5789b65f9d2f13e48956"
+    },
+    {
+      "id": "02",
+      "label": "Admissions & guardian links",
+      "instruction": "Admissions & guardian links",
+      "narration": "Choose Students, search the demo roster and open a learner record. Review the admission details and guardian phone. Link siblings carefully; never give one family access to another learner.",
+      "action": "students",
+      "audioDurationSec": 12.076792,
+      "durationSec": 14.076792,
+      "audioStartSec": 11.520125,
+      "audioEndSec": 23.596917,
+      "narrationSha256": "d89c6b201dfa44495d464e4c6f0ef2e0533364c02045865474f0c3b4b7a1dbbf",
+      "wavSha256": "8a5f95deac28d387429c0b614764e698863d47cedb62fcae241e5503f5899d2d"
+    },
+    {
+      "id": "03",
+      "label": "Attendance & authorised classes",
+      "instruction": "Attendance & authorised classes",
+      "narration": "Choose Attendance and check the class and date. Review the summary and open the attendance sheet preview. The secretary uses authorised records, not owner settings or teacher score editing.",
+      "action": "attendance-print",
+      "audioDurationSec": 11.516708,
+      "durationSec": 13.516708,
+      "audioStartSec": 23.596917,
+      "audioEndSec": 35.113625,
+      "narrationSha256": "f8698c83307ce4d05c43c66d33ff0f29d691c6ff90e7b0b03af04c7c8fcf7721",
+      "wavSha256": "2374b7d15c14b571e808af47935f27cb822541f185c23afef768e1926ba476b5"
+    },
+    {
+      "id": "04",
+      "label": "Read-only A4 report printing",
+      "instruction": "Read-only A4 report printing",
+      "narration": "Return to Students and open a report card. Check the same fixed A four page on either device. Print only reports your role is allowed to access and follow the school publication process.",
+      "action": "student-report",
+      "audioDurationSec": 11.402937,
+      "durationSec": 13.402937,
+      "audioStartSec": 35.113625,
+      "audioEndSec": 46.516562,
+      "narrationSha256": "3cf558565f2f35c940485529ec74991347ab3f4d7aaa954e2a5ec04a1db95a58",
+      "wavSha256": "481b96d2fed70325217c8e89b1a226d5b0fe823aeda76a593208eb2971b72a52"
+    },
+    {
+      "id": "05",
+      "label": "School app guidance",
+      "instruction": "School app guidance",
+      "narration": "Open your school's link and choose Install school app. The real help dialog explains Safari and Chrome steps. A native installation is not being verified here.",
+      "action": "install",
+      "audioDurationSec": 10.018646,
+      "durationSec": 12.018646,
+      "audioStartSec": 46.516562,
+      "audioEndSec": 56.535208,
+      "narrationSha256": "3cd8956552f0664bcf51b0227f38d785dfe30d2ac276f46b3303bf567a1fb0a5",
+      "wavSha256": "ffbac1b43706e04f04f006e5f1d07ead0fa9ad5fc11baed51bb38e27578764a5"
+    },
+    {
+      "id": "06",
+      "label": "Offline boundaries & privacy",
+      "instruction": "Offline boundaries & privacy",
+      "narration": "Sign in online and open needed records before offline work. Attendance and score drafts can sync when reconnected; review conflicts. Payments, messages and new sign-ins need internet. This demo does not verify live sync. Keep school links and family records private.",
+      "action": "offline",
+      "audioDurationSec": 16.824792,
+      "durationSec": 18.824792,
+      "audioStartSec": 56.535208,
+      "audioEndSec": 73.36,
+      "narrationSha256": "e4a053f1ab0d756ffff9996535aaa655541f0712b8adcfbfe675d9e956942ac5",
+      "wavSha256": "f6084863966a978b05927cac3cc8b328279bd29e22e85c2d42f3e130796b9e73"
+    }
+  ],
+  "audioSource": "/videos/narration-v6-roles/secretary.mp3",
+  "audioSha256": "a514d55ff9166e8ae312241aff1f994585914f350e8f38a0db3dd623285ce953",
+  "narrationSha256": "eb76320d5dee03a09ddd669980424c38e467492395cfafae61a2355a771635fd",
+  "timingBasis": "Detected paragraph-pause cuts, reviewed against expected text length; captions phrase-timed within each recorded scene."
+}

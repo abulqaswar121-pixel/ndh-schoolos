@@ -1,0 +1,71 @@
+{
+  "status": "screen-tutorial-release",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "durationSec": 86.708333,
+  "fullDecodeVerified": true,
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-parent-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-parent-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-parent-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-parent-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & parent sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Linked children & attendance",
+      "startSec": 14.25
+    },
+    {
+      "label": "Published result → A4 report",
+      "startSec": 28.083333
+    },
+    {
+      "label": "Fees, receipts & transfer safety",
+      "startSec": 42.75
+    },
+    {
+      "label": "Install your school app",
+      "startSec": 56.291667
+    },
+    {
+      "label": "Safe offline viewing",
+      "startSec": 69.208333
+    }
+  ],
+  "files": {
+    "public/videos/ndh-parent-screen-desktop-v6.mp4": {
+      "bytes": 2438074,
+      "sha256": "919f6a2bd1f95abbb2fe7bf09b63c68765690df79894d9adb64a171b9ca8dc87"
+    },
+    "public/videos/ndh-parent-screen-phone-v6.mp4": {
+      "bytes": 2511440,
+      "sha256": "fcd5a9b0fa157c72c3ae7f4eecabf605261eb1705cc8ff5b0198b137f938f583"
+    },
+    "public/videos/ndh-parent-screen-v6.en.srt": {
+      "bytes": 1734,
+      "sha256": "eef476e7e6f2494ce7760654dc981dcd1d60a82b9dfcf03fe74039e271136dd8"
+    },
+    "public/videos/ndh-parent-screen-v6.en.vtt": {
+      "bytes": 1742,
+      "sha256": "c7deb031f7225e4e62b4308956be604e2fa0a398e7a080ece678ae33e822fea4"
+    },
+    "public/videos/poster-ndh-parent-screen-desktop-v6.jpg": {
+      "bytes": 57717,
+      "sha256": "96a5edd167dd66c578f09c9842f66edc2ac00b38a27b114f46bca395a81ed3d0"
+    },
+    "public/videos/poster-ndh-parent-screen-phone-v6.jpg": {
+      "bytes": 48652,
+      "sha256": "ea4aee649cdc5b134176d281287455fb48b6e6ffd5ffad7cdf53739dfd5156b3"
+    }
+  },
+  "sourceSha256": "5022923a007a56f460c16ce897162ff6941fd5da068731830fe96941b214d2ad"
+}

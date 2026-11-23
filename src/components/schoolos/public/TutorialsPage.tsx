@@ -36,7 +36,7 @@ const ROLE_CARDS = [
     role: "Class Teacher",
     scope: "Assigned Class",
     summary:
-      "Assigned class or Halqah, offline attendance and scores, optional Tahfeez, My Class / My Subjects duties and A4 reports.",
+      "Assigned class or Halqah, offline attendance and scores, optional Tahfeez, class and subject duties in one account and A4 reports.",
   },
   {
     icon: ClipboardCheck,
@@ -84,7 +84,9 @@ export function TutorialsPage() {
               Quick video guides for every school role
             </h1>
             <p className="mt-2 text-sm text-[#364152] sm:text-base">
-              Seven narrated, illustrated guides explain school-branded access, phone/PIN sign-in, app installation, offline sync and role-specific workflows — with English captions and clickable chapters.
+              Seven narrated screen tutorials show the actual website and role portals using
+              fictional demo records. Auto selects Phone or Desktop view, with English captions,
+              clickable chapters and a manual view switch.
             </p>
           </div>
 
@@ -130,9 +132,7 @@ export function TutorialsPage() {
 
           <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-[#0c2340] p-6 text-white sm:p-8">
             <div>
-              <h3 className="font-display text-xl font-bold">
-                Set up your school in 2 minutes
-              </h3>
+              <h3 className="font-display text-xl font-bold">Set up your school in 2 minutes</h3>
               <p className="mt-1 text-xs text-slate-300 sm:text-sm">
                 Clean workspace ready for your classes, staff logins, and students.
               </p>

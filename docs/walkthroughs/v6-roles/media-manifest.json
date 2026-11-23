@@ -1,0 +1,558 @@
+{
+  "version": 6,
+  "status": "screen-tutorial-release",
+  "roles": [
+    {
+      "roleId": "admin",
+      "title": "School Owner / Principal",
+      "durationSec": 154.791667,
+      "durationLabel": "2:35",
+      "oneLiner": "Real app screens with fictional demo records: registration → owner sign-in → settings & school link → staff → optional Quran module → A4 preview → app-install guidance.",
+      "captionsSrc": "/videos/ndh-owner-screen-v6.en.vtt",
+      "variants": {
+        "phone": {
+          "videoSrc": "/videos/ndh-owner-screen-phone-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-owner-screen-phone-v6.jpg",
+          "aspectRatio": "9 / 16"
+        },
+        "desktop": {
+          "videoSrc": "/videos/ndh-owner-screen-desktop-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-owner-screen-desktop-v6.jpg",
+          "aspectRatio": "16 / 9"
+        }
+      },
+      "chapters": [
+        {
+          "label": "Homepage → Register",
+          "startSec": 0
+        },
+        {
+          "label": "School details",
+          "startSec": 17.041667
+        },
+        {
+          "label": "Owner account & classes",
+          "startSec": 32.833333
+        },
+        {
+          "label": "Sign in & dashboard",
+          "startSec": 55.625
+        },
+        {
+          "label": "Settings & school link",
+          "startSec": 72.166667
+        },
+        {
+          "label": "Teaching & support staff",
+          "startSec": 89.541667
+        },
+        {
+          "label": "Optional Quran module",
+          "startSec": 104.791667
+        },
+        {
+          "label": "Real A4 report preview",
+          "startSec": 113.333333
+        },
+        {
+          "label": "School app & offline guidance",
+          "startSec": 132.5
+        }
+      ],
+      "status": "owner-screen-release",
+      "format": "Actual application screen captures with fictional local demo data; not live authentication or deployment verification",
+      "fullDecodeVerified": true,
+      "files": {
+        "public/videos/ndh-owner-screen-desktop-v6.mp4": {
+          "bytes": 4155304,
+          "sha256": "131daf95c1c0577fbb938a2509119f0963acc0e417f99560c782f6c6a34e2ed0"
+        },
+        "public/videos/ndh-owner-screen-phone-v6.mp4": {
+          "bytes": 4454542,
+          "sha256": "1578f85df4b5a63a293b4ca8bf529fae770cd99db55143fd1c67ad89e1ce1422"
+        },
+        "public/videos/ndh-owner-screen-v6.en.srt": {
+          "bytes": 3015,
+          "sha256": "cdd4e946608f304d5a55a7d74e536616a4d2789a867ab7cc1248d42e253a660e"
+        },
+        "public/videos/ndh-owner-screen-v6.en.vtt": {
+          "bytes": 3023,
+          "sha256": "ac31bbc27243db5b0cb51a8278979095f0b1e72f8f67fce7e35843fdefcb04b4"
+        },
+        "public/videos/poster-ndh-owner-screen-desktop-v6.jpg": {
+          "bytes": 81049,
+          "sha256": "076cf6caae68ac08494520f681f5ba61680495379f7aec4a1c6c65b5389a01fc"
+        },
+        "public/videos/poster-ndh-owner-screen-phone-v6.jpg": {
+          "bytes": 66844,
+          "sha256": "d450363142d6c351889c48044df663d219e634d44fea51f012cb31b1cde5371c"
+        }
+      },
+      "sourceSha256": "ecf22de8d676be2c8966d4030dc37ee95efccd87bc24711f236f1b1cba4282f5"
+    },
+    {
+      "roleId": "exam_officer",
+      "title": "Exam Officer",
+      "durationSec": 85.666667,
+      "durationLabel": "1:26",
+      "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Find and filter exam papers → Review → approve → A4 paper → All-class broadsheets & reports → Install school app → Offline guidance & privacy.",
+      "captionsSrc": "/videos/ndh-exam-officer-screen-v6.en.vtt",
+      "variants": {
+        "phone": {
+          "videoSrc": "/videos/ndh-exam-officer-screen-phone-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-exam-officer-screen-phone-v6.jpg",
+          "aspectRatio": "9 / 16"
+        },
+        "desktop": {
+          "videoSrc": "/videos/ndh-exam-officer-screen-desktop-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-exam-officer-screen-desktop-v6.jpg",
+          "aspectRatio": "16 / 9"
+        }
+      },
+      "chapters": [
+        {
+          "label": "School link & sign-in",
+          "startSec": 0
+        },
+        {
+          "label": "Find and filter exam papers",
+          "startSec": 13.625
+        },
+        {
+          "label": "Review → approve → A4 paper",
+          "startSec": 27.041667
+        },
+        {
+          "label": "All-class broadsheets & reports",
+          "startSec": 40.125
+        },
+        {
+          "label": "Install school app",
+          "startSec": 54.125
+        },
+        {
+          "label": "Offline guidance & privacy",
+          "startSec": 65.916667
+        }
+      ],
+      "status": "screen-tutorial-release",
+      "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+      "fullDecodeVerified": true,
+      "files": {
+        "public/videos/ndh-exam-officer-screen-desktop-v6.mp4": {
+          "bytes": 2889845,
+          "sha256": "994c36392916fcdedd2872794197a9e17bb42aca5b856a276f75d90a7b76bdc5"
+        },
+        "public/videos/ndh-exam-officer-screen-phone-v6.mp4": {
+          "bytes": 2866124,
+          "sha256": "0570145ef8b298b2079b40c479a2fdb43512bad441fd73714728793a278423d1"
+        },
+        "public/videos/ndh-exam-officer-screen-v6.en.srt": {
+          "bytes": 1785,
+          "sha256": "8277edecd49ed185da5f52514d0e9cc2f5d081e879757df2523c1946a0073e95"
+        },
+        "public/videos/ndh-exam-officer-screen-v6.en.vtt": {
+          "bytes": 1793,
+          "sha256": "5f8c143f55d60acddf7865bb3ca559cba87e021b4b100b36ae0f917e099705e9"
+        },
+        "public/videos/poster-ndh-exam-officer-screen-desktop-v6.jpg": {
+          "bytes": 59047,
+          "sha256": "2e8c9a64c6af1dfc6c68a6d1371c5bebac19ae9ad5e1be925b2d3a8370439a53"
+        },
+        "public/videos/poster-ndh-exam-officer-screen-phone-v6.jpg": {
+          "bytes": 45141,
+          "sha256": "08aa5f1a02258bdc56fb7116f81e2536d760030e3b92e5abab7cc26df35ca360"
+        }
+      },
+      "sourceSha256": "75996e55587782ad3e24799c0b1e75ba8567ae7d04a0bc492e39245225cd0d2d"
+    },
+    {
+      "roleId": "class_teacher",
+      "title": "Class Teacher / Mu’allim",
+      "durationSec": 108.5,
+      "durationLabel": "1:49",
+      "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Assigned-class attendance → One account: class & subjects → Class broadsheet → A4 report → Optional Tahfeez / Halqah variant → Install school app → Offline drafts & reconnect.",
+      "captionsSrc": "/videos/ndh-class-teacher-screen-v6.en.vtt",
+      "variants": {
+        "phone": {
+          "videoSrc": "/videos/ndh-class-teacher-screen-phone-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-class-teacher-screen-phone-v6.jpg",
+          "aspectRatio": "9 / 16"
+        },
+        "desktop": {
+          "videoSrc": "/videos/ndh-class-teacher-screen-desktop-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-class-teacher-screen-desktop-v6.jpg",
+          "aspectRatio": "16 / 9"
+        }
+      },
+      "chapters": [
+        {
+          "label": "School link & sign-in",
+          "startSec": 0
+        },
+        {
+          "label": "Assigned-class attendance",
+          "startSec": 13.791667
+        },
+        {
+          "label": "One account: class & subjects",
+          "startSec": 27.333333
+        },
+        {
+          "label": "Class broadsheet → A4 report",
+          "startSec": 43.125
+        },
+        {
+          "label": "Optional Tahfeez / Halqah variant",
+          "startSec": 59.041667
+        },
+        {
+          "label": "Install school app",
+          "startSec": 78.125
+        },
+        {
+          "label": "Offline drafts & reconnect",
+          "startSec": 91.333333
+        }
+      ],
+      "status": "screen-tutorial-release",
+      "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+      "fullDecodeVerified": true,
+      "files": {
+        "public/videos/ndh-class-teacher-screen-desktop-v6.mp4": {
+          "bytes": 3028905,
+          "sha256": "b274e0f1aae9d39e12a47526568aaf66523879231b8a5706093814060bd4353a"
+        },
+        "public/videos/ndh-class-teacher-screen-phone-v6.mp4": {
+          "bytes": 3356466,
+          "sha256": "ef28cd1eeb06f326efb47ce128bc6ed14fea16242bcee6a3d6a1e2ea8f6d8f1e"
+        },
+        "public/videos/ndh-class-teacher-screen-v6.en.srt": {
+          "bytes": 2000,
+          "sha256": "44af1e9cd81db6e5c84af7297cc451d78efc62ee5ff0e637b9af514be1ad84ba"
+        },
+        "public/videos/ndh-class-teacher-screen-v6.en.vtt": {
+          "bytes": 2008,
+          "sha256": "dda7676d5062b1c09711516f3bb70c807f69be92764220e5b3e37e81d505d3b0"
+        },
+        "public/videos/poster-ndh-class-teacher-screen-desktop-v6.jpg": {
+          "bytes": 59013,
+          "sha256": "58aa04e32049785da67e4732983cace77ecf7e502f6d5e5e6315e637c4ff2611"
+        },
+        "public/videos/poster-ndh-class-teacher-screen-phone-v6.jpg": {
+          "bytes": 46356,
+          "sha256": "bfb1cc5a9af1a504142d831f6a5e139c8113ab78509143df21afaec52b72cbc5"
+        }
+      },
+      "sourceSha256": "990e4856faf64e205db22f65d67071047719d6096d41259c9f671ca354019b2a"
+    },
+    {
+      "roleId": "subject_teacher",
+      "title": "Subject Teacher",
+      "durationSec": 89.958333,
+      "durationLabel": "1:30",
+      "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Assigned subject → score entry → Combined teaching group → Exam paper drafting & submission → Install school app → Offline scores & reconnect.",
+      "captionsSrc": "/videos/ndh-subject-teacher-screen-v6.en.vtt",
+      "variants": {
+        "phone": {
+          "videoSrc": "/videos/ndh-subject-teacher-screen-phone-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-subject-teacher-screen-phone-v6.jpg",
+          "aspectRatio": "9 / 16"
+        },
+        "desktop": {
+          "videoSrc": "/videos/ndh-subject-teacher-screen-desktop-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-subject-teacher-screen-desktop-v6.jpg",
+          "aspectRatio": "16 / 9"
+        }
+      },
+      "chapters": [
+        {
+          "label": "School link & sign-in",
+          "startSec": 0
+        },
+        {
+          "label": "Assigned subject → score entry",
+          "startSec": 13.458333
+        },
+        {
+          "label": "Combined teaching group",
+          "startSec": 28.958333
+        },
+        {
+          "label": "Exam paper drafting & submission",
+          "startSec": 43.708333
+        },
+        {
+          "label": "Install school app",
+          "startSec": 58.791667
+        },
+        {
+          "label": "Offline scores & reconnect",
+          "startSec": 71.041667
+        }
+      ],
+      "status": "screen-tutorial-release",
+      "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+      "fullDecodeVerified": true,
+      "files": {
+        "public/videos/ndh-subject-teacher-screen-desktop-v6.mp4": {
+          "bytes": 2543038,
+          "sha256": "058ae813dbdad852ce349cc15f0c99628c4c4f4eb6e9fb189be92f61d3914c31"
+        },
+        "public/videos/ndh-subject-teacher-screen-phone-v6.mp4": {
+          "bytes": 2834303,
+          "sha256": "5c49578153a584232413e4a96e7fd760d8359b6c8cf2bcba8e174de4a6219a0c"
+        },
+        "public/videos/ndh-subject-teacher-screen-v6.en.srt": {
+          "bytes": 1807,
+          "sha256": "0b1ba310c59151b973704314d0b3a04496023ab5fc28e22b9fec21f8850b6de6"
+        },
+        "public/videos/ndh-subject-teacher-screen-v6.en.vtt": {
+          "bytes": 1815,
+          "sha256": "e2421f3343db9288015ddeba4cd433b741430d7264ddfa92eacef131a4adc6ba"
+        },
+        "public/videos/poster-ndh-subject-teacher-screen-desktop-v6.jpg": {
+          "bytes": 58602,
+          "sha256": "92aace092a3b4884a0a2db13e2ef4765e31feda1bf08aae0c4e8b7dd28020d15"
+        },
+        "public/videos/poster-ndh-subject-teacher-screen-phone-v6.jpg": {
+          "bytes": 45594,
+          "sha256": "a07239712cb043b9d5613a20139a4cd5ca56f6bff00a8fcef7aa72aba592150f"
+        }
+      },
+      "sourceSha256": "41e138eeb082959633fb54fb310979ad8b8702e5cbd6e3eb887501727f95b5f8"
+    },
+    {
+      "roleId": "bursar",
+      "title": "Bursar / Accountant",
+      "durationSec": 101.333333,
+      "durationLabel": "1:42",
+      "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Student balances & debtors → Official receipt → A4 preview → Monthly payroll & payslips → Teaching & non-teaching staff → Install school app → Online payments & sync limits.",
+      "captionsSrc": "/videos/ndh-bursar-screen-v6.en.vtt",
+      "variants": {
+        "phone": {
+          "videoSrc": "/videos/ndh-bursar-screen-phone-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-bursar-screen-phone-v6.jpg",
+          "aspectRatio": "9 / 16"
+        },
+        "desktop": {
+          "videoSrc": "/videos/ndh-bursar-screen-desktop-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-bursar-screen-desktop-v6.jpg",
+          "aspectRatio": "16 / 9"
+        }
+      },
+      "chapters": [
+        {
+          "label": "School link & sign-in",
+          "startSec": 0
+        },
+        {
+          "label": "Student balances & debtors",
+          "startSec": 13.833333
+        },
+        {
+          "label": "Official receipt → A4 preview",
+          "startSec": 28.583333
+        },
+        {
+          "label": "Monthly payroll & payslips",
+          "startSec": 43.25
+        },
+        {
+          "label": "Teaching & non-teaching staff",
+          "startSec": 55.875
+        },
+        {
+          "label": "Install school app",
+          "startSec": 69.416667
+        },
+        {
+          "label": "Online payments & sync limits",
+          "startSec": 81.75
+        }
+      ],
+      "status": "screen-tutorial-release",
+      "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+      "fullDecodeVerified": true,
+      "files": {
+        "public/videos/ndh-bursar-screen-desktop-v6.mp4": {
+          "bytes": 2719139,
+          "sha256": "448d918a938be88d4daac48951f96f1b4f571741718f4a673c974788a530a08d"
+        },
+        "public/videos/ndh-bursar-screen-phone-v6.mp4": {
+          "bytes": 3049446,
+          "sha256": "aac15385412f8c6d58f6eecce203e1a81f787496cca9e5903d16315f2295c7ba"
+        },
+        "public/videos/ndh-bursar-screen-v6.en.srt": {
+          "bytes": 1986,
+          "sha256": "382d7b75305053a6fb9446bb2da762a235ab7b2ba17160a1a92f2a93ad4391d4"
+        },
+        "public/videos/ndh-bursar-screen-v6.en.vtt": {
+          "bytes": 1994,
+          "sha256": "68dc74e1108a7c300427b6132ad3a2ca8d524412986070e1f579a9589e437461"
+        },
+        "public/videos/poster-ndh-bursar-screen-desktop-v6.jpg": {
+          "bytes": 58632,
+          "sha256": "dc661bf9df304b6026740b162ab6d1166dba1e9630a293bade1df8eb44977ab2"
+        },
+        "public/videos/poster-ndh-bursar-screen-phone-v6.jpg": {
+          "bytes": 44766,
+          "sha256": "26766f3ebb7451449db0feced6c501754ef51060fd797f61573c418771d753b0"
+        }
+      },
+      "sourceSha256": "842110ef93c7569b5fd54568a87113e556e3207cd60933fbf660112fa74bf488"
+    },
+    {
+      "roleId": "secretary",
+      "title": "School Secretary",
+      "durationSec": 85.458333,
+      "durationLabel": "1:26",
+      "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Admissions & guardian links → Attendance & authorised classes → Read-only A4 report printing → School app guidance → Offline boundaries & privacy.",
+      "captionsSrc": "/videos/ndh-secretary-screen-v6.en.vtt",
+      "variants": {
+        "phone": {
+          "videoSrc": "/videos/ndh-secretary-screen-phone-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-secretary-screen-phone-v6.jpg",
+          "aspectRatio": "9 / 16"
+        },
+        "desktop": {
+          "videoSrc": "/videos/ndh-secretary-screen-desktop-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-secretary-screen-desktop-v6.jpg",
+          "aspectRatio": "16 / 9"
+        }
+      },
+      "chapters": [
+        {
+          "label": "School link & sign-in",
+          "startSec": 0
+        },
+        {
+          "label": "Admissions & guardian links",
+          "startSec": 13.541667
+        },
+        {
+          "label": "Attendance & authorised classes",
+          "startSec": 27.625
+        },
+        {
+          "label": "Read-only A4 report printing",
+          "startSec": 41.166667
+        },
+        {
+          "label": "School app guidance",
+          "startSec": 54.583333
+        },
+        {
+          "label": "Offline boundaries & privacy",
+          "startSec": 66.625
+        }
+      ],
+      "status": "screen-tutorial-release",
+      "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+      "fullDecodeVerified": true,
+      "files": {
+        "public/videos/ndh-secretary-screen-desktop-v6.mp4": {
+          "bytes": 2364405,
+          "sha256": "603b30ee38a1fabb66d1c6667e7209f4b102ddc0c6503eca6634fc403ac989fa"
+        },
+        "public/videos/ndh-secretary-screen-phone-v6.mp4": {
+          "bytes": 2540013,
+          "sha256": "cc273ad124eaea6dccef08227f76c985ccf99abcb13e52f04e9c70f3e33390ff"
+        },
+        "public/videos/ndh-secretary-screen-v6.en.srt": {
+          "bytes": 1783,
+          "sha256": "c84cb4ab312397c5454c35b6ffae7be3e7ed0bfe0a1a177336de238ee28aeec6"
+        },
+        "public/videos/ndh-secretary-screen-v6.en.vtt": {
+          "bytes": 1791,
+          "sha256": "4664bbf8fb4bbe41ebd6c84af45c258399ea8c693deaad0b8282f6c66a605e29"
+        },
+        "public/videos/poster-ndh-secretary-screen-desktop-v6.jpg": {
+          "bytes": 58909,
+          "sha256": "f9f07fa29cb874bcd15b2448f9caff88fce77644712634f5492807e4524e4c78"
+        },
+        "public/videos/poster-ndh-secretary-screen-phone-v6.jpg": {
+          "bytes": 44859,
+          "sha256": "f306f437375753c648239e82226382f51e1e6411d6760a5594488d18a97692fe"
+        }
+      },
+      "sourceSha256": "ba8e5bf90ddbb785b2e0daf303f2c08fc263452f874bfe97181184bb729260b8"
+    },
+    {
+      "roleId": "parent",
+      "title": "Parent / Guardian",
+      "durationSec": 86.708333,
+      "durationLabel": "1:27",
+      "oneLiner": "Actual role screens with fictional demo data: School link & parent sign-in → Linked children & attendance → Published result → A4 report → Fees, receipts & transfer safety → Install your school app → Safe offline viewing.",
+      "captionsSrc": "/videos/ndh-parent-screen-v6.en.vtt",
+      "variants": {
+        "phone": {
+          "videoSrc": "/videos/ndh-parent-screen-phone-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-parent-screen-phone-v6.jpg",
+          "aspectRatio": "9 / 16"
+        },
+        "desktop": {
+          "videoSrc": "/videos/ndh-parent-screen-desktop-v6.mp4",
+          "posterSrc": "/videos/poster-ndh-parent-screen-desktop-v6.jpg",
+          "aspectRatio": "16 / 9"
+        }
+      },
+      "chapters": [
+        {
+          "label": "School link & parent sign-in",
+          "startSec": 0
+        },
+        {
+          "label": "Linked children & attendance",
+          "startSec": 14.25
+        },
+        {
+          "label": "Published result → A4 report",
+          "startSec": 28.083333
+        },
+        {
+          "label": "Fees, receipts & transfer safety",
+          "startSec": 42.75
+        },
+        {
+          "label": "Install your school app",
+          "startSec": 56.291667
+        },
+        {
+          "label": "Safe offline viewing",
+          "startSec": 69.208333
+        }
+      ],
+      "status": "screen-tutorial-release",
+      "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+      "fullDecodeVerified": true,
+      "files": {
+        "public/videos/ndh-parent-screen-desktop-v6.mp4": {
+          "bytes": 2438074,
+          "sha256": "919f6a2bd1f95abbb2fe7bf09b63c68765690df79894d9adb64a171b9ca8dc87"
+        },
+        "public/videos/ndh-parent-screen-phone-v6.mp4": {
+          "bytes": 2511440,
+          "sha256": "fcd5a9b0fa157c72c3ae7f4eecabf605261eb1705cc8ff5b0198b137f938f583"
+        },
+        "public/videos/ndh-parent-screen-v6.en.srt": {
+          "bytes": 1734,
+          "sha256": "eef476e7e6f2494ce7760654dc981dcd1d60a82b9dfcf03fe74039e271136dd8"
+        },
+        "public/videos/ndh-parent-screen-v6.en.vtt": {
+          "bytes": 1742,
+          "sha256": "c7deb031f7225e4e62b4308956be604e2fa0a398e7a080ece678ae33e822fea4"
+        },
+        "public/videos/poster-ndh-parent-screen-desktop-v6.jpg": {
+          "bytes": 57717,
+          "sha256": "96a5edd167dd66c578f09c9842f66edc2ac00b38a27b114f46bca395a81ed3d0"
+        },
+        "public/videos/poster-ndh-parent-screen-phone-v6.jpg": {
+          "bytes": 48652,
+          "sha256": "ea4aee649cdc5b134176d281287455fb48b6e6ffd5ffad7cdf53739dfd5156b3"
+        }
+      },
+      "sourceSha256": "5022923a007a56f460c16ce897162ff6941fd5da068731830fe96941b214d2ad"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "roleId": "subject_teacher",
+  "title": "Subject Teacher",
+  "durationSec": 89.958333,
+  "durationLabel": "1:30",
+  "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Assigned subject → score entry → Combined teaching group → Exam paper drafting & submission → Install school app → Offline scores & reconnect.",
+  "captionsSrc": "/videos/ndh-subject-teacher-screen-v6.en.vtt",
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-subject-teacher-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-subject-teacher-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-subject-teacher-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-subject-teacher-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Assigned subject → score entry",
+      "startSec": 13.458333
+    },
+    {
+      "label": "Combined teaching group",
+      "startSec": 28.958333
+    },
+    {
+      "label": "Exam paper drafting & submission",
+      "startSec": 43.708333
+    },
+    {
+      "label": "Install school app",
+      "startSec": 58.791667
+    },
+    {
+      "label": "Offline scores & reconnect",
+      "startSec": 71.041667
+    }
+  ]
+}

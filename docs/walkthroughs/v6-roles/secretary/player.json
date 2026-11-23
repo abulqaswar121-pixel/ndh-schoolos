@@ -1,0 +1,46 @@
+{
+  "roleId": "secretary",
+  "title": "School Secretary",
+  "durationSec": 85.458333,
+  "durationLabel": "1:26",
+  "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Admissions & guardian links → Attendance & authorised classes → Read-only A4 report printing → School app guidance → Offline boundaries & privacy.",
+  "captionsSrc": "/videos/ndh-secretary-screen-v6.en.vtt",
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-secretary-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-secretary-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-secretary-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-secretary-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Admissions & guardian links",
+      "startSec": 13.541667
+    },
+    {
+      "label": "Attendance & authorised classes",
+      "startSec": 27.625
+    },
+    {
+      "label": "Read-only A4 report printing",
+      "startSec": 41.166667
+    },
+    {
+      "label": "School app guidance",
+      "startSec": 54.583333
+    },
+    {
+      "label": "Offline boundaries & privacy",
+      "startSec": 66.625
+    }
+  ]
+}

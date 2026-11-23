@@ -1,0 +1,105 @@
+{
+  "status": "owner-screen-tutorial-sample",
+  "roleId": "admin",
+  "title": "School Owner / Principal",
+  "format": "Actual application screen captures with fictional local demo data; not live authentication or deployment verification",
+  "voice": "User-selected English voice-02; not a verified Nigerian-English accent",
+  "scenes": [
+    {
+      "id": "01",
+      "label": "Homepage → Register",
+      "instruction": "Choose Register Your School",
+      "narration": "Welcome. These are the actual NDH SchoolOS pages, with fictional demo records. Start on the homepage and choose Register Your School. On a phone, scroll to the button. No real school accounts are involved.",
+      "audioDurationSec": 14.79,
+      "durationSec": 16.79,
+      "narrationSha256": "89b04a530cb7d3f85163b1b21c947e5b1fb883b1be880cfbc7ce7b489f75265b",
+      "wavSha256": "c2f51e1d53af779d0b04c2e33c3e999e10a395d4725378dab637e78b8c2b0336"
+    },
+    {
+      "id": "02",
+      "label": "School details",
+      "instruction": "Enter school details and choose Continue",
+      "narration": "Enter your school name, country and address. Upload your own school crest if available. Check the details, then choose Next. We are using a fictional training school, not registering a real school.",
+      "audioDurationSec": 13.65,
+      "durationSec": 15.65,
+      "narrationSha256": "defabb141cd34f2cf41909970722faa8fa4f5427c6465d35f077a112af26a3fb",
+      "wavSha256": "776dd348b54db740b393f07067964572cf6aabf4616ee8eab0fe4744944db9ca"
+    },
+    {
+      "id": "03",
+      "label": "Owner account & classes",
+      "instruction": "Review the owner account, term and classes",
+      "narration": "Enter the owner's name, administrator email and a strong password. Keep your real password private. Select Next to review your session, term, programmes and classes. Complete registration on the live service and follow any email confirmation instructions. We will not create a real account in this demonstration.",
+      "audioDurationSec": 20.68,
+      "durationSec": 22.68,
+      "narrationSha256": "a981e9d8704ab462f7d0b66908608de03d2177ac0f74780a71fcf179fd6c9937",
+      "wavSha256": "5d4b0f45b34ba6b3c003158176f5b070537f7e7dd29241bcf9c5df1e5222639b"
+    },
+    {
+      "id": "04",
+      "label": "Sign in & dashboard",
+      "instruction": "Owner: email + password • demo session",
+      "narration": "For an existing owner account, choose Sign In and enter your email and password. Staff and parents use their school-provisioned phone and four-digit PIN. This local demo session shows the dashboard, not live authentication.",
+      "audioDurationSec": 14.38,
+      "durationSec": 16.38,
+      "narrationSha256": "271bc7b8165cbccc12bebfdd3e7fbd31468cb90add4d92d767ed0ef289f92f9e",
+      "wavSha256": "e67259a06ffc49b683706c453d058b144671f1dc4c2691acfc6f39ce701115e5"
+    },
+    {
+      "id": "05",
+      "label": "Settings & school link",
+      "instruction": "Settings → School portal & accounts",
+      "narration": "On a phone, open the navigation menu. On desktop, use the sidebar. Choose Settings to review your crest, name and motto. Scroll to School portal and accounts for the short link. Share that link, not your owner login.",
+      "audioDurationSec": 15.12,
+      "durationSec": 17.12,
+      "narrationSha256": "160175c3730b73f8e3d90b6e021cf850b0d59afee6694d266f01ef00dbbd3632",
+      "wavSha256": "b7421a59e7bea15684782f4acc2fce24c34435c0120452d4053150d79b04ce88"
+    },
+    {
+      "id": "06",
+      "label": "Teaching & support staff",
+      "instruction": "Staff Directory → filter by staff type",
+      "narration": "Open Staff and Payroll, then Staff Directory. Filter teaching and non-teaching staff. Support staff can be paid without teaching accounts. Review a teacher's class and subject assignments in one staff record.",
+      "audioDurationSec": 13.1,
+      "durationSec": 15.1,
+      "narrationSha256": "f96057560f0e476f2aad3f344458b3973a348b3668ba0eb43926328d8eda704c",
+      "wavSha256": "e150e1dff551f514596c497c1e304820947160fed185adefce212e9983454afb"
+    },
+    {
+      "id": "07",
+      "label": "Optional Quran module",
+      "instruction": "Settings → Optional Modules & Footer",
+      "narration": "Leave the optional Quran module off for a conventional school, or enable it when your school needs memorization tracking.",
+      "audioDurationSec": 6.45,
+      "durationSec": 8.45,
+      "narrationSha256": "1f2dcfb9bdfa91b89c453a993a347f870b0051ec8f548da74848cfa5ca0b78ce",
+      "wavSha256": "5f2b7fffe7a282c2f62bd06530f9af71d33e18b90c54ca4ebe6261af1021ab6a"
+    },
+    {
+      "id": "08",
+      "label": "Real A4 report preview",
+      "instruction": "Dashboard → Report Card → check the A4 page",
+      "narration": "Return to the dashboard and choose a learner's Report Card. This opens the actual A four print preview. On a phone the same paper scales down; the report itself does not rearrange. Check the full page and margins before printing or saving to PDF.",
+      "audioDurationSec": 16.88,
+      "durationSec": 18.88,
+      "narrationSha256": "90dabb6070af0e4ee71c889f8de40ccb909f7bca11fc595ceb8caaae6c4491c8",
+      "wavSha256": "64cc2270a63e3a43658a7100c7c17c34baceaac97ac95e3beb14d1c64313e5fb"
+    },
+    {
+      "id": "09",
+      "label": "School app & offline guidance",
+      "instruction": "School link → Install school app",
+      "narration": "Open your school's link and choose Install school app. The help explains the Safari and Chrome steps. Sign in online and open needed records before working offline. Reconnect with the app open and review sync or conflict messages. Installation and live offline sync are not being verified in this demo.",
+      "audioDurationSec": 20.12,
+      "durationSec": 22.12,
+      "narrationSha256": "1fedba6127c9e4b1d7a52975cde889619460c0ac8c0019dc5123678aca674ced",
+      "wavSha256": "7de5196f8b5d5a46515debbb8a480cbed81fc4b43a7370f4f7b35cce779d6a68"
+    }
+  ],
+  "audioSources": {
+    "03.mp3": "f9e91c890976640e429c73ef1e63d80470c13d71a83029bbbba4d01627529b2e",
+    "08.mp3": "2865d700cf80ec52ba068ca9308b684552ffe7658b29abfe22db3a1360b95db7",
+    "09.mp3": "682b8af2d21c46c096a9a78e03458fc26e9fc60a262e753eb916764d76a58315",
+    "combined.mp3": "aa705e292fb209f91e31950a824d7e5fa74f3d2c94922a896c41f0caf59a917f"
+  }
+}

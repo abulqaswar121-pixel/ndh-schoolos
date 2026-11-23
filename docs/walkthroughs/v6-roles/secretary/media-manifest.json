@@ -1,0 +1,71 @@
+{
+  "status": "screen-tutorial-release",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "durationSec": 85.458333,
+  "fullDecodeVerified": true,
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-secretary-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-secretary-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-secretary-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-secretary-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Admissions & guardian links",
+      "startSec": 13.541667
+    },
+    {
+      "label": "Attendance & authorised classes",
+      "startSec": 27.625
+    },
+    {
+      "label": "Read-only A4 report printing",
+      "startSec": 41.166667
+    },
+    {
+      "label": "School app guidance",
+      "startSec": 54.583333
+    },
+    {
+      "label": "Offline boundaries & privacy",
+      "startSec": 66.625
+    }
+  ],
+  "files": {
+    "public/videos/ndh-secretary-screen-desktop-v6.mp4": {
+      "bytes": 2364405,
+      "sha256": "603b30ee38a1fabb66d1c6667e7209f4b102ddc0c6503eca6634fc403ac989fa"
+    },
+    "public/videos/ndh-secretary-screen-phone-v6.mp4": {
+      "bytes": 2540013,
+      "sha256": "cc273ad124eaea6dccef08227f76c985ccf99abcb13e52f04e9c70f3e33390ff"
+    },
+    "public/videos/ndh-secretary-screen-v6.en.srt": {
+      "bytes": 1783,
+      "sha256": "c84cb4ab312397c5454c35b6ffae7be3e7ed0bfe0a1a177336de238ee28aeec6"
+    },
+    "public/videos/ndh-secretary-screen-v6.en.vtt": {
+      "bytes": 1791,
+      "sha256": "4664bbf8fb4bbe41ebd6c84af45c258399ea8c693deaad0b8282f6c66a605e29"
+    },
+    "public/videos/poster-ndh-secretary-screen-desktop-v6.jpg": {
+      "bytes": 58909,
+      "sha256": "f9f07fa29cb874bcd15b2448f9caff88fce77644712634f5492807e4524e4c78"
+    },
+    "public/videos/poster-ndh-secretary-screen-phone-v6.jpg": {
+      "bytes": 44859,
+      "sha256": "f306f437375753c648239e82226382f51e1e6411d6760a5594488d18a97692fe"
+    }
+  },
+  "sourceSha256": "ba8e5bf90ddbb785b2e0daf303f2c08fc263452f874bfe97181184bb729260b8"
+}

@@ -12,7 +12,11 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useOptionalSchoolOS } from "@/context/SchoolOSContext";
-import { WALKTHROUGH_V5 } from "@/data/walkthroughVideosV5";
+import {
+  ResponsiveWalkthroughVideo,
+  type WalkthroughVideoSource,
+} from "./ResponsiveWalkthroughVideo";
+import { SCREEN_TUTORIALS_V6 } from "@/data/screenTutorialsV6";
 import { getResolvedCustomization } from "@/services/customizationDefaults";
 
 export interface VideoChapter {
@@ -38,6 +42,7 @@ export interface RoleVideoItem {
   captionsSrc: string;
   icon: React.ComponentType<{ className?: string }>;
   chapters: VideoChapter[];
+  variants?: { phone: WalkthroughVideoSource; desktop: WalkthroughVideoSource };
 }
 
 const ROLE_PRESENTATION = {
@@ -50,15 +55,16 @@ const ROLE_PRESENTATION = {
   parent: { tabLabel: "Parent", icon: Smartphone },
 } satisfies Record<RoleVideoItem["roleId"], { tabLabel: string; icon: RoleVideoItem["icon"] }>;
 
-export const ROLE_VIDEO_PLAYLIST: RoleVideoItem[] = WALKTHROUGH_V5.map((video) => ({
+export const ROLE_VIDEO_PLAYLIST: RoleVideoItem[] = SCREEN_TUTORIALS_V6.map((video) => ({
   ...ROLE_PRESENTATION[video.roleId],
   roleId: video.roleId,
   fullTitle: video.title,
   durationLabel: video.durationLabel,
   oneLiner: video.oneLiner,
-  videoSrc: video.videoSrc,
-  posterSrc: video.posterSrc,
+  videoSrc: video.variants.desktop.videoSrc,
+  posterSrc: video.variants.desktop.posterSrc,
   captionsSrc: video.captionsSrc,
+  variants: video.variants,
   chapters: video.chapters.map((chapter, index) => ({
     label: `${index + 1}. ${chapter.label}`,
     startSec: chapter.startSec,
@@ -84,15 +90,14 @@ export function RoleVideoTutorialPlayer({
 }: RoleVideoTutorialPlayerProps) {
   const optionalCtx = useOptionalSchoolOS();
   const lowDataMode = optionalCtx
-    ? getResolvedCustomization(optionalCtx.db.settings).workspaceTheme
-        .lowDataMode
+    ? getResolvedCustomization(optionalCtx.db.settings).workspaceTheme.lowDataMode
     : false;
   const effectiveAutoPlay = autoPlay && !lowDataMode;
 
   const targetRole = lockedRoleId ?? initialRoleId;
   const startIdx = Math.max(
     0,
-    ROLE_VIDEO_PLAYLIST.findIndex((item) => item.roleId === targetRole)
+    ROLE_VIDEO_PLAYLIST.findIndex((item) => item.roleId === targetRole),
   );
 
   const [roleIndex, setRoleIndex] = useState<number>(startIdx);
@@ -100,23 +105,18 @@ export function RoleVideoTutorialPlayer({
   // Keep locked player strictly pinned to `lockedRoleId` if role changes
   useEffect(() => {
     if (!lockedRoleId) return;
-    const lockedIdx = ROLE_VIDEO_PLAYLIST.findIndex(
-      (item) => item.roleId === lockedRoleId
-    );
+    const lockedIdx = ROLE_VIDEO_PLAYLIST.findIndex((item) => item.roleId === lockedRoleId);
     if (lockedIdx >= 0 && lockedIdx !== roleIndex) {
       setRoleIndex(lockedIdx);
     }
   }, [lockedRoleId, roleIndex]);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [mutedByBrowserPolicy, setMutedByBrowserPolicy] =
-    useState<boolean>(false);
+  const [mutedByBrowserPolicy, setMutedByBrowserPolicy] = useState<boolean>(false);
   const userEnabledAudioRef = useRef<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const currentVideo =
-    ROLE_VIDEO_PLAYLIST[roleIndex] ?? ROLE_VIDEO_PLAYLIST[0]!;
-  const nextVideo =
-    ROLE_VIDEO_PLAYLIST[(roleIndex + 1) % ROLE_VIDEO_PLAYLIST.length]!;
+  const currentVideo = ROLE_VIDEO_PLAYLIST[roleIndex] ?? ROLE_VIDEO_PLAYLIST[0]!;
+  const nextVideo = ROLE_VIDEO_PLAYLIST[(roleIndex + 1) % ROLE_VIDEO_PLAYLIST.length]!;
 
   // Determine active chapter from playback time
   let activeChapterIdx = 0;
@@ -152,7 +152,7 @@ export function RoleVideoTutorialPlayer({
           }
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -161,47 +161,6 @@ export function RoleVideoTutorialPlayer({
   useEffect(() => {
     setCurrentTime(0);
   }, [roleIndex]);
-
-  useEffect(() => {
-    if (!effectiveAutoPlay || !inView) return;
-    const vid = videoRef.current;
-    if (!vid || typeof vid.play !== "function") return;
-
-    let cancelled = false;
-    const startPlayback = async () => {
-      try {
-        vid.muted = false;
-        const p = vid.play();
-        if (p && typeof p.then === "function") {
-          await p;
-        }
-        if (!cancelled) {
-          setMutedByBrowserPolicy(false);
-        }
-      } catch {
-        if (cancelled) return;
-        try {
-          if (!userEnabledAudioRef.current) {
-            vid.muted = true;
-            setMutedByBrowserPolicy(true);
-          } else {
-            vid.muted = false;
-          }
-          const p2 = vid.play();
-          if (p2 && typeof p2.catch === "function") {
-            p2.catch(() => {});
-          }
-        } catch {
-          // Ignore in jsdom
-        }
-      }
-    };
-
-    void startPlayback();
-    return () => {
-      cancelled = true;
-    };
-  }, [roleIndex, effectiveAutoPlay, inView]);
 
   const handleSelectRole = (idx: number) => {
     if (lockedRoleId) return;
@@ -293,11 +252,7 @@ export function RoleVideoTutorialPlayer({
                       : "border border-white/15 bg-white/8 text-slate-200 hover:bg-white/15 hover:text-white"
                   }`}
                 >
-                  <Icon
-                    className={`h-3.5 w-3.5 ${
-                      active ? "text-[#1a4a6e]" : "text-[#9ed9d6]"
-                    }`}
-                  />
+                  <Icon className={`h-3.5 w-3.5 ${active ? "text-[#1a4a6e]" : "text-[#9ed9d6]"}`} />
                   <span>{item.tabLabel}</span>
                   <span
                     className={`text-[10px] font-medium ${
@@ -313,36 +268,27 @@ export function RoleVideoTutorialPlayer({
         )}
       </div>
 
-      {/* Real MP4 Video Stage with Spoken Voiceover */}
-      <div className="relative aspect-video w-full bg-[#060f1d]">
-        <video
-          ref={videoRef}
-          key={currentVideo.videoSrc}
-          src={currentVideo.videoSrc}
-          poster={currentVideo.posterSrc}
-          controls
-          playsInline
-          preload={lowDataMode ? "none" : "metadata"}
-          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-          onEnded={handleVideoEnded}
-          onVolumeChange={(e) => {
-            if (!e.currentTarget.muted) {
-              userEnabledAudioRef.current = true;
-              setMutedByBrowserPolicy(false);
-            }
-          }}
-          aria-label={`${currentVideo.fullTitle} full video walkthrough`}
-          className="h-full w-full object-contain"
-        >
-          <track
-            kind="captions"
-            src={currentVideo.captionsSrc}
-            srcLang="en"
-            label="English"
-            default
-          />
-        </video>
-
+      {/* One source at a time: true phone/desktop screen recordings for every role. */}
+      <ResponsiveWalkthroughVideo
+        key={currentVideo.roleId}
+        media={currentVideo}
+        title={currentVideo.fullTitle}
+        captionsSrc={currentVideo.captionsSrc}
+        videoRef={videoRef}
+        userEnabledAudioRef={userEnabledAudioRef}
+        lowDataMode={lowDataMode}
+        autoPlay={effectiveAutoPlay}
+        inView={inView}
+        onMutedByPolicy={setMutedByBrowserPolicy}
+        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+        onEnded={handleVideoEnded}
+        onVolumeChange={(e) => {
+          if (!e.currentTarget.muted) {
+            userEnabledAudioRef.current = true;
+            setMutedByBrowserPolicy(false);
+          }
+        }}
+      >
         {mutedByBrowserPolicy && (
           <button
             type="button"
@@ -353,7 +299,7 @@ export function RoleVideoTutorialPlayer({
             <span>Tap for Voice Narration</span>
           </button>
         )}
-      </div>
+      </ResponsiveWalkthroughVideo>
 
       {/* Interactive Chapter Jump Strip (Welcome -> Sign-Up -> Sign-In -> All Pages) */}
       <div className="border-t border-white/10 bg-[#081528] px-3.5 py-2.5 sm:px-5">

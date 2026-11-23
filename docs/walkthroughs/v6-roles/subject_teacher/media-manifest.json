@@ -1,0 +1,71 @@
+{
+  "status": "screen-tutorial-release",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "durationSec": 89.958333,
+  "fullDecodeVerified": true,
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-subject-teacher-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-subject-teacher-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-subject-teacher-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-subject-teacher-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Assigned subject → score entry",
+      "startSec": 13.458333
+    },
+    {
+      "label": "Combined teaching group",
+      "startSec": 28.958333
+    },
+    {
+      "label": "Exam paper drafting & submission",
+      "startSec": 43.708333
+    },
+    {
+      "label": "Install school app",
+      "startSec": 58.791667
+    },
+    {
+      "label": "Offline scores & reconnect",
+      "startSec": 71.041667
+    }
+  ],
+  "files": {
+    "public/videos/ndh-subject-teacher-screen-desktop-v6.mp4": {
+      "bytes": 2543038,
+      "sha256": "058ae813dbdad852ce349cc15f0c99628c4c4f4eb6e9fb189be92f61d3914c31"
+    },
+    "public/videos/ndh-subject-teacher-screen-phone-v6.mp4": {
+      "bytes": 2834303,
+      "sha256": "5c49578153a584232413e4a96e7fd760d8359b6c8cf2bcba8e174de4a6219a0c"
+    },
+    "public/videos/ndh-subject-teacher-screen-v6.en.srt": {
+      "bytes": 1807,
+      "sha256": "0b1ba310c59151b973704314d0b3a04496023ab5fc28e22b9fec21f8850b6de6"
+    },
+    "public/videos/ndh-subject-teacher-screen-v6.en.vtt": {
+      "bytes": 1815,
+      "sha256": "e2421f3343db9288015ddeba4cd433b741430d7264ddfa92eacef131a4adc6ba"
+    },
+    "public/videos/poster-ndh-subject-teacher-screen-desktop-v6.jpg": {
+      "bytes": 58602,
+      "sha256": "92aace092a3b4884a0a2db13e2ef4765e31feda1bf08aae0c4e8b7dd28020d15"
+    },
+    "public/videos/poster-ndh-subject-teacher-screen-phone-v6.jpg": {
+      "bytes": 45594,
+      "sha256": "a07239712cb043b9d5613a20139a4cd5ca56f6bff00a8fcef7aa72aba592150f"
+    }
+  },
+  "sourceSha256": "41e138eeb082959633fb54fb310979ad8b8702e5cbd6e3eb887501727f95b5f8"
+}

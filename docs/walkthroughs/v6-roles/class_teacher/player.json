@@ -1,0 +1,50 @@
+{
+  "roleId": "class_teacher",
+  "title": "Class Teacher / Mu’allim",
+  "durationSec": 108.5,
+  "durationLabel": "1:49",
+  "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Assigned-class attendance → One account: class & subjects → Class broadsheet → A4 report → Optional Tahfeez / Halqah variant → Install school app → Offline drafts & reconnect.",
+  "captionsSrc": "/videos/ndh-class-teacher-screen-v6.en.vtt",
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-class-teacher-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-class-teacher-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-class-teacher-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-class-teacher-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Assigned-class attendance",
+      "startSec": 13.791667
+    },
+    {
+      "label": "One account: class & subjects",
+      "startSec": 27.333333
+    },
+    {
+      "label": "Class broadsheet → A4 report",
+      "startSec": 43.125
+    },
+    {
+      "label": "Optional Tahfeez / Halqah variant",
+      "startSec": 59.041667
+    },
+    {
+      "label": "Install school app",
+      "startSec": 78.125
+    },
+    {
+      "label": "Offline drafts & reconnect",
+      "startSec": 91.333333
+    }
+  ]
+}

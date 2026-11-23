@@ -1,0 +1,140 @@
+1
+00:00:01,000 --> 00:00:07,120
+Welcome. These are the actual NDH SchoolOS
+pages, with fictional demo records. Start
+
+2
+00:00:07,120 --> 00:00:13,094
+on the homepage and choose Register Your
+School. On a phone, scroll to the button.
+
+3
+00:00:13,094 --> 00:00:15,790
+No real school accounts are involved.
+
+4
+00:00:18,042 --> 00:00:23,362
+Enter your school name, country and
+address. Upload your own school crest if
+
+5
+00:00:23,362 --> 00:00:29,032
+available. Check the details, then choose
+Next. We are using a fictional training
+
+6
+00:00:29,032 --> 00:00:31,692
+school, not registering a real school.
+
+7
+00:00:33,833 --> 00:00:38,920
+Enter the owner's name, administrator
+email and a strong password. Keep your
+
+8
+00:00:38,920 --> 00:00:44,207
+real password private. Select Next to
+review your session, term, programmes and
+
+9
+00:00:44,207 --> 00:00:49,829
+classes. Complete registration on the live
+service and follow any email confirmation
+
+10
+00:00:49,829 --> 00:00:54,513
+instructions. We will not create a real
+account in this demonstration.
+
+11
+00:00:56,625 --> 00:01:01,830
+For an existing owner account, choose Sign
+In and enter your email and password.
+
+12
+00:01:01,830 --> 00:01:06,190
+Staff and parents use their
+school-provisioned phone and four-digit
+
+13
+00:01:06,190 --> 00:01:11,005
+PIN. This local demo session shows the
+dashboard, not live authentication.
+
+14
+00:01:13,167 --> 00:01:18,960
+On a phone, open the navigation menu. On
+desktop, use the sidebar. Choose Settings
+
+15
+00:01:18,960 --> 00:01:24,471
+to review your crest, name and motto.
+Scroll to School portal and accounts for
+
+16
+00:01:24,471 --> 00:01:28,287
+the short link. Share that link, not your
+owner login.
+
+17
+00:01:30,542 --> 00:01:34,675
+Open Staff and Payroll, then Staff
+Directory. Filter teaching and
+
+18
+00:01:34,675 --> 00:01:39,826
+non-teaching staff. Support staff can be
+paid without teaching accounts. Review a
+
+19
+00:01:39,826 --> 00:01:43,642
+teacher's class and subject assignments in
+one staff record.
+
+20
+00:01:45,792 --> 00:01:50,092
+Leave the optional Quran module off for a
+conventional school, or enable it when
+
+21
+00:01:50,092 --> 00:01:52,242
+your school needs memorization tracking.
+
+22
+00:01:54,333 --> 00:01:59,266
+Return to the dashboard and choose a
+learner's Report Card. This opens the
+
+23
+00:01:59,266 --> 00:02:04,466
+actual A four print preview. On a phone
+the same paper scales down; the report
+
+24
+00:02:04,466 --> 00:02:10,065
+itself does not rearrange. Check the full
+page and margins before printing or saving
+
+25
+00:02:10,065 --> 00:02:11,213
+to PDF.
+
+26
+00:02:13,500 --> 00:02:19,085
+Open your school's link and choose Install
+school app. The help explains the Safari
+
+27
+00:02:19,085 --> 00:02:24,468
+and Chrome steps. Sign in online and open
+needed records before working offline.
+
+28
+00:02:24,468 --> 00:02:29,717
+Reconnect with the app open and review
+sync or conflict messages. Installation
+
+29
+00:02:29,717 --> 00:02:33,620
+and live offline sync are not being
+verified in this demo.

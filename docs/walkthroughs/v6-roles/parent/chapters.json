@@ -1,0 +1,26 @@
+[
+  {
+    "label": "School link & parent sign-in",
+    "startSec": 0
+  },
+  {
+    "label": "Linked children & attendance",
+    "startSec": 14.25
+  },
+  {
+    "label": "Published result → A4 report",
+    "startSec": 28.083333
+  },
+  {
+    "label": "Fees, receipts & transfer safety",
+    "startSec": 42.75
+  },
+  {
+    "label": "Install your school app",
+    "startSec": 56.291667
+  },
+  {
+    "label": "Safe offline viewing",
+    "startSec": 69.208333
+  }
+]

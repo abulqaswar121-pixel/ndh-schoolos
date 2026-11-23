@@ -1,0 +1,4 @@
+/* Recording overlays only. No selectors modify production page layout. */
+#recording-label { position: fixed; z-index: 2147483646; top: 4px; right: 6px; padding: 4px 8px; border-radius: 5px; background: #0a192fee; color: #fff; font: 600 10px/1.4 sans-serif; pointer-events: none; box-shadow: 0 0 0 1px #9ed9d6; }
+#recording-pointer { position: fixed; z-index: 2147483647; width: 26px; height: 26px; border: 3px solid #14b8a6; background: #14b8a633; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px #fff9; }
+#recording-pointer.click { background: #fbbf2477; border-color: #f59e0b; }

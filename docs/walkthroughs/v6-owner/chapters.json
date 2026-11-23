@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Homepage → Register",
+    "startSec": 0
+  },
+  {
+    "label": "School details",
+    "startSec": 17.041667
+  },
+  {
+    "label": "Owner account & classes",
+    "startSec": 32.833333
+  },
+  {
+    "label": "Sign in & dashboard",
+    "startSec": 55.625
+  },
+  {
+    "label": "Settings & school link",
+    "startSec": 72.166667
+  },
+  {
+    "label": "Teaching & support staff",
+    "startSec": 89.541667
+  },
+  {
+    "label": "Optional Quran module",
+    "startSec": 104.791667
+  },
+  {
+    "label": "Real A4 report preview",
+    "startSec": 113.333333
+  },
+  {
+    "label": "School app & offline guidance",
+    "startSec": 132.5
+  }
+]

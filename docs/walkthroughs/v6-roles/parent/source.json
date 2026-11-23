@@ -1,0 +1,91 @@
+{
+  "status": "screen-tutorial-release",
+  "roleId": "parent",
+  "title": "Parent / Guardian",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "voice": "User-selected English voice-02; not a verified Nigerian-English accent",
+  "scenes": [
+    {
+      "id": "01",
+      "label": "School link & parent sign-in",
+      "instruction": "School link & parent sign-in",
+      "narration": "Open your school's branded link. Staff and parents use their registered phone and four-digit PIN. This recording uses fictional demo records and a local session, not live authentication.",
+      "action": "signin",
+      "audioDurationSec": 12.23375,
+      "durationSec": 14.23375,
+      "audioStartSec": 0,
+      "audioEndSec": 12.23375,
+      "narrationSha256": "7a7863fd54ca68500d95975ccfa53f567317aa47da90356ffd7852cdd80ddcf7",
+      "wavSha256": "9b31dee2d1713c0c6b05ca4dd8a60a41339758691ebad666f642f2b83f2d5a86"
+    },
+    {
+      "id": "02",
+      "label": "Linked children & attendance",
+      "instruction": "Linked children & attendance",
+      "narration": "The Parent Portal shows only your linked children. Select a sibling and review the chosen term and attendance. These demo children are fictional; another family is excluded from this view.",
+      "action": "siblings",
+      "audioDurationSec": 11.831417,
+      "durationSec": 13.831417,
+      "audioStartSec": 12.23375,
+      "audioEndSec": 24.065167,
+      "narrationSha256": "60722528958633675d1a730aa3c08e164490df2df3ddccdf5de310f6294f9569",
+      "wavSha256": "289d4465a3344c8004370592eadb6d7fc9a8e3b8790fc1233c52363ff9b21881"
+    },
+    {
+      "id": "03",
+      "label": "Published result → A4 report",
+      "instruction": "Published result → A4 report",
+      "narration": "Select Print Report Card for a published result. Inspect the actual fixed A four page before printing or saving to PDF. Parents do not enter scores or see unpublished results.",
+      "action": "parent-report",
+      "audioDurationSec": 12.642895,
+      "durationSec": 14.642895,
+      "audioStartSec": 24.065167,
+      "audioEndSec": 36.708062,
+      "narrationSha256": "c7c48fb862c62994a542be7b2a330b5c5a1f2e82ae0af11af020c044685488a8",
+      "wavSha256": "837dd0e75e6834b42349ee90df405f72af31843f8e314c4621042b12c4dc7a8a"
+    },
+    {
+      "id": "04",
+      "label": "Fees, receipts & transfer safety",
+      "instruction": "Fees, receipts & transfer safety",
+      "narration": "Scroll to the child fee summary and official receipts. Inspect the demo receipt. Confirm payment instructions with the school; a transfer notice is not proof that money was received.",
+      "action": "parent-fees",
+      "audioDurationSec": 11.531355,
+      "durationSec": 13.531355,
+      "audioStartSec": 36.708062,
+      "audioEndSec": 48.239417,
+      "narrationSha256": "585006bde048bb0205f5865971230dfce1e9749ca1075568e028ec50d239f535",
+      "wavSha256": "c50863f91595f214da11bb8d86a88cf0adca896123c606089efe148d028de9f5"
+    },
+    {
+      "id": "05",
+      "label": "Install your school app",
+      "instruction": "Install your school app",
+      "narration": "Open your school's link and choose Install school app. The real help dialog explains Safari and Chrome steps. A native installation is not being verified here.",
+      "action": "install",
+      "audioDurationSec": 10.900291,
+      "durationSec": 12.900291,
+      "audioStartSec": 48.239417,
+      "audioEndSec": 59.139708,
+      "narrationSha256": "3cd8956552f0664bcf51b0227f38d785dfe30d2ac276f46b3303bf567a1fb0a5",
+      "wavSha256": "dd2c364194bd4b5748e8815c49eccf45b6dbf9e5497d2cf96128f84207cf99d4"
+    },
+    {
+      "id": "06",
+      "label": "Safe offline viewing",
+      "instruction": "Safe offline viewing",
+      "narration": "Sign in online first and open the records you need on your own device. Offline copies may be out of date until reconnection. New sign-ins, payments and messages need internet. Keep your PIN private; live sync is not being verified here.",
+      "action": "offline",
+      "audioDurationSec": 15.460292,
+      "durationSec": 17.460292,
+      "audioStartSec": 59.139708,
+      "audioEndSec": 74.6,
+      "narrationSha256": "e04020095b5637772033dc6f6a9f3cac08786b07d8cfa5a2106f1f10227f79af",
+      "wavSha256": "4eda0572aed993b18d1104f562fa6bb83945b0823d2857ded557814fd7c4bded"
+    }
+  ],
+  "audioSource": "/videos/narration-v6-roles/parent.mp3",
+  "audioSha256": "70363d128f28dfa25ae5ad451bd37d18c495667f973242cc1ec6bd784cb1b0c6",
+  "narrationSha256": "b6702b9077f687807599487795a56a5cdd1b3cd5f97e448a0870b927199513c6",
+  "timingBasis": "Detected paragraph-pause cuts, reviewed against expected text length; captions phrase-timed within each recorded scene."
+}

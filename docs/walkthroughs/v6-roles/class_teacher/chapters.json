@@ -1,0 +1,30 @@
+[
+  {
+    "label": "School link & sign-in",
+    "startSec": 0
+  },
+  {
+    "label": "Assigned-class attendance",
+    "startSec": 13.791667
+  },
+  {
+    "label": "One account: class & subjects",
+    "startSec": 27.333333
+  },
+  {
+    "label": "Class broadsheet → A4 report",
+    "startSec": 43.125
+  },
+  {
+    "label": "Optional Tahfeez / Halqah variant",
+    "startSec": 59.041667
+  },
+  {
+    "label": "Install school app",
+    "startSec": 78.125
+  },
+  {
+    "label": "Offline drafts & reconnect",
+    "startSec": 91.333333
+  }
+]

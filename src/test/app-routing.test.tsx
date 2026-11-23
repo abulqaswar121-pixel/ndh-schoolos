@@ -1,9 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import {
-  RouterProvider,
-  createMemoryHistory,
-  createRouter,
-} from "@tanstack/react-router";
+import { RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -36,9 +32,7 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     render(<RouterProvider router={router} />);
 
     expect(
-      await screen.findByText(
-        /Results, fees, attendance & parents — in one simple workspace\./i
-      )
+      await screen.findByText(/Results, fees, attendance & parents — in one simple workspace\./i),
     ).toBeInTheDocument();
 
     // Moving announcement bar before sticky header
@@ -51,16 +45,12 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     const player = screen.getByTestId("role-video-tutorial-player");
     const videoEl = player.querySelector("video");
     expect(videoEl).not.toBeNull();
-    expect(videoEl?.getAttribute("src")).toBe(
-      "/videos/ndh-walkthrough-admin-v5.mp4"
-    );
+    expect(videoEl?.getAttribute("src")).toBe("/videos/ndh-owner-screen-desktop-v6.mp4");
 
-    expect(screen.getByText(/Keep Tahfeez optional/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /7\. Optional Quran module/i })).toBeInTheDocument();
     fireEvent.ended(videoEl!);
     const nextVideoEl = player.querySelector("video");
-    expect(nextVideoEl?.getAttribute("src")).toBe(
-      "/videos/ndh-walkthrough-exam-officer-v5.mp4"
-    );
+    expect(nextVideoEl?.getAttribute("src")).toBe("/videos/ndh-exam-officer-screen-desktop-v6.mp4");
 
     // Official ndh.com.ng contact info in footer
     expect(screen.getAllByText(/0902 993 2794/i).length).toBeGreaterThanOrEqual(1);
@@ -85,15 +75,11 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     expect(screen.getByText("₦80,000")).toBeInTheDocument();
 
     // Switch to Per Session (3 Terms)
-    fireEvent.click(
-      screen.getByRole("button", { name: /Per Session \(3 Terms\)/i })
-    );
+    fireEvent.click(screen.getByRole("button", { name: /Per Session \(3 Terms\)/i }));
 
     expect(await screen.findByText("₦75,000")).toBeInTheDocument();
     expect(screen.getByText("₦200,000")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Save ₦40,000 per session \(3 terms\)/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Save ₦40,000 per session \(3 terms\)/i)).toBeInTheDocument();
   });
 
   it("opens the NDH AI Assistant circular launcher and answers termly + per-session pricing questions without student data access", async () => {
@@ -111,9 +97,7 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
     });
     fireEvent.click(pricingChip);
 
-    expect(
-      await screen.findByText(/₦80,000\/term or ₦200,000\/session/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/₦80,000\/term or ₦200,000\/session/i)).toBeInTheDocument();
   });
 
   it("protects the Super Admin route without configured verified owner access", async () => {
@@ -140,12 +124,12 @@ describe("NDH SchoolOS Live Routes, MP4 Video Walkthroughs, Session Pricing & On
       const { unmount } = render(<RouterProvider router={router} />);
       if (path === "/tutorials") {
         expect(
-          await screen.findByText(/Quick video guides for every school role/i)
+          await screen.findByText(/Quick video guides for every school role/i),
         ).toBeInTheDocument();
       }
       if (path === "/contact") {
         const matches = await screen.findAllByText(
-          /Marmaron Nufawa Western Bye Pass, Sokoto, Nigeria/i
+          /Marmaron Nufawa Western Bye Pass, Sokoto, Nigeria/i,
         );
         expect(matches.length).toBeGreaterThanOrEqual(1);
       }

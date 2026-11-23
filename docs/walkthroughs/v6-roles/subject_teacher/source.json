@@ -1,0 +1,91 @@
+{
+  "status": "screen-tutorial-release",
+  "roleId": "subject_teacher",
+  "title": "Subject Teacher",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "voice": "User-selected English voice-02; not a verified Nigerian-English accent",
+  "scenes": [
+    {
+      "id": "01",
+      "label": "School link & sign-in",
+      "instruction": "School link & sign-in",
+      "narration": "Open your school's branded link. Staff and parents use their registered phone and four-digit PIN. This recording uses fictional demo records and a local session, not live authentication.",
+      "action": "signin",
+      "audioDurationSec": 11.448083,
+      "durationSec": 13.448083,
+      "audioStartSec": 0,
+      "audioEndSec": 11.448083,
+      "narrationSha256": "7a7863fd54ca68500d95975ccfa53f567317aa47da90356ffd7852cdd80ddcf7",
+      "wavSha256": "888f8108232c023763942bfbd5026add4be6a601facba5ea3cfd286ab816365f"
+    },
+    {
+      "id": "02",
+      "label": "Assigned subject → score entry",
+      "instruction": "Assigned subject → score entry",
+      "narration": "Choose Results and Report Cards. Check the session, term, class and subject before entering scores. We change one fictional learner score here; your real account remains limited to its assignments.",
+      "action": "scores",
+      "audioDurationSec": 13.468146,
+      "durationSec": 15.468146,
+      "audioStartSec": 11.448083,
+      "audioEndSec": 24.916229,
+      "narrationSha256": "81cff100634eb3acfb24a91ddf6376c177aad4042eb8dadc1575a46411413097",
+      "wavSha256": "59ffe9bcdbcd7684b8e18e536ce24e1aa56aa67dbaef0b4abad60457f25f435a"
+    },
+    {
+      "id": "03",
+      "label": "Combined teaching group",
+      "instruction": "Combined teaching group",
+      "narration": "Use Recording Mode to select your assigned combined group. Learners retain their home classes, so scores entered once can feed their class results. Inspect the actual A four marksheet preview.",
+      "action": "combined",
+      "audioDurationSec": 12.736104,
+      "durationSec": 14.736104,
+      "audioStartSec": 24.916229,
+      "audioEndSec": 37.652333,
+      "narrationSha256": "eef8a47abe110dea65eda660fc557985cf555e660cb0e2ed21278228f1d5beed",
+      "wavSha256": "153bf495b4a96cca05d4ef132d6bed5e80537c423e564abf49eb8a9d0f285dd1"
+    },
+    {
+      "id": "04",
+      "label": "Exam paper drafting & submission",
+      "instruction": "Exam paper drafting & submission",
+      "narration": "Choose Exam Questions and open the demo draft. Review the question and its options before submission. The Exam Officer handles approval; a subject teacher does not gain all-school reporting permissions.",
+      "action": "exam-draft",
+      "audioDurationSec": 13.074313,
+      "durationSec": 15.074313,
+      "audioStartSec": 37.652333,
+      "audioEndSec": 50.726646,
+      "narrationSha256": "f8f8bf6f494d863bed48982accec9b25d928d99fb4eb7b615ef013f50aaa0423",
+      "wavSha256": "8b31538e5bf52cef33cd84396a0a964c891f8d2eb81571d1561cf5acb12b87be"
+    },
+    {
+      "id": "05",
+      "label": "Install school app",
+      "instruction": "Install school app",
+      "narration": "Open your school's link and choose Install school app. The real help dialog explains Safari and Chrome steps. A native installation is not being verified here.",
+      "action": "install",
+      "audioDurationSec": 10.232041,
+      "durationSec": 12.232041,
+      "audioStartSec": 50.726646,
+      "audioEndSec": 60.958687,
+      "narrationSha256": "3cd8956552f0664bcf51b0227f38d785dfe30d2ac276f46b3303bf567a1fb0a5",
+      "wavSha256": "a726a51e32abbe6a316a3be83e674b08897e4f8177b6c2926e9b2205e89840b5"
+    },
+    {
+      "id": "06",
+      "label": "Offline scores & reconnect",
+      "instruction": "Offline scores & reconnect",
+      "narration": "Sign in online and open needed records before offline work. Attendance and score drafts can sync when reconnected; review conflicts. Payments, messages and new sign-ins need internet. This demo does not verify live sync. Keep any unsynced work on your own device.",
+      "action": "offline",
+      "audioDurationSec": 16.881313,
+      "durationSec": 18.881313,
+      "audioStartSec": 60.958687,
+      "audioEndSec": 77.84,
+      "narrationSha256": "c602f753dac8203b5ad1029fe577a435ab8c9fe189c4bbad8ae7e9def8c4babf",
+      "wavSha256": "68d9b6854d0e9a6121389f261f3d744ff1e15fce130c6b03699aaa3edb739f58"
+    }
+  ],
+  "audioSource": "/videos/narration-v6-roles/subject_teacher.mp3",
+  "audioSha256": "a6f3e2f573dd17b91df31fcbadad7de86eeeb7dc87e61c1e9cfac5e02aa2e131",
+  "narrationSha256": "41e074df3caa585945c9088ab0e422796f4cf444c642830442e68c102611c7fd",
+  "timingBasis": "Detected paragraph-pause cuts, reviewed against expected text length; captions phrase-timed within each recorded scene."
+}
