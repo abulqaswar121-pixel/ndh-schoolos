@@ -1,0 +1,71 @@
+{
+  "status": "screen-tutorial-release",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "durationSec": 85.666667,
+  "fullDecodeVerified": true,
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-exam-officer-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-exam-officer-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-exam-officer-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-exam-officer-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Find and filter exam papers",
+      "startSec": 13.625
+    },
+    {
+      "label": "Review → approve → A4 paper",
+      "startSec": 27.041667
+    },
+    {
+      "label": "All-class broadsheets & reports",
+      "startSec": 40.125
+    },
+    {
+      "label": "Install school app",
+      "startSec": 54.125
+    },
+    {
+      "label": "Offline guidance & privacy",
+      "startSec": 65.916667
+    }
+  ],
+  "files": {
+    "public/videos/ndh-exam-officer-screen-desktop-v6.mp4": {
+      "bytes": 2889845,
+      "sha256": "994c36392916fcdedd2872794197a9e17bb42aca5b856a276f75d90a7b76bdc5"
+    },
+    "public/videos/ndh-exam-officer-screen-phone-v6.mp4": {
+      "bytes": 2866124,
+      "sha256": "0570145ef8b298b2079b40c479a2fdb43512bad441fd73714728793a278423d1"
+    },
+    "public/videos/ndh-exam-officer-screen-v6.en.srt": {
+      "bytes": 1785,
+      "sha256": "8277edecd49ed185da5f52514d0e9cc2f5d081e879757df2523c1946a0073e95"
+    },
+    "public/videos/ndh-exam-officer-screen-v6.en.vtt": {
+      "bytes": 1793,
+      "sha256": "5f8c143f55d60acddf7865bb3ca559cba87e021b4b100b36ae0f917e099705e9"
+    },
+    "public/videos/poster-ndh-exam-officer-screen-desktop-v6.jpg": {
+      "bytes": 59047,
+      "sha256": "2e8c9a64c6af1dfc6c68a6d1371c5bebac19ae9ad5e1be925b2d3a8370439a53"
+    },
+    "public/videos/poster-ndh-exam-officer-screen-phone-v6.jpg": {
+      "bytes": 45141,
+      "sha256": "08aa5f1a02258bdc56fb7116f81e2536d760030e3b92e5abab7cc26df35ca360"
+    }
+  },
+  "sourceSha256": "75996e55587782ad3e24799c0b1e75ba8567ae7d04a0bc492e39245225cd0d2d"
+}

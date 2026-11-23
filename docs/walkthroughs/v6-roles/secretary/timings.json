@@ -1,0 +1,35 @@
+{
+  "durationSec": 85.458333,
+  "scenes": [
+    {
+      "id": "01",
+      "startSec": 0,
+      "durationSec": 13.541666666666666
+    },
+    {
+      "id": "02",
+      "startSec": 13.541667,
+      "durationSec": 14.083333333333334
+    },
+    {
+      "id": "03",
+      "startSec": 27.625,
+      "durationSec": 13.541666666666666
+    },
+    {
+      "id": "04",
+      "startSec": 41.166667,
+      "durationSec": 13.416666666666666
+    },
+    {
+      "id": "05",
+      "startSec": 54.583333,
+      "durationSec": 12.041666666666666
+    },
+    {
+      "id": "06",
+      "startSec": 66.625,
+      "durationSec": 18.833333333333332
+    }
+  ]
+}

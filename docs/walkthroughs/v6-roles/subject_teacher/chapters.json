@@ -1,0 +1,26 @@
+[
+  {
+    "label": "School link & sign-in",
+    "startSec": 0
+  },
+  {
+    "label": "Assigned subject → score entry",
+    "startSec": 13.458333
+  },
+  {
+    "label": "Combined teaching group",
+    "startSec": 28.958333
+  },
+  {
+    "label": "Exam paper drafting & submission",
+    "startSec": 43.708333
+  },
+  {
+    "label": "Install school app",
+    "startSec": 58.791667
+  },
+  {
+    "label": "Offline scores & reconnect",
+    "startSec": 71.041667
+  }
+]

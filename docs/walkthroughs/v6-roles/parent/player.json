@@ -1,0 +1,46 @@
+{
+  "roleId": "parent",
+  "title": "Parent / Guardian",
+  "durationSec": 86.708333,
+  "durationLabel": "1:27",
+  "oneLiner": "Actual role screens with fictional demo data: School link & parent sign-in → Linked children & attendance → Published result → A4 report → Fees, receipts & transfer safety → Install your school app → Safe offline viewing.",
+  "captionsSrc": "/videos/ndh-parent-screen-v6.en.vtt",
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-parent-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-parent-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-parent-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-parent-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & parent sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Linked children & attendance",
+      "startSec": 14.25
+    },
+    {
+      "label": "Published result → A4 report",
+      "startSec": 28.083333
+    },
+    {
+      "label": "Fees, receipts & transfer safety",
+      "startSec": 42.75
+    },
+    {
+      "label": "Install your school app",
+      "startSec": 56.291667
+    },
+    {
+      "label": "Safe offline viewing",
+      "startSec": 69.208333
+    }
+  ]
+}

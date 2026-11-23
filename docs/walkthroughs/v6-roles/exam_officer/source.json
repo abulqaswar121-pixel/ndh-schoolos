@@ -1,0 +1,91 @@
+{
+  "status": "screen-tutorial-release",
+  "roleId": "exam_officer",
+  "title": "Exam Officer",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "voice": "User-selected English voice-02; not a verified Nigerian-English accent",
+  "scenes": [
+    {
+      "id": "01",
+      "label": "School link & sign-in",
+      "instruction": "School link & sign-in",
+      "narration": "Open your school's branded link. Staff and parents use their registered phone and four-digit PIN. This recording uses fictional demo records and a local session, not live authentication.",
+      "action": "signin",
+      "audioDurationSec": 11.6035,
+      "durationSec": 13.6035,
+      "audioStartSec": 0,
+      "audioEndSec": 11.6035,
+      "narrationSha256": "7a7863fd54ca68500d95975ccfa53f567317aa47da90356ffd7852cdd80ddcf7",
+      "wavSha256": "cf97cacd77835e70c1ff7a67d8a53467ba3fc50fc13d3d1b682bdb608b7d951b"
+    },
+    {
+      "id": "02",
+      "label": "Find and filter exam papers",
+      "instruction": "Find and filter exam papers",
+      "narration": "Open the menu and choose Exam Questions. Review the missing-paper tracker and filter by term, class or paper status. Check the submitted teacher paper before approving it.",
+      "action": "exam-list",
+      "audioDurationSec": 11.383937,
+      "durationSec": 13.383937,
+      "audioStartSec": 11.6035,
+      "audioEndSec": 22.987437,
+      "narrationSha256": "95dbef9d456df134645013aac1092ba9a0854ab08fb9c4b90264ba733eee677a",
+      "wavSha256": "3df5eb92f7401ee6a50950cb2ad0d44928de78a62583377e8e945517a55080a4"
+    },
+    {
+      "id": "03",
+      "label": "Review → approve → A4 paper",
+      "instruction": "Review → approve → A4 paper",
+      "narration": "Open the submitted paper preview and check its questions. Close the preview, then approve the demo paper. The paper and confidential marking scheme have separate PDF and Word controls.",
+      "action": "exam-review",
+      "audioDurationSec": 11.047105,
+      "durationSec": 13.047105,
+      "audioStartSec": 22.987437,
+      "audioEndSec": 34.034542,
+      "narrationSha256": "b4bc8865179c9a9ec000bb889c76a4347bc76882f29df09e162fad7bc3e6f5d8",
+      "wavSha256": "180731a3fea6c9363891a15127250fbcd0cc142d3f1a8db69a5bc8546601b1b6"
+    },
+    {
+      "id": "04",
+      "label": "All-class broadsheets & reports",
+      "instruction": "All-class broadsheets & reports",
+      "narration": "Choose Results and Report Cards, then Class Broadsheet and Report Cards. Select the class and term. Open a learner report to inspect the actual fixed A four page before printing.",
+      "action": "reports",
+      "audioDurationSec": 11.994729,
+      "durationSec": 13.994729,
+      "audioStartSec": 34.034542,
+      "audioEndSec": 46.029271,
+      "narrationSha256": "c3bc2b3ad48f5c4dc6e7ddcba4d35660a28e8fe1d2dbcbe87d7d01b7912f7edf",
+      "wavSha256": "e310eec9f5b840be52997e56952db2e3b36f9faf247b3404b0fb7c1ab2a70c4e"
+    },
+    {
+      "id": "05",
+      "label": "Install school app",
+      "instruction": "Install school app",
+      "narration": "Open your school's link and choose Install school app. The real help dialog explains Safari and Chrome steps. A native installation is not being verified here.",
+      "action": "install",
+      "audioDurationSec": 9.77125,
+      "durationSec": 11.77125,
+      "audioStartSec": 46.029271,
+      "audioEndSec": 55.800521,
+      "narrationSha256": "3cd8956552f0664bcf51b0227f38d785dfe30d2ac276f46b3303bf567a1fb0a5",
+      "wavSha256": "7fb8a34e2deada734d4af74dd6549d6b88d8f0ff9e180834475fbd22afc348d0"
+    },
+    {
+      "id": "06",
+      "label": "Offline guidance & privacy",
+      "instruction": "Offline guidance & privacy",
+      "narration": "Sign in online and open needed records before offline work. Attendance and score drafts can sync when reconnected; review conflicts. Payments, messages and new sign-ins need internet. This demo does not verify live sync. Keep marking schemes private and publish results only after the school review.",
+      "action": "offline",
+      "audioDurationSec": 17.719479,
+      "durationSec": 19.719479,
+      "audioStartSec": 55.800521,
+      "audioEndSec": 73.52,
+      "narrationSha256": "08f4c475c3a511ec9e35098fd0e41a271c836067bd515dcc31d2c623a3e3e294",
+      "wavSha256": "3e41d50e8ece83580f25e6ebd0bceab9beb73b153010d32836cf0db57bcc301d"
+    }
+  ],
+  "audioSource": "/videos/narration-v6-roles/exam_officer.mp3",
+  "audioSha256": "f9c118098962ea917f3000ad0275bcbba796e8e884e94dbc763d556a3c75f03f",
+  "narrationSha256": "3ac91678cd54a3e0b617d240214b92417ad3d9e3ea652d3d631f5dcdbb07ad1c",
+  "timingBasis": "Detected paragraph-pause cuts, reviewed against expected text length; captions phrase-timed within each recorded scene."
+}

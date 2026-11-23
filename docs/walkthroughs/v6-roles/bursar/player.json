@@ -1,0 +1,50 @@
+{
+  "roleId": "bursar",
+  "title": "Bursar / Accountant",
+  "durationSec": 101.333333,
+  "durationLabel": "1:42",
+  "oneLiner": "Actual role screens with fictional demo data: School link & sign-in → Student balances & debtors → Official receipt → A4 preview → Monthly payroll & payslips → Teaching & non-teaching staff → Install school app → Online payments & sync limits.",
+  "captionsSrc": "/videos/ndh-bursar-screen-v6.en.vtt",
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-bursar-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-bursar-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-bursar-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-bursar-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Student balances & debtors",
+      "startSec": 13.833333
+    },
+    {
+      "label": "Official receipt → A4 preview",
+      "startSec": 28.583333
+    },
+    {
+      "label": "Monthly payroll & payslips",
+      "startSec": 43.25
+    },
+    {
+      "label": "Teaching & non-teaching staff",
+      "startSec": 55.875
+    },
+    {
+      "label": "Install school app",
+      "startSec": 69.416667
+    },
+    {
+      "label": "Online payments & sync limits",
+      "startSec": 81.75
+    }
+  ]
+}

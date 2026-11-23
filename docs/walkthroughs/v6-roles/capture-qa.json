@@ -1,0 +1,125 @@
+{
+  "status": "passed",
+  "captures": [
+    {
+      "role": "bursar",
+      "variant": "desktop",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Bursar\n\nBursar / Accountant \u2022 Fees, Receipts, Debtors & Payroll\n\nRecord Fee Payment\nACTIVE STUDENTS\n3\n\nAcross 2 authorized classes\n\nFEES COLLECTED (FIRST TERM)\n\u20a65,000\n\nOf \u20a654,000 billed\n\nFEES OWING (DEBTORS)\n\u20a649,000\n\n3 students with unpaid balance\n\nPARENT NOTICES\n0 SMS\n\nSend fee reminders via SMS or WhatsApp\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4\nFirst Term Fee Collection vs Balance\n\nConfirmed receipts vs unpaid fee balances\n\nAll Classes\nPrimary 1\nPrimary 2\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tFEE BALANCE\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t\u20a613,000\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t\u20a618,000\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t\u20a618,000"
+    },
+    {
+      "role": "bursar",
+      "variant": "phone",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Bursar\n\nBursar / Accountant \u2022 Fees, Receipts, Debtors & Payroll\n\nRecord Fee Payment\nACTIVE STUDENTS\n3\n\nAcross 2 authorized classes\n\nFEES COLLECTED (FIRST TERM)\n\u20a65,000\n\nOf \u20a654,000 billed\n\nFEES OWING (DEBTORS)\n\u20a649,000\n\n3 students with unpaid balance\n\nPARENT NOTICES\n0 SMS\n\nSend fee reminders via SMS or WhatsApp\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4\nFirst Term Fee Collection vs Balance\n\nConfirmed receipts vs unpaid fee balances\n\nAll Classes\nPrimary 1\nPrimary 2\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tFEE BALANCE\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t\u20a613,000\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t\u20a618,000\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t\u20a618,000"
+    },
+    {
+      "role": "class_teacher",
+      "variant": "desktop",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Class Teacher\n\nClass Teacher \u2022 Primary 1\n\nEnter Scores & Results\nASSIGNED STUDENTS\n3\n\nAcross 1 authorized class\n\nASSIGNED SUBJECTS\n3\n\nENG, MTH, BST\n\nAUTHORIZED CLASSES\n1\n\nPrimary 1\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\n0\n1\n2\n3\n4\nAll Classes\nPrimary 1\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tATTENDANCE\tREPORT CARD\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t0%\t\nReport Card"
+    },
+    {
+      "role": "class_teacher",
+      "variant": "phone",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Class Teacher\n\nClass Teacher \u2022 Primary 1\n\nEnter Scores & Results\nASSIGNED STUDENTS\n3\n\nAcross 1 authorized class\n\nASSIGNED SUBJECTS\n3\n\nENG, MTH, BST\n\nAUTHORIZED CLASSES\n1\n\nPrimary 1\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\n0\n1\n2\n3\n4\nAll Classes\nPrimary 1\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tATTENDANCE\tREPORT CARD\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t0%\t\nReport Card"
+    },
+    {
+      "role": "exam_officer",
+      "variant": "desktop",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Exam Officer\n\nExam Officer \u2022 All-Classes Results, Report Sheets & Question Bank\n\nACTIVE STUDENTS\n3\n\nAcross 2 authorized classes\n\nASSIGNED SUBJECTS\n3\n\nENG, MTH, BST\n\nAUTHORIZED CLASSES\n2\n\nPrimary 1, Primary 2\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4\nAll Classes\nPrimary 1\nPrimary 2\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tATTENDANCE\tREPORT CARD\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t0%\t\nReport Card"
+    },
+    {
+      "role": "exam_officer",
+      "variant": "phone",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Exam Officer\n\nExam Officer \u2022 All-Classes Results, Report Sheets & Question Bank\n\nACTIVE STUDENTS\n3\n\nAcross 2 authorized classes\n\nASSIGNED SUBJECTS\n3\n\nENG, MTH, BST\n\nAUTHORIZED CLASSES\n2\n\nPrimary 1, Primary 2\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4\nAll Classes\nPrimary 1\nPrimary 2\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tATTENDANCE\tREPORT CARD\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t0%\t\nReport Card"
+    },
+    {
+      "role": "parent",
+      "variant": "desktop",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "Parent Phone View \u2022 2 Linked Children\nWelcome, Demo Guardian\n\nPhone: 00000000000 \u2022 NDH Demo Academy\n\nVideo Guide\n2026/2027 \u2022 First Term\n2026/2027 \u2022 Second Term\n2026/2027 \u2022 Third Term\nPrint Report Card\nDL\nDemo Learner A\nPrimary 1\nDL\nDemo Learner B\nPrimary 1\nATTENDANCE (FIRST TERM)\n0%\n\nPresent 0 of 62 days \u2022 Absent: 0\n\nTERM FEE BALANCE\n\u20a613,000\n\nPaid \u20a65,000 of \u20a618,000\n\nPAY SCHOOL FEES\n\nPay online with Paystack / Flutterwave or send bank transfer reference.\n\nPay Fees / Submit Transfer\nPrimary 1 \u2014 First Term Results\nAverage: 74% \u2022 Position: 2nd\nSUBJECT\tCA 1 (20)\tCA 2 (20)\tEXAM (60)\tTOTAL\tGRADE\tREMARK\nEnglish Studies\t15\t16\t42\t73\tA\tExcellent\nMathematics\t15\t16\t43\t74\tA\tExcellent\nBasic Science & Technology\t15\t16\t44\t75\tA\tExcellent\nFee Payments & Receipts (First Term)\n\u20a65,000 \u2022 Cash\nReceipt DEMO-RCT-001 \u2022 2026-10-01 \u2022 Confirmed\nPrint Receipt"
+    },
+    {
+      "role": "parent",
+      "variant": "phone",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "Parent Phone View \u2022 2 Linked Children\nWelcome, Demo Guardian\n\nPhone: 00000000000 \u2022 NDH Demo Academy\n\nVideo Guide\n2026/2027 \u2022 First Term\n2026/2027 \u2022 Second Term\n2026/2027 \u2022 Third Term\nPrint Report Card\nDL\nDemo Learner A\nPrimary 1\nDL\nDemo Learner B\nPrimary 1\nATTENDANCE (FIRST TERM)\n0%\n\nPresent 0 of 62 days \u2022 Absent: 0\n\nTERM FEE BALANCE\n\u20a613,000\n\nPaid \u20a65,000 of \u20a618,000\n\nPAY SCHOOL FEES\n\nPay online with Paystack / Flutterwave or send bank transfer reference.\n\nPay Fees / Submit Transfer\nPrimary 1 \u2014 First Term Results\nAverage: 74% \u2022 Position: 2nd\nSUBJECT\tCA 1 (20)\tCA 2 (20)\tEXAM (60)\tTOTAL\tGRADE\tREMARK\nEnglish Studies\t15\t16\t42\t73\tA\tExcellent\nMathematics\t15\t16\t43\t74\tA\tExcellent\nBasic Science & Technology\t15\t16\t44\t75\tA\tExcellent\nFee Payments & Receipts (First Term)\n\u20a65,000 \u2022 Cash\nReceipt DEMO-RCT-001 \u2022 2026-10-01 \u2022 Confirmed\nPrint Receipt"
+    },
+    {
+      "role": "secretary",
+      "variant": "desktop",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Support Staff\n\nSecretary \u2022 Student Records, Attendance & Printing\n\nMark Daily Attendance\nACTIVE STUDENTS\n3\n\nAcross 2 authorized classes\n\nASSIGNED SUBJECTS\n3\n\nENG, MTH, BST\n\nAUTHORIZED CLASSES\n2\n\nPrimary 1, Primary 2\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4\nAll Classes\nPrimary 1\nPrimary 2\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tATTENDANCE\tREPORT CARD\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t0%\t\nReport Card"
+    },
+    {
+      "role": "secretary",
+      "variant": "phone",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Support Staff\n\nSecretary \u2022 Student Records, Attendance & Printing\n\nMark Daily Attendance\nACTIVE STUDENTS\n3\n\nAcross 2 authorized classes\n\nASSIGNED SUBJECTS\n3\n\nENG, MTH, BST\n\nAUTHORIZED CLASSES\n2\n\nPrimary 1, Primary 2\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4\nAll Classes\nPrimary 1\nPrimary 2\nFirst Term\nSecond Term\nThird Term\nExcel (.xls)\nExport CSV\nPrint\nShowing 3 of 3 authorized students\nSession: 2026/2027\nSTUDENT\tCLASS\tPARENT / PHONE\tATTENDANCE\tREPORT CARD\n\nDemo Learner A\nDEMO-001\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner B\nDEMO-002\n\tPrimary 1\t\nDemo Guardian\n00000000000\n\t0%\t\nReport Card\n\nDemo Learner C\nDEMO-003\n\tPrimary 1\t\nDemo Guardian\n00000000001\n\t0%\t\nReport Card"
+    },
+    {
+      "role": "subject_teacher",
+      "variant": "desktop",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Subject Teacher\n\nSubject Teacher \u2022 English Studies (Primary 1, Primary 2)\n\nEnter Scores & Results\nASSIGNED STUDENTS\n3\n\nAcross 2 authorized classes\n\nASSIGNED SUBJECTS\n1\n\nENG\n\nAUTHORIZED CLASSES\n2\n\nPrimary 1, Primary 2\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4"
+    },
+    {
+      "role": "subject_teacher",
+      "variant": "phone",
+      "errors": [],
+      "blockedExternalOrigins": [],
+      "localDemo": true,
+      "liveBackend": false,
+      "scopeUsesRealAccessControl": true,
+      "roleScopeText": "2026/2027 \u2022 FIRST TERM\nDemo Subject Teacher\n\nSubject Teacher \u2022 English Studies (Primary 1, Primary 2)\n\nEnter Scores & Results\nASSIGNED STUDENTS\n3\n\nAcross 2 authorized classes\n\nASSIGNED SUBJECTS\n1\n\nENG\n\nAUTHORIZED CLASSES\n2\n\nPrimary 1, Primary 2\n\nTERM ATTENDANCE\n0%\n\n62 school days opened\n\nStudents per Class\n\nActive student count in your authorized classes\n\nPrimary 1\nPrimary 2\n0\n1\n2\n3\n4"
+    }
+  ]
+}

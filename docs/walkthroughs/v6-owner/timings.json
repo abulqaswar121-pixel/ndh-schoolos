@@ -1,0 +1,50 @@
+{
+  "durationSec": 154.791667,
+  "scenes": [
+    {
+      "id": "01",
+      "startSec": 0,
+      "durationSec": 17.041666666666668
+    },
+    {
+      "id": "02",
+      "startSec": 17.041667,
+      "durationSec": 15.791666666666666
+    },
+    {
+      "id": "03",
+      "startSec": 32.833333,
+      "durationSec": 22.791666666666668
+    },
+    {
+      "id": "04",
+      "startSec": 55.625,
+      "durationSec": 16.541666666666668
+    },
+    {
+      "id": "05",
+      "startSec": 72.166667,
+      "durationSec": 17.375
+    },
+    {
+      "id": "06",
+      "startSec": 89.541667,
+      "durationSec": 15.25
+    },
+    {
+      "id": "07",
+      "startSec": 104.791667,
+      "durationSec": 8.541666666666666
+    },
+    {
+      "id": "08",
+      "startSec": 113.333333,
+      "durationSec": 19.166666666666668
+    },
+    {
+      "id": "09",
+      "startSec": 132.5,
+      "durationSec": 22.291666666666668
+    }
+  ]
+}

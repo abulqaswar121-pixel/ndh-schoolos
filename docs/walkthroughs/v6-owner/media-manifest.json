@@ -1,0 +1,83 @@
+{
+  "status": "owner-screen-release",
+  "format": "Actual application screen captures with fictional local demo data; not live authentication or deployment verification",
+  "durationSec": 154.791667,
+  "fullDecodeVerified": true,
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-owner-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-owner-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-owner-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-owner-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "Homepage → Register",
+      "startSec": 0
+    },
+    {
+      "label": "School details",
+      "startSec": 17.041667
+    },
+    {
+      "label": "Owner account & classes",
+      "startSec": 32.833333
+    },
+    {
+      "label": "Sign in & dashboard",
+      "startSec": 55.625
+    },
+    {
+      "label": "Settings & school link",
+      "startSec": 72.166667
+    },
+    {
+      "label": "Teaching & support staff",
+      "startSec": 89.541667
+    },
+    {
+      "label": "Optional Quran module",
+      "startSec": 104.791667
+    },
+    {
+      "label": "Real A4 report preview",
+      "startSec": 113.333333
+    },
+    {
+      "label": "School app & offline guidance",
+      "startSec": 132.5
+    }
+  ],
+  "files": {
+    "public/videos/ndh-owner-screen-desktop-v6.mp4": {
+      "bytes": 4155304,
+      "sha256": "131daf95c1c0577fbb938a2509119f0963acc0e417f99560c782f6c6a34e2ed0"
+    },
+    "public/videos/ndh-owner-screen-phone-v6.mp4": {
+      "bytes": 4454542,
+      "sha256": "1578f85df4b5a63a293b4ca8bf529fae770cd99db55143fd1c67ad89e1ce1422"
+    },
+    "public/videos/ndh-owner-screen-v6.en.srt": {
+      "bytes": 3015,
+      "sha256": "cdd4e946608f304d5a55a7d74e536616a4d2789a867ab7cc1248d42e253a660e"
+    },
+    "public/videos/ndh-owner-screen-v6.en.vtt": {
+      "bytes": 3023,
+      "sha256": "ac31bbc27243db5b0cb51a8278979095f0b1e72f8f67fce7e35843fdefcb04b4"
+    },
+    "public/videos/poster-ndh-owner-screen-desktop-v6.jpg": {
+      "bytes": 81049,
+      "sha256": "076cf6caae68ac08494520f681f5ba61680495379f7aec4a1c6c65b5389a01fc"
+    },
+    "public/videos/poster-ndh-owner-screen-phone-v6.jpg": {
+      "bytes": 66844,
+      "sha256": "d450363142d6c351889c48044df663d219e634d44fea51f012cb31b1cde5371c"
+    }
+  },
+  "sourceSha256": "ecf22de8d676be2c8966d4030dc37ee95efccd87bc24711f236f1b1cba4282f5"
+}

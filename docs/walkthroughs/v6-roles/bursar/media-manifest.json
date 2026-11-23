@@ -1,0 +1,75 @@
+{
+  "status": "screen-tutorial-release",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "durationSec": 101.333333,
+  "fullDecodeVerified": true,
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-bursar-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-bursar-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-bursar-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-bursar-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Student balances & debtors",
+      "startSec": 13.833333
+    },
+    {
+      "label": "Official receipt → A4 preview",
+      "startSec": 28.583333
+    },
+    {
+      "label": "Monthly payroll & payslips",
+      "startSec": 43.25
+    },
+    {
+      "label": "Teaching & non-teaching staff",
+      "startSec": 55.875
+    },
+    {
+      "label": "Install school app",
+      "startSec": 69.416667
+    },
+    {
+      "label": "Online payments & sync limits",
+      "startSec": 81.75
+    }
+  ],
+  "files": {
+    "public/videos/ndh-bursar-screen-desktop-v6.mp4": {
+      "bytes": 2719139,
+      "sha256": "448d918a938be88d4daac48951f96f1b4f571741718f4a673c974788a530a08d"
+    },
+    "public/videos/ndh-bursar-screen-phone-v6.mp4": {
+      "bytes": 3049446,
+      "sha256": "aac15385412f8c6d58f6eecce203e1a81f787496cca9e5903d16315f2295c7ba"
+    },
+    "public/videos/ndh-bursar-screen-v6.en.srt": {
+      "bytes": 1986,
+      "sha256": "382d7b75305053a6fb9446bb2da762a235ab7b2ba17160a1a92f2a93ad4391d4"
+    },
+    "public/videos/ndh-bursar-screen-v6.en.vtt": {
+      "bytes": 1994,
+      "sha256": "68dc74e1108a7c300427b6132ad3a2ca8d524412986070e1f579a9589e437461"
+    },
+    "public/videos/poster-ndh-bursar-screen-desktop-v6.jpg": {
+      "bytes": 58632,
+      "sha256": "dc661bf9df304b6026740b162ab6d1166dba1e9630a293bade1df8eb44977ab2"
+    },
+    "public/videos/poster-ndh-bursar-screen-phone-v6.jpg": {
+      "bytes": 44766,
+      "sha256": "26766f3ebb7451449db0feced6c501754ef51060fd797f61573c418771d753b0"
+    }
+  },
+  "sourceSha256": "842110ef93c7569b5fd54568a87113e556e3207cd60933fbf660112fa74bf488"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "label": "School link & sign-in",
+    "startSec": 0
+  },
+  {
+    "label": "Find and filter exam papers",
+    "startSec": 13.625
+  },
+  {
+    "label": "Review → approve → A4 paper",
+    "startSec": 27.041667
+  },
+  {
+    "label": "All-class broadsheets & reports",
+    "startSec": 40.125
+  },
+  {
+    "label": "Install school app",
+    "startSec": 54.125
+  },
+  {
+    "label": "Offline guidance & privacy",
+    "startSec": 65.916667
+  }
+]

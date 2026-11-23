@@ -1,0 +1,75 @@
+{
+  "status": "screen-tutorial-release",
+  "format": "Actual application screen captures with fictional isolated demo records; no live authentication, native installation or reconnect sync verification",
+  "durationSec": 108.5,
+  "fullDecodeVerified": true,
+  "variants": {
+    "phone": {
+      "videoSrc": "/videos/ndh-class-teacher-screen-phone-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-class-teacher-screen-phone-v6.jpg",
+      "aspectRatio": "9 / 16"
+    },
+    "desktop": {
+      "videoSrc": "/videos/ndh-class-teacher-screen-desktop-v6.mp4",
+      "posterSrc": "/videos/poster-ndh-class-teacher-screen-desktop-v6.jpg",
+      "aspectRatio": "16 / 9"
+    }
+  },
+  "chapters": [
+    {
+      "label": "School link & sign-in",
+      "startSec": 0
+    },
+    {
+      "label": "Assigned-class attendance",
+      "startSec": 13.791667
+    },
+    {
+      "label": "One account: class & subjects",
+      "startSec": 27.333333
+    },
+    {
+      "label": "Class broadsheet → A4 report",
+      "startSec": 43.125
+    },
+    {
+      "label": "Optional Tahfeez / Halqah variant",
+      "startSec": 59.041667
+    },
+    {
+      "label": "Install school app",
+      "startSec": 78.125
+    },
+    {
+      "label": "Offline drafts & reconnect",
+      "startSec": 91.333333
+    }
+  ],
+  "files": {
+    "public/videos/ndh-class-teacher-screen-desktop-v6.mp4": {
+      "bytes": 3028905,
+      "sha256": "b274e0f1aae9d39e12a47526568aaf66523879231b8a5706093814060bd4353a"
+    },
+    "public/videos/ndh-class-teacher-screen-phone-v6.mp4": {
+      "bytes": 3356466,
+      "sha256": "ef28cd1eeb06f326efb47ce128bc6ed14fea16242bcee6a3d6a1e2ea8f6d8f1e"
+    },
+    "public/videos/ndh-class-teacher-screen-v6.en.srt": {
+      "bytes": 2000,
+      "sha256": "44af1e9cd81db6e5c84af7297cc451d78efc62ee5ff0e637b9af514be1ad84ba"
+    },
+    "public/videos/ndh-class-teacher-screen-v6.en.vtt": {
+      "bytes": 2008,
+      "sha256": "dda7676d5062b1c09711516f3bb70c807f69be92764220e5b3e37e81d505d3b0"
+    },
+    "public/videos/poster-ndh-class-teacher-screen-desktop-v6.jpg": {
+      "bytes": 59013,
+      "sha256": "58aa04e32049785da67e4732983cace77ecf7e502f6d5e5e6315e637c4ff2611"
+    },
+    "public/videos/poster-ndh-class-teacher-screen-phone-v6.jpg": {
+      "bytes": 46356,
+      "sha256": "bfb1cc5a9af1a504142d831f6a5e139c8113ab78509143df21afaec52b72cbc5"
+    }
+  },
+  "sourceSha256": "990e4856faf64e205db22f65d67071047719d6096d41259c9f671ca354019b2a"
+}

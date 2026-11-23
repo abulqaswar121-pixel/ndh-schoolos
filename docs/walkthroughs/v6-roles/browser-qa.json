@@ -1,0 +1,212 @@
+{
+  "checkedRoles": [
+    {
+      "roleId": "admin",
+      "phone": {
+        "src": "/videos/ndh-owner-screen-phone-v6.mp4",
+        "width": 720,
+        "height": 1280,
+        "duration": 154.813,
+        "error": null,
+        "captions": "showing",
+        "cues": 29
+      },
+      "desktop": {
+        "src": "/videos/ndh-owner-screen-desktop-v6.mp4",
+        "width": 1280,
+        "height": 720,
+        "duration": 154.813,
+        "error": null,
+        "captions": "showing",
+        "cues": 29
+      },
+      "chapterTime": 17.273764,
+      "restoredTime": 17.273764
+    },
+    {
+      "roleId": "exam_officer",
+      "phone": {
+        "src": "/videos/ndh-exam-officer-screen-phone-v6.mp4",
+        "width": 720,
+        "height": 1280,
+        "duration": 85.688,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "desktop": {
+        "src": "/videos/ndh-exam-officer-screen-desktop-v6.mp4",
+        "width": 1280,
+        "height": 720,
+        "duration": 85.688,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "chapterTime": 13.956111,
+      "restoredTime": 13.956111
+    },
+    {
+      "roleId": "class_teacher",
+      "phone": {
+        "src": "/videos/ndh-class-teacher-screen-phone-v6.mp4",
+        "width": 720,
+        "height": 1280,
+        "duration": 108.521333,
+        "error": null,
+        "captions": "showing",
+        "cues": 20
+      },
+      "desktop": {
+        "src": "/videos/ndh-class-teacher-screen-desktop-v6.mp4",
+        "width": 1280,
+        "height": 720,
+        "duration": 108.521333,
+        "error": null,
+        "captions": "showing",
+        "cues": 20
+      },
+      "chapterTime": 14.153658,
+      "restoredTime": 14.153658
+    },
+    {
+      "roleId": "subject_teacher",
+      "phone": {
+        "src": "/videos/ndh-subject-teacher-screen-phone-v6.mp4",
+        "width": 720,
+        "height": 1280,
+        "duration": 89.979667,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "desktop": {
+        "src": "/videos/ndh-subject-teacher-screen-desktop-v6.mp4",
+        "width": 1280,
+        "height": 720,
+        "duration": 89.979667,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "chapterTime": 13.751185,
+      "restoredTime": 13.751185
+    },
+    {
+      "roleId": "bursar",
+      "phone": {
+        "src": "/videos/ndh-bursar-screen-phone-v6.mp4",
+        "width": 720,
+        "height": 1280,
+        "duration": 101.354667,
+        "error": null,
+        "captions": "showing",
+        "cues": 20
+      },
+      "desktop": {
+        "src": "/videos/ndh-bursar-screen-desktop-v6.mp4",
+        "width": 1280,
+        "height": 720,
+        "duration": 101.354667,
+        "error": null,
+        "captions": "showing",
+        "cues": 20
+      },
+      "chapterTime": 14.194499,
+      "restoredTime": 14.194499
+    },
+    {
+      "roleId": "secretary",
+      "phone": {
+        "src": "/videos/ndh-secretary-screen-phone-v6.mp4",
+        "width": 720,
+        "height": 1280,
+        "duration": 85.479667,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "desktop": {
+        "src": "/videos/ndh-secretary-screen-desktop-v6.mp4",
+        "width": 1280,
+        "height": 720,
+        "duration": 85.479667,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "chapterTime": 13.877832,
+      "restoredTime": 13.877832
+    },
+    {
+      "roleId": "parent",
+      "phone": {
+        "src": "/videos/ndh-parent-screen-phone-v6.mp4",
+        "width": 720,
+        "height": 1280,
+        "duration": 86.729667,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "desktop": {
+        "src": "/videos/ndh-parent-screen-desktop-v6.mp4",
+        "width": 1280,
+        "height": 720,
+        "duration": 86.729667,
+        "error": null,
+        "captions": "showing",
+        "cues": 18
+      },
+      "chapterTime": 14.513822,
+      "restoredTime": 14.513822
+    }
+  ],
+  "phone": {
+    "src": "/videos/ndh-owner-screen-phone-v6.mp4",
+    "width": 720,
+    "height": 1280,
+    "duration": 154.813,
+    "error": null,
+    "captions": "showing",
+    "cues": 29
+  },
+  "desktop": {
+    "src": "/videos/ndh-owner-screen-desktop-v6.mp4",
+    "width": 1280,
+    "height": 720,
+    "duration": 154.813,
+    "error": null,
+    "captions": "showing",
+    "cues": 29
+  },
+  "preserved": {
+    "time": 76,
+    "paused": true,
+    "muted": true,
+    "rate": 1.25,
+    "volume": 0.4
+  },
+  "errors": [],
+  "mobileOverflow": false,
+  "chapterSeek": {
+    "time": 77.335034,
+    "error": null
+  },
+  "allObservedMp4Requests": [
+    "/videos/ndh-owner-screen-phone-v6.mp4",
+    "/videos/ndh-owner-screen-desktop-v6.mp4",
+    "/videos/ndh-exam-officer-screen-phone-v6.mp4",
+    "/videos/ndh-exam-officer-screen-desktop-v6.mp4",
+    "/videos/ndh-class-teacher-screen-phone-v6.mp4",
+    "/videos/ndh-class-teacher-screen-desktop-v6.mp4",
+    "/videos/ndh-subject-teacher-screen-phone-v6.mp4",
+    "/videos/ndh-subject-teacher-screen-desktop-v6.mp4",
+    "/videos/ndh-bursar-screen-phone-v6.mp4",
+    "/videos/ndh-bursar-screen-desktop-v6.mp4",
+    "/videos/ndh-secretary-screen-phone-v6.mp4",
+    "/videos/ndh-secretary-screen-desktop-v6.mp4",
+    "/videos/ndh-parent-screen-phone-v6.mp4",
+    "/videos/ndh-parent-screen-desktop-v6.mp4"
+  ]
+}
